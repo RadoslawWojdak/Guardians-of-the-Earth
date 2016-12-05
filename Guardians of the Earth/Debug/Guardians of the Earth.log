@@ -1,0 +1,4 @@
+﻿  npc.cpp
+c:\users\radosław\desktop\guardians of the earth\guardians of the earth\npc.cpp(147): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Guardians of the Earth.vcxproj -> C:\Users\Radosław\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
+  Guardians of the Earth.vcxproj -> C:\Users\Radosław\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)

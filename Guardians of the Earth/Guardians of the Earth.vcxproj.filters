@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Classes">
+      <UniqueIdentifier>{58c55e3a-0216-4ab2-9eb5-bce9adb6bee3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Classes\cObjectLevel-&gt;">
+      <UniqueIdentifier>{e320da35-ffb9-4374-b6e6-c43501af29e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Classes">
+      <UniqueIdentifier>{f94d1688-efeb-448f-a889-fa0c9717062e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Classes\cObjectLevel-&gt;">
+      <UniqueIdentifier>{9426521f-edd3-4f51-b512-8cc5cb1e3b40}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="global_variables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="block.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="bonusblock.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="ground.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="treasure.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="sector.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="objectlevel.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="npc.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="backgroundobject.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="trampoline.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="water.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="global_variables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="block.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="bonusblock.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="ground.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="treasure.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="objectlevel.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="sector.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="npc.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="backgroundobject.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="trampoline.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="water.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
