@@ -1,0 +1,25 @@
+x - stan istnienia (0 - zawsze istnieje w tym sektorze, 1 - szansa na istnienie w tym sektorze zestawu przedmiotów 1 (je¿eli 1 jest zatwierdzone przez generator poziomu, to wytwarzaj¹ siê wszystkie elementy typu 1 (np. 2 bloczki obok siebie)), 2 - -||-, 3 - -||-, ...)
+niektóre elementy œwiata nie posiadaj¹ ".x" ze wzglêdu na to, ¿e nie musz¹ (lub nie mog¹) pojawiaæ siê sekwencyjnie
+(?) - mo¿e lepiej dodaæ do wszystkiego ".x" - zajmuje to wiêcej miejsca, ale mo¿e siê przydaæ w przysz³ych aktualizacjach, a wtedy elementy nie bêd¹ do siebie pasowaæ
+POMYS£: Je¿eli nie ma ".x" (.0, .1, .2, ...) - automatycznie przyjmuje 0 - zawsze istnieje (zadanie rozwi¹zane :-) + sektory bêd¹ zajmowa³y mniej miejsca w pamiêci
+POMYS£ 2: Napisaæ program, który po³¹czy wszystkie sektory w jeden plik binarny (gra bêdzie siê d³u¿ej wczytywa³a, lecz przeciêtny gracz nie rozszyfruje o co w tym chodzi
+POMYS£ 3: Napisaæ program - edytor sektorów, który u³atwi mi pracê nad sektorami (graficzny + bêdzie wypisywa³ liczbê sektorów pasuj¹cych + bêdzie automatycznie dopisywa³ nowy sektor do pliku + bêdzie wczytywa³ sektory z tego pliku)
+ka¿da komórka sektora to 32x32px. Sektory blokowe (bloki, bonusy, etc.) po³¹czone w wiêkszy kwadrat, bêd¹ mog³y wygenerowaæ w tym miejscu wiêkszy, pojedyñczy bloczek 64x64px
+sektory powinny byæ w miarê w¹skie (aby gracz nie odczuwa³ powtarzalnoœci poziomu), ale nie zbyt w¹skie (aby mapa w miarê dobrze siê prezentowa³a - by³o na niej coœ ciekawszego od nierównego terenu :-P)
+sektory powinny mieæ ustalon¹ jedn¹ wysokoœæ
+POMYS£ 4: Sektory mog¹ nie mieæ ustalonej jednej wysokoœci - wysokoœæ poziomu bêdzie zale¿a³a od najwy¿szego sektora, a mniejsze sektory bêd¹ automatycznie wype³niane u góry zerami (pust¹ przestrzeni¹)
+x jest jeden dla wszystkich, np. 1.1, 2.1 - je¿eli zostanie wylosowany x = 1 jako wartoœæ true, to wszystkie obiekty posiadaj¹ce x = 1 bêd¹ wystêpowaæ na danym sektorze
+ZAPAMIÊTAÆ!!! Je¿eli w poprzednim sektorze, w ostatniej pionowej lini obiekt posiada istniej¹cy parametr x (lub nieistniej¹cy), to przy generowaniu nastêpnego sektora trzeba to uwzglêdniæ!!!
+y - parametr który sprawdza, czy obiekt domyœlnie ma istnieæ czy nie. Domyœlnie 1 - pojawia siê.
+z - obiekt na który jest zamieniany aktualny obiekt. Domyœlnie 0 - pusta przestrzeñ
+Ka¿dy sektor jest przycinany z góry i z prawej strony o ca³¹ pust¹ przestrzeñ (aby sektor zachowa³ swoje rozmiary - musi mieæ na najwy¿szej i na najbardziej po prawej stronie chocia¿ po jednym obiekcie)
+Aby algorytm ³¹czenia sektorów dzia³a³ poprawnie, ka¿dy sektor musi mieæ koniec taki, aby chocia¿ jeden sektor do niego pasowa³
+
+0 - pusta przestrzeñ (dodatkowe parametry .x bêd¹ pomijane, gdy¿ .0 oznacza w³aœnie pust¹ przestrzeñ (inne nie mia³yby ¿adnego sensu))
+1.x.y.z - ziemia
+2.x.y.z - blok
+3.x.y.z - bonusowy bloczek
+4.x.y.z - woda
+//4 - npc (czy istnieje zale¿y od poziomu trudnoœci rozgrywki (nie musz¹ pojawiaæ siê w sekwencji, np. npc 1 i npc 1, gdy¿ w przeciwieñstwie do bloków nie sprawiaj¹, ¿e musz¹ siê pojawiæ))
+5.x.y.z - moneta
+6.x.y.z - trampolina
