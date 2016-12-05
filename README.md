@@ -1,2 +1,2 @@
 # Guardians-of-the-Earth
-Projekt gry platformowej napisanej w języku C++
+Projekt gry platformowej. Program został napisany w języku C++ z użyciem bibliotek SFML i Box2D.
