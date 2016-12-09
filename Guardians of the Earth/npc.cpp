@@ -24,12 +24,12 @@ cNPC::cNPC(b2World *physics_world, unsigned short id, sf::Vector2f pos, eDirecti
 
 	this->body = physics_world->CreateBody(&body_def);
 	this->body->SetActive(false);
-	if (this->features.flying)
+	if (flying)
 		this->body->SetGravityScale(0.0f);
 
 	//GOTO Gdy NPC-y spadn¹ na siebie, to niszczy siê ich poruszanie siê
 	b2PolygonShape shape;	//NPC-y musz¹ byæ wype³nione, gdy¿ pojedyncze krawêdzie nie koliduj¹ ze sob¹ (NPC-y przelatywa³yby przez wszystko co jest stworzone na bazie krawêdzi)
-	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.02f);		//Y zmiejszone o 0.02f - teraz NPC mo¿e przechodziæ w szczelinach o swojej wysokoœci
+	shape.SetAsBox(a / 2.0f, b / 2.0f);
 	
 	b2FixtureDef fd;
 	fd.shape = &shape;
@@ -53,51 +53,17 @@ void cNPC::setFeatures(unsigned short id)
 	{
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
-		this->features.friendly = false;
+		this->friendly = false;
 		
-		this->features.motion = true;
-		this->features.chase = false;
+		this->motion = true;
+		this->chase = false;
 		this->speed = 1.5f;
-		this->features.max_speed = 1.5f;
+		this->max_speed = 1.5f;
 
-		this->features.flying = false;
-		this->features.swimming = false;
-		this->features.jumping = false;
+		this->flying = false;
+		this->swimming = false;
+		this->jumping = false;
 		
-		break;
-	}
-	case 2:
-	{
-		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
-
-		this->features.friendly = false;
-
-		this->features.motion = true;
-		this->features.chase = false;
-		this->speed = 1.5f;
-		this->features.max_speed = 1.5f;
-
-		this->features.flying = false;
-		this->features.swimming = false;
-		this->features.jumping = true;
-
-		break;
-	}
-	case 3:
-	{
-		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
-
-		this->features.friendly = false;
-
-		this->features.motion = true;
-		this->features.chase = false;
-		this->speed = 2.5f;
-		this->features.max_speed = 2.5f;
-
-		this->features.flying = true;
-		this->features.swimming = false;
-		this->features.jumping = false;
-
 		break;
 	}
 	}
@@ -108,20 +74,20 @@ void cNPC::step(sf::FloatRect &view_rect)
 	if (!start && this->getGlobalBounds().intersects(view_rect))
 	{
 		this->body->SetActive(true);
-		this->start = true;
+		start = true;
 		
-		if (this->features.motion)
+		if (this->motion)
 		{
 			if (this->dir == DIR_LEFT)
-				this->speed = -this->features.max_speed;
+				speed = -max_speed;
 			else if (this->dir == DIR_RIGHT)
-				this->speed = this->features.max_speed;
+				speed = max_speed;
 		}
 	}
-	if (this->start && this->features.motion)
+	if (this->start && this->motion)
 	{
 		//Je¿eli NPC ani nie lata, ani nie œciga, to znaczy ¿e ma prêdkoœæ sta³¹ i wystarczy sprawdziæ tylko, czy zosta³a ona w jakikolwiek sposób zmieniona, aby oceniæ, czy NPC w coœ uderzy³
-		if (!this->features.flying && !this->features.chase)
+		if (!this->flying && !this->chase)
 		{
 			//Je¿eli prêdkoœæ pozioma NPC-a siê zmieni³a to znaczy, ¿e musia³ w coœ uderzyæ swoim bokiem, czyli teraz zmienia siê jego prêdkoœæ na odwrotn¹
 			if (this->last_speed.x != this->body->GetLinearVelocity().x)
@@ -131,27 +97,24 @@ void cNPC::step(sf::FloatRect &view_rect)
 		}
 
 		//Je¿eli NPC lata, ale nie œciga postaci graczy, to po jakimœ czasie siê zatrzymuje i leci w drug¹ stronê
-		else if (this->features.flying && !this->features.chase)
+		else if (this->flying && !this->chase)
 		{
 			if (this->dir == DIR_LEFT)
 			{
-				this->speed -= 0.02f;
-				if (this->speed <= -this->features.max_speed)
+				this->speed -= 0.01f;
+				if (this->speed <= -this->max_speed)
 					this->dir = DIR_RIGHT;
 			}
 			else if (this->dir == DIR_RIGHT)
 			{
-				this->speed += 0.02f;
-				if (this->speed >= this->features.max_speed)
+				this->speed += 0.01f;
+				if (this->speed >= this->max_speed)
 					this->dir = DIR_LEFT;
 			}
-
-
-			this->body->SetLinearVelocity(b2Vec2(this->speed, 0));
 		}
 
 		//Je¿eli NPC bêdzie mia³ wczeœniej prêdkoœæ Y mniejsz¹ od zero, a teraz równ¹ zero, to podskoczy
-		if (this->features.jumping)
+		if (this->jumping)
 		{
 			if (this->last_speed.y > 0 && this->body->GetLinearVelocity().y <= 0)
 				this->body->SetLinearVelocity(b2Vec2(body->GetLinearVelocity().x, -7));
@@ -213,9 +176,4 @@ bool cNPC::isSolidCollision(std::vector <cGround> &ground, std::vector <cBlock> 
 b2Body* cNPC::getBody()
 {
 	return this->body;
-}
-
-sFeatures cNPC::getFeatures()
-{
-	return this->features;
 }

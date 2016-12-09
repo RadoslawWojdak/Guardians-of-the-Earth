@@ -12,8 +12,6 @@
 #include "backgroundobject.h"
 #include "trampoline.h"
 #include "water.h"
-#include "powerup.h"
-#include "ladder.h"
 
 class cMap
 {
@@ -34,8 +32,6 @@ class cMap
 	std::vector <cTreasure> treasure;		//WEKTOR KLASY TREASURE
 	std::vector <cBackgroundObject> background_obj;
 	std::vector <cTrampoline> trampoline;
-	std::vector <cPowerUp> power_up;
-	std::vector <cLadder> ladder;
 
 public:
 	cMap(eWorld world);				//Tworzenie mapy za pomoca funkcji generate()
