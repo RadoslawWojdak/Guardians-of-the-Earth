@@ -209,7 +209,7 @@ void cSector::loadSector(std::string path)
 		{
 			for (int j = 0; j < this->width + 1; j++)
 			{
-				if (this->getObject(j, i) != none)		//Jezeli na tej wysokoœci znajduje siê jakiœ obiekt, to poziom ma tê wysokoœæ
+				if (this->getObject(j, i) != OBJECT_NONE)		//Jezeli na tej wysokoœci znajduje siê jakiœ obiekt, to poziom ma tê wysokoœæ
 				{
 					found = true;
 					break;
@@ -229,7 +229,7 @@ void cSector::loadSector(std::string path)
 		{
 			for (int j = 0; j < this->height; j++)
 			{
-				if (this->getObject(i, j) != none)		//Jezeli na tej wysokoœci znajduje siê jakiœ obiekt, to poziom ma tê szerokoœæ
+				if (this->getObject(i, j) != OBJECT_NONE)		//Jezeli na tej wysokoœci znajduje siê jakiœ obiekt, to poziom ma tê szerokoœæ
 				{
 					found = true;
 					break;
@@ -300,7 +300,7 @@ bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
 			object[0][i] = prev_sector.getObject(prev_sector.getWidth() - 1, prev_sector.getHeight() - (objects_count - i));
 		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ)
 		else
-			object[0][i] = none;
+			object[0][i] = OBJECT_NONE;
 	}
 	//Obiekty aktualnego sektora
 	for (int i = objects_count - 1; i >= 0; i--)
@@ -309,7 +309,7 @@ bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
 			object[1][i] = this->getObject(0, this->getHeight() - (objects_count - i));
 		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ)
 		else
-			object[1][i] = none;
+			object[1][i] = OBJECT_NONE;
 	}
 
 	//PÊTLA SPRAWDZANIA DOPASOWANIA SEKTORA
@@ -317,11 +317,11 @@ bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
 	{
 		switch (object[0][i])		//id obiektu znajdujacego sie na ostatniej lini sektora
 		{
-		case ground:
-		case block:
-			if ((object[0][i - 1] == none || object[0][i - 1] == treasure || object[0][i - 1] == bonus_block) && (object[0][i - 2] == none || object[0][i - 2] == treasure || object[0][i - 2] == bonus_block))	//Je¿eli ponad gruntem s¹ conajmniej 2 puste pola
+		case OBJECT_GROUND:
+		case OBJECT_BLOCK:
+			if ((object[0][i - 1] == OBJECT_NONE || object[0][i - 1] == OBJECT_TREASURE || object[0][i - 1] == OBJECT_BONUS_BLOCK || object[0][i - 1] == OBJECT_POWER_UP || object[0][i - 1] == OBJECT_LADDER) && (object[0][i - 2] == OBJECT_NONE || object[0][i - 2] == OBJECT_TREASURE || object[0][i - 2] == OBJECT_BONUS_BLOCK || object[0][i - 2] == OBJECT_POWER_UP || object[0][i - 2] == OBJECT_LADDER))	//Je¿eli ponad gruntem s¹ conajmniej 2 puste pola
 			{
-				if ((((object[1][i] == none || object[1][i] == treasure || object[1][i] == bonus_block) || (object[1][i - 2] == none || object[1][i - 2] == treasure || object[1][i - 2] == bonus_block)) && (object[1][i - 1] == none || object[1][i - 1] == treasure || object[1][i - 1] == bonus_block)) && (object[1][i] == ground || object[1][i] == block || object[1][i + 1] == ground || object[1][i + 1] == block))	//Je¿eli na dwóch polach na równi, o stopieñ wy¿ej lub ni¿ej mo¿na przejœæ, a na równi lub stopieñ ni¿ej jest grunt lub blok, to gracz bêdzie móg³ przejœc
+				if ((((object[1][i] == OBJECT_NONE || object[1][i] == OBJECT_TREASURE || object[1][i] == OBJECT_BONUS_BLOCK || object[1][i] == OBJECT_POWER_UP || object[1][i] == OBJECT_LADDER) || (object[1][i - 2] == OBJECT_NONE || object[1][i - 2] == OBJECT_TREASURE || object[1][i - 2] == OBJECT_BONUS_BLOCK || object[1][i - 2] == OBJECT_POWER_UP || object[1][i - 2] == OBJECT_LADDER)) && (object[1][i - 1] == OBJECT_NONE || object[1][i - 1] == OBJECT_TREASURE || object[1][i - 1] == OBJECT_BONUS_BLOCK || object[1][i - 1] == OBJECT_POWER_UP || object[1][i - 1] == OBJECT_LADDER)) && (object[1][i] == OBJECT_GROUND || object[1][i] == OBJECT_BLOCK || object[1][i + 1] == OBJECT_GROUND || object[1][i + 1] == OBJECT_BLOCK))	//Je¿eli na dwóch polach na równi, o stopieñ wy¿ej lub ni¿ej mo¿na przejœæ, a na równi lub stopieñ ni¿ej jest grunt lub blok, to gracz bêdzie móg³ przejœc
 					return true;
 			}
 			break;
@@ -344,7 +344,7 @@ unsigned short cSector::getHeight()
 eObjType cSector::getObject(unsigned short x, unsigned short y)
 {
 	if ((x >= this->width) || (x < 0) || (y >= this->height) || (y < 0))	//W razie, jezeli zostanie sprawdzone nieistniejace pole w danym sektorze (potrzebne przy generowaniu terenu)
-		return none;
+		return OBJECT_NONE;
 	
 	return *(this->object + x + y*this->width);
 }
@@ -360,5 +360,5 @@ void cSector::clear()
 	this->height = 10;
 	this->object = new eObjType[10];	//wysoki na 10 (wtedy mozna dobierac nowe sektory)
 	for (int i = 0; i < 10; i++)
-		*(this->object + i) = ground;
+		*(this->object + i) = OBJECT_GROUND;
 }

@@ -1,2 +1,0 @@
-Stan istnienia sprawdza, czy w sektorze majπ siÍ pojawiÊ elementy o konkretnym stanie istnienia (dane po kropce)
-AKTUALNIE MOØNA STWORZY∆ TYLKO 9 STAN”W ISTNIENIA - MAM ZAMIAR ZAMIENI∆ TO NA WSKAèNIK

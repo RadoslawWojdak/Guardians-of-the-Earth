@@ -4,10 +4,11 @@ sf::Texture t_block_overworld[2];
 sf::Texture t_bonus_block_overworld[2];
 sf::Texture t_ground[2][47];
 sf::Texture t_treasure[7];
+sf::Texture t_power_up[2];
 sf::Texture t_background[2][2];
 sf::Texture t_background_obj[2][9];
-sf::Texture t_npc[2];
-sf::Texture t_object[3];
+sf::Texture t_npc[3];
+sf::Texture t_object[4];
 
 bool init_graph()
 {
@@ -81,6 +82,21 @@ bool init_graph()
 			return false;
 	}
 
+	//power upy
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\bonuses\\power_up-" + nr + ".png";
+		if (!t_power_up[i].loadFromFile(path))
+			return false;
+	}
+
+
 	//TLO
 	for (unsigned int i = 0; i < 2; i++)
 	{
@@ -130,7 +146,7 @@ bool init_graph()
 	}
 
 	//NPC-Y
-	for (unsigned int i = 0; i < 1; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
@@ -144,7 +160,7 @@ bool init_graph()
 	}
 
 	//OBIEKTY POZIOMU
-	for (unsigned int i = 0; i < 3; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
