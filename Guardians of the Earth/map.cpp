@@ -26,6 +26,9 @@ void cMap::generate()
 	for (int i = 0; i < how_many_sectors[this->world_type]; i++)
 		how_many[i] = 0;
 	
+	//Wektor zmiennych odpowiedzialnych za pozycje spawnów bonusów
+	std::vector <sf::Vector2f> spawn_pu_pos;
+
 	//Pêtla tworzenia terenu
 	clock_t time_map = clock();
 	for (int i = 0; i < 75; i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
@@ -56,12 +59,14 @@ void cMap::generate()
 			{
 				switch (sector.getObject(j, i))
 				{
-				case eObjType::ground:		ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type));	break;
-				case eObjType::block:		block.push_back(cBlock(&(this->physics_world), t_block_overworld[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;
-				case eObjType::bonus_block:	bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block_overworld[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;
-				case eObjType::water:		water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;
-				case eObjType::treasure:	treasure.push_back(cTreasure(&(this->physics_world), sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;
-				case eObjType::trampoline:	trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;
+				case eObjType::OBJECT_GROUND: {ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type));	break;}
+				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block_overworld[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block_overworld[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_WATER: {water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
+				case eObjType::OBJECT_POWER_UP: {spawn_pu_pos.push_back(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down));	break;}
+				case eObjType::OBJECT_LADDER: {ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
 				}
 			}
 		//Zwiêkszanie szerokoœci poziomu
@@ -77,14 +82,22 @@ void cMap::generate()
 	
 	clock_t time_adjust = clock();
 	//Dostosowywanie obiektów mapy do ustawieñ mapy
-	for (int i = 0; i < ground.size(); i++)
-		ground[i].adjustObjectToLevel(this->height);
-	for (int i = 0; i < block.size(); i++)
-		block[i].adjustObjectToLevel(this->height);
-	for (int i = 0; i < bonus_block.size(); i++)
-		bonus_block[i].adjustObjectToLevel(this->height);
-	for (int i = 0; i < treasure.size(); i++)
-		treasure[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < ground.size(); i++)
+		this->ground[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < water.size(); i++)
+		this->water[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < block.size(); i++)
+		this->block[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < bonus_block.size(); i++)
+		this->bonus_block[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < treasure.size(); i++)
+		this->treasure[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < trampoline.size(); i++)
+		this->trampoline[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < ladder.size(); i++)
+		this->ladder[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < spawn_pu_pos.size(); i++)		//Ta sama zasada dzia³ania, co w przypadku poprzednich pêtli
+		spawn_pu_pos[i] = sf::Vector2f(spawn_pu_pos[i].x, spawn_pu_pos[i].y + this->height - g_height);
 	time_adjust = clock() - time_adjust;
 
 	//Algorytm wzajemnej grafiki gruntu (postawiony na samym koñcu - po wszystkich dzia³aniach na gruncie)
@@ -98,32 +111,85 @@ void cMap::generate()
 	time_graph = clock() - time_graph;
 
 	
-	//GENERATOR POZIOMU (T£O I NPC)
+	//GENERATOR POZIOMU (POWER-UP'Y, T£O I NPC)
+	//Iloœc power-up'ów, które maj¹ siê pojawiæ w poziomie
+	short pu_count = rand() % 3 + 2;
+	//Je¿eli iloœæ power-up'ów jest wiêksza od iloœci miejsc spawnów power-up'ów, to iloœæ power-up'ów jest równa iloœci miejsc spawnu power-up'ów (pojawi¹ siê na ka¿dym spawnie)
+	if (spawn_pu_pos.size() < pu_count)
+		pu_count = spawn_pu_pos.size();
+	//Pêtla tworzenia power-up'ów
+	clock_t time_pu = clock();
+	for (int i = 0; i < pu_count; i++)
+	{
+		unsigned short spawn = rand() % spawn_pu_pos.size();
+		this->power_up.push_back(spawn_pu_pos[spawn]);
+		spawn_pu_pos.erase(spawn_pu_pos.begin() + spawn);
+	}
+	time_pu = clock() - time_pu;
+
+
 	//Pêtla tworzenia NPC-ów
 	clock_t time_npc = clock();
 	for (int i = 0; i < 50; i++)
 	{
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), rand() % 1 + 1, this->randomPosition(), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(&(this->physics_world), rand() % 3 + 1, this->randomPosition(), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
-		//Sprawdzanie, czy NPC nie utkn¹³ w jakimœ sztywnym obiekcie
 		bool end = false;	//Nie przydzielono pozycji
-		while (!end)
+
+		//Dla NPC-ów poruszaj¹cych siê po sztywnych obiektach
+		if (!temp_npc.getFeatures().flying)
 		{
-			temp_npc.setAllPositions(this->randomPosition());
-			
-			//Je¿eli NPC nie jest zakopany w sztywnym obiekcie
-			if (!temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))
+			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
+			while (!end)
 			{
-				temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y + 32));
-				//temp_npc.move(0, 32);
-				//Je¿eli pod NPC-em znajduje siê sztywny obiekt (W przypadku NPC-ów chodz¹cych)
-				if (temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))
+				temp_npc.setAllPositions(this->randomPosition());
+
+				//Je¿eli NPC nie jest zakopany w sztywnym obiekcie
+				if (!temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))
 				{
-					//exit(0);
-					temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y - 32));
-					//temp_npc.move(0, -32);
-					end = true;
+					temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y + 32));
+
+					//Je¿eli pod NPC-em znajduje siê sztywny obiekt (W przypadku NPC-ów chodz¹cych)
+					if (temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))
+					{
+						temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y - 32));
+						end = true;
+					}
+				}
+			}
+		}
+		//Dla lataj¹cych NPC-ów
+		else
+		{
+			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê odpowiednio wysoko nad powierzchni¹ sztywnego obiektu
+			while (!end)
+			{
+				temp_npc.setAllPositions(this->randomPosition());
+				sf::Vector2f main_pos = temp_npc.getPosition();		//G³ówna pozycja - pozycja pocz¹tkowa NPC-a
+
+				//Je¿eli NPC nie jest zakopany w sztywnym obiekcie
+				if (!temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))
+				{
+					temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y + 32));
+
+					//Je¿eli pod NPC-em równie¿ nie znajduje siê sztywny obiekt
+					if (!temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))
+					{
+						for (int i = 0; i < 2; i++)		//Pêtla powtarza siê 2 razy - dok³adnie jeszcze tyle razy pod ni¹ mo¿e nie byæ gruntu
+						{
+							temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y + 32));
+							
+							if (temp_npc.isSolidCollision(this->ground, this->block, this->bonus_block, this->npc))	//Je¿eli w tym miejscu znajduje siê sztywny obiekt, to mo¿e nad nim lataæ
+							{
+								temp_npc.setAllPositions(main_pos);
+								end = true;
+
+								break;
+							}
+						}
+						//Je¿eli mimo tylu powtórzeñ pêtli nie znaleziono gruntu, to algorytm wyszukuje now¹ pozycjê
+					}
 				}
 			}
 		}
@@ -132,9 +198,10 @@ void cMap::generate()
 	}
 	time_npc = clock() - time_npc;
 	
+
 	//Pêtla tworzenia obiektów w tle
 	clock_t time_background = clock();
-	for (int i = 0; i < 0; i++)
+	for (int i = 0; i < 75; i++)
 	{
 		eType type;
 		bool end = false;
@@ -250,6 +317,7 @@ void cMap::generate()
 	std::cout << "Czas generowania terenu: " << time_map << "\n";
 	std::cout << "Czas dostosowywania obiektow do terenu: " << time_adjust << "\n";
 	std::cout << "Czas dzialania algorytmu wzajemnej grafiki gruntu: " << time_graph << "\n";
+	std::cout << "Czas rozstawiania power-up'ow na mapie: " << time_pu << "\n";
 	std::cout << "Czas rozstawiania NPC na mapie: " << time_npc << "\n";
 	std::cout << "Czas rozstawiania obiektow w tle na mapie: " << time_background << "\n";
 }
@@ -305,10 +373,14 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 		win.draw(this->bonus_block[i]);
 	for (unsigned int i = 0; i < this->block.size(); i++)
 		win.draw(this->block[i]);
+	for (unsigned int i = 0; i < this->ladder.size(); i++)
+		win.draw(this->ladder[i]);
 	for (unsigned int i = 0; i < this->trampoline.size(); i++)
 		win.draw(this->trampoline[i]);
 	for (unsigned int i = 0; i < this->treasure.size(); i++)
 		win.draw(this->treasure[i]);
+	for (unsigned int i = 0; i < this->power_up.size(); i++)
+		win.draw(this->power_up[i]);
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
 }

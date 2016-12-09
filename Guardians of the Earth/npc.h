@@ -10,6 +10,19 @@
 #include "block.h"
 #include "bonusblock.h"
 
+struct sFeatures
+{
+	bool friendly;		//Czy NPC bêdzie zaprzyjaŸniony z postaciami gracza? (nie bêdzie ich rani³, ani one jego)
+
+	bool motion;		//Czy NPC bêdzie siê poruszaæ?
+	bool chase;			//Czy NPC bêdzie goni³ postacie graczy?
+	float max_speed;	//Maksymalna prêdkoœæ NPC (w przypadku chase prêdkoœæ nie jest sta³a)
+
+	bool flying;		//Czy NPC bêdzie móg³ lataæ?
+	bool swimming;		//Czy NPC bêdzie móg³ p³ywaæ?
+	bool jumping;		//Czy NPC bêdzie podskakiwaæ?
+};
+
 class cNPC :public cObjectLevel
 {
 	unsigned short id;	//ID NPC-A (NUMER DO£¥CZONY DO NPC-A - W NAZWIE PLIKU)
@@ -20,17 +33,11 @@ class cNPC :public cObjectLevel
 	b2Body *body;
 	
 	//CECHY NPC-ÓW
-	bool friendly;		//Czy NPC bêdzie zaprzyjaŸniony z postaciami gracza? (nie bêdzie ich rani³, ani one jego)
-	
-	bool motion;		//Czy NPC bêdzie siê poruszaæ?
-	bool chase;			//Czy NPC bêdzie goni³ postacie graczy?
+	sFeatures features;
+
 	float speed;		//Prêdkoœæ NPC
-	float max_speed;	//Maksymalna prêdkoœæ NPC (w przypadku chase prêdkoœæ nie jest sta³a)
 	b2Vec2 last_speed;	//Poprzednia prêdkoœæ NPC (pionowa i pozioma)
 
-	bool flying;		//Czy NPC bêdzie móg³ lataæ?
-	bool swimming;		//Czy NPC bêdzie móg³ p³ywaæ?
-	bool jumping;		//Czy NPC bêdzie podskakiwaæ?
 	
 	void setFeatures(unsigned short id);
 
@@ -47,6 +54,7 @@ public:
 	bool isSolidCollision(std::vector <cGround> &ground, std::vector <cBlock> &block, std::vector <cBonusBlock> &bonus_block, std::vector <cNPC> &npc);	//Sprawdzanie czy NPC koliduje z jakimœ cia³em sztywnym (gruntem, blokiem, bonusowym blokiem, innym NPC, ...)
 
 	b2Body* getBody();
+	sFeatures getFeatures();
 };
 
 #endif //!npc_h

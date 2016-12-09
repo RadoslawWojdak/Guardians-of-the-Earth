@@ -39,13 +39,15 @@ enum eWorld
 
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...
 {
-	none = 0,
-	ground = 1,
-	block = 2,
-	bonus_block = 3,
-	water = 4,
-	treasure = 5,
-	trampoline = 6
+	OBJECT_NONE = 0,
+	OBJECT_GROUND = 1,
+	OBJECT_BLOCK = 2,
+	OBJECT_BONUS_BLOCK = 3,
+	OBJECT_WATER = 4,
+	OBJECT_TREASURE = 5,
+	OBJECT_TRAMPOLINE = 6,
+	OBJECT_POWER_UP = 7,
+	OBJECT_LADDER = 8
 };
 
 enum eTreasure
