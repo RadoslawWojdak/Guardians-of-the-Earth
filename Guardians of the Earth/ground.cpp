@@ -74,11 +74,11 @@ cGround::cGround(sf::Vector2f pos, eWorld world)
 	}
 }*/
 
-void cGround::graphicsCustomize(sf::Vector2u map_size, std::vector <cGround> &ground)
+void cGround::graphicsCustomize(sf::Vector2u map_size, bool *ground_exists, sf::Vector2i grid_size)
 {
 	//Pozycja ziemii
 	int x = getPosition().x / 32;
-	int y = getPosition().y / 32;
+	int y = getPosition().y / 32 - 1;
 
 	//Bool - czy z tej strony bloku znajduje sie inny blok
 	/*
@@ -89,7 +89,127 @@ void cGround::graphicsCustomize(sf::Vector2u map_size, std::vector <cGround> &gr
 	bool exists[8] = {};
 
 	//Dostosowywanie grafiki bloku do reszty bloków
-	for (int i = 0; i < ground.size(); i++)
+	
+	//DOSTOSOWYWANIE ZE WZGLÊDU NA KONIEC POZIOMU
+	if (x == 0)
+	{
+		exists[0] = true;
+		exists[3] = true;
+		exists[5] = true;
+	}
+	else if (x == grid_size.x - 1)
+	{
+		exists[2] = true;
+		exists[4] = true;
+		exists[7] = true;
+	}
+	if (y == 0)
+	{
+		exists[0] = true;
+		exists[1] = true;
+		exists[2] = true;
+	}
+	else if (y == grid_size.y - 1)
+	{
+		exists[5] = true;
+		exists[6] = true;
+		exists[7] = true;
+	}
+	//!DOSTOSOWYWANIE ZE WZGLÊDU NA KONIEC POZIOMU
+
+	//DOSTOSOWYWANIE ZE WZGLÊDU NA INNE GRUNTY
+	if (x != 0 && y != 0 && ground_exists[(y - 1) * grid_size.x + x - 1])	//GÓRA-LEWO
+		exists[0] = true;
+	if (y != 0 && ground_exists[(y - 1) * grid_size.x + x])	//GÓRA
+		exists[1] = true;
+	if (x != grid_size.x - 1 && y != 0 && ground_exists[(y - 1) * grid_size.x + x + 1])	//GÓRA-PRAWO
+		exists[2] = true;
+	if (x != 0 && ground_exists[y * grid_size.x + x - 1])	//LEWO
+		exists[3] = true;
+	if (x != grid_size.x - 1 && ground_exists[y * grid_size.x + x + 1])	//PRAWO
+		exists[4] = true;
+	if (x != 0 && y != grid_size.y - 1 && ground_exists[(y + 1) * grid_size.x + x - 1])	//DÓ£-LEWOO
+		exists[5] = true;
+	if (y != grid_size.y - 1 && ground_exists[(y + 1) * grid_size.x + x])	//DÓ£
+		exists[6] = true;
+	if (x != grid_size.x + 1 && y != grid_size.y + 1 && ground_exists[(y + 1) * grid_size.x + x + 1])	//GÓRA
+		exists[7] = true;
+	//!DOSTOSOWYWANIE ZE WZGLÊDU NA INNE GRUNTY
+	/*{
+		if (ground_exists[y * grid_size.x + x - 1])	//Lewo
+			exists[3] = true;
+	}
+	else
+		exists[3] = true;
+
+
+
+	if (x > 0)	//Je¿eli po lewej stronie mog¹ znajdowaæ siê grunty
+	{
+		if (ground_exists[y * grid_size.x + x - 1])	//Lewo
+			exists[3] = true;
+
+		if (y > 0)	//Je¿eli ponad gruntem mog¹ znajdowaæ siê grunty
+		{
+			if (ground_exists[(y - 1) * grid_size.x + x - 1])	//Lewo-Góra
+				exists[0] = true;
+		}
+		else	//Je¿eli powy¿ej jest koniec poziomu
+			exists[0] = true;
+
+		if (y < grid_size.y - 1)	//Je¿eli poni¿ej gruntu mog¹ znajdowaæ siê grunty
+		{
+			if (ground_exists[(y + 1) * grid_size.x + x - 1])	//Lewo-Dó³
+				exists[5] = true;
+		}
+		else	//Je¿eli poni¿ej jest koniec poziomu
+			exists[5];
+	}
+	else	//Je¿eli po lewej stronie jest koniec poziomu
+		exists[3] = true;
+
+	if (x < grid_size.x - 1)	//Je¿eli po prawej stronie mog¹ znajdowaæ siê grunty
+	{
+		if (ground_exists[y * grid_size.x + x + 1])	//Prawo
+			exists[4] = true;
+
+		if (y > 0)	//Je¿eli ponad gruntem mog¹ znajdowaæ siê grunty
+		{
+			if (ground_exists[(y - 1) * grid_size.x + x + 1])	//Prawo-Góra
+				exists[2] = true;
+		}
+		else	//Je¿eli powy¿ej jest koniec poziomu
+			exists[2] = true;
+
+		if (y < grid_size.y - 1)	//Je¿eli poni¿ej gruntu mog¹ znajdowaæ siê grunty
+		{
+			if (ground_exists[(y + 1) * grid_size.x + x + 1])	//Prawo-Dó³
+				exists[7] = true;
+		}
+		else	//Je¿eli poni¿ej jest koniec poziomu
+			exists[7];
+	}
+	else	//Je¿eli po prawej stronie jest koniec poziomu
+		exists[4] = true;
+
+	if (y > 0)	//Je¿eli powy¿ej mog¹ znajdowaæ siê grunty
+	{
+		if (ground_exists[(y - 1) * grid_size.x + x])	//Góra
+			exists[1] = true;
+	}
+	else	//Je¿eli powy¿ej jest koniec poziomu
+		exists[1] = true;
+
+	if (y < grid_size.y + 1)	//Je¿eli poni¿ej mog¹ znajdowaæ siê grunty
+	{
+		if (ground_exists[(y + 1) * grid_size.x + x])
+			exists[6] = true;
+	}
+	else	//Je¿eli poni¿ej jest koniec poziomu
+		exists[6] = true;*/
+
+
+	/*for (int i = 0; i < ground.size(); i++)
 	{
 		int x2 = ground[i].getPosition().x / 32;
 		int y2 = ground[i].getPosition().y / 32;
@@ -136,7 +256,7 @@ void cGround::graphicsCustomize(sf::Vector2u map_size, std::vector <cGround> &gr
 			exists[6] = true;
 			exists[7] = true;
 		}
-	}
+	}*/
 
 
 	setTexture(t_ground[this->world_type][5]);		//Bez krawêdzi - domyœlny

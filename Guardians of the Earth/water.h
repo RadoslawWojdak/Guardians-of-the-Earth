@@ -21,7 +21,7 @@ public:
 	cWater();		//Przeznaczony tylko do groundsInit
 	cWater(sf::Texture &texture, sf::Vector2f pos);
 
-	void graphicsCustomize(sf::Vector2u map_size, std::vector <cWater> &water);
+	void graphicsCustomize(sf::Vector2u map_size, bool *water_exists, sf::Vector2i grid_size);
 
 	void resetMainParameters(b2World *physics_world);	//Resetowanie parametrów nale¿¹cych do wszystkich gruntów (statycznych)
 };

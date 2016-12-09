@@ -26,21 +26,21 @@ sf::Texture* cBackgroundObject::randomGraphics(sf::Vector2f pos)
 			short up_height = rand() % 2 + 1;	//Wysokoœæ korony drzewa
 			this->extra_count = height;			//Wysokoœæ pnia drzewa - 1 + korona drzewa
 
-			this->extra_sprite = new sf::Sprite[height];	//Wysokoœæ pnia drzewa - 1 + korona drzewa
+			this->extra_sprite = new cObjectLevel[height];	//Wysokoœæ pnia drzewa - 1 + korona drzewa
 
 			//Tworzenie reszty pnia drzewa
 			for (int i = 0; i < height - 1; i++)
 			{
-				this->extra_sprite[i] = sf::Sprite(t_background_obj[0][0]);
+				this->extra_sprite[i] = cObjectLevel(t_background_obj[0][0]);
 				this->extra_sprite[i].setOrigin(this->extra_sprite[i].getTextureRect().width / 2, this->extra_sprite[i].getTextureRect().height / 2);
 				this->extra_sprite[i].setPosition(pos.x, pos.y - ((i + 1) * 32));
 			}
 
 			//Tworzenie korony drzewa
 			if (up_height == 1)
-				this->extra_sprite[height - 1] = sf::Sprite(t_background_obj[0][1]);
+				this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[0][1]);
 			else
-				this->extra_sprite[height - 1] = sf::Sprite(t_background_obj[0][2]);
+				this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[0][2]);
 
 			this->extra_sprite[height - 1].setOrigin(this->extra_sprite[height - 1].getTextureRect().width / 2, this->extra_sprite[height - 1].getTextureRect().height / 2);
 			this->extra_sprite[height - 1].setPosition(pos.x, pos.y - ((height - 1) * up_height * 32));
@@ -101,34 +101,44 @@ void cBackgroundObject::drawAllGraphics(sf::RenderWindow &win)
 		win.draw(this->extra_sprite[i]);
 }
 
-bool cBackgroundObject::isGroundCollision(std::vector <cGround> &ground)
+bool cBackgroundObject::isGroundCollision(bool *ground_exists, sf::Vector2i grid_size)
 {
-	for (unsigned int i = 0; i < ground.size(); i++)
+	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));	//Pozycja obiektu na siatce (w którym kwadracie siatki znajduje siê obiekt)
+	
+	//Czy wysz³o poza zakres? (poza ramy poziomu)
+	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
+		return false;
+	//Sprawdzanie g³ównej czêœci grafiki
+	if (ground_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+		return true;
+	//Sprawdzanie grafik dodatkowych
+	for (unsigned short i = 0; i < this->extra_count; i++)
 	{
-		//Kolizja z g³ówn¹ grafik¹
-		if (ground[i].getGlobalBounds().intersects(this->getGlobalBounds()))
+		pos_on_grid = this->extra_sprite[i].posOnGrid(sf::Vector2i(32, 32));
+		if (ground_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
 			return true;
-		//Kolizja z dodatkowymi grafikami
-		for (short j = 0; j < this->extra_count; j++)
-			if (ground[i].getGlobalBounds().intersects(this->extra_sprite[j].getGlobalBounds()))
-				return true;
 	}
 
 	return false;
 }
 
-bool cBackgroundObject::isWaterCollision(std::vector <cWater> &water)
+bool cBackgroundObject::isWaterCollision(bool *water_exists, sf::Vector2i grid_size)
 {
-	for (unsigned int i = 0; i < water.size(); i++)
+	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));	//Pozycja obiektu na siatce (w którym kwadracie siatki znajduje siê obiekt)
+	
+	//Czy wysz³o poza zakres? (poza ramy poziomu)
+	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
+		return false;
+	//Sprawdzanie g³ównej czêœci grafiki
+	if (water_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+		return true;
+	//Sprawdzanie grafik dodatkowych
+	for (unsigned short i = 0; i < this->extra_count; i++)
 	{
-		//Kolizja z g³ówn¹ grafik¹
-		if (water[i].getGlobalBounds().intersects(this->getGlobalBounds()))
+		pos_on_grid = this->extra_sprite[i].posOnGrid(sf::Vector2i(32, 32));
+		if (water_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
 			return true;
-		//Kolizja z dodatkowymi grafikami
-		for (short j = 0; j < this->extra_count; j++)
-			if (water[i].getGlobalBounds().intersects(this->extra_sprite[j].getGlobalBounds()))
-				return true;
 	}
-
+	
 	return false;
 }

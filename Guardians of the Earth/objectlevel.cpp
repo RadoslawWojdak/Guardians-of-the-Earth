@@ -1,5 +1,16 @@
 #include "objectlevel.h"
 
+cObjectLevel::cObjectLevel()
+{
+	;
+}
+
+cObjectLevel::cObjectLevel(sf::Texture &texture) 
+	: sf::Sprite(texture)
+{
+	;
+}
+
 void cObjectLevel::adjustGraphicsParameters(sf::Texture &texture, sf::Vector2f pos)
 {
 	this->setTexture(texture);
@@ -16,6 +27,7 @@ void cObjectLevel::adjustGraphicsParameters(sf::Texture &texture, sf::Vector2f p
 	this->setPosition(pos);
 }
 
+//UWAGA!!! Je¿eli coœ tutaj zmienisz, nie zapomnij zmieniæ równie¿ w map.cpp przy pêtli spawn_pu_pos!
 void cObjectLevel::adjustObjectToLevel(unsigned int map_height)
 {
 	this->setPosition(sf::Vector2f(this->getPosition().x, this->getPosition().y + map_height - g_height));
@@ -27,3 +39,13 @@ bool cObjectLevel::isInView(sf::View &view)
 		return true;
 	return false;
 }*/
+
+sf::Vector2i cObjectLevel::posOnGrid(sf::Vector2i grid_rect_size)
+{
+	sf::Vector2i pos;
+
+	pos.x = (this->getPosition().x) / 32;// +(this->getLocalBounds().width > 32 ? 1 : 0);
+	pos.y = (this->getPosition().y - 32) / 32;// +(this->getLocalBounds().height > 32 ? 1 : 0);
+
+	return pos;
+}

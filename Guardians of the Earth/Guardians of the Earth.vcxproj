@@ -114,7 +114,9 @@
     <ClCompile Include="backgroundobject.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bonusblock.cpp" />
+    <ClCompile Include="ladder.cpp" />
     <ClCompile Include="npc.cpp" />
+    <ClCompile Include="powerup.cpp" />
     <ClCompile Include="trampoline.cpp" />
     <ClCompile Include="treasure.cpp" />
     <ClCompile Include="global_variables.cpp" />
@@ -134,7 +136,9 @@
     <ClInclude Include="block.h" />
     <ClInclude Include="bonusblock.h" />
     <ClInclude Include="enums.h" />
+    <ClInclude Include="ladder.h" />
     <ClInclude Include="npc.h" />
+    <ClInclude Include="powerup.h" />
     <ClInclude Include="trampoline.h" />
     <ClInclude Include="treasure.h" />
     <ClInclude Include="global_variables.h" />

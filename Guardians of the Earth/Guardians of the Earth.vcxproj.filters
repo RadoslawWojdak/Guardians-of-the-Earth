@@ -69,6 +69,12 @@
     <ClCompile Include="water.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="powerup.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="ladder.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -114,6 +120,12 @@
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
     <ClInclude Include="water.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="powerup.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="ladder.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
   </ItemGroup>

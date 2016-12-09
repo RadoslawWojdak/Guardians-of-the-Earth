@@ -36,17 +36,20 @@ cWater::cWater(sf::Texture &texture, sf::Vector2f pos)
 	this->water_id++;
 }
 
-void cWater::graphicsCustomize(sf::Vector2u map_size, std::vector <cWater> &water)
+void cWater::graphicsCustomize(sf::Vector2u map_size, bool *water_exists, sf::Vector2i grid_size)
 {
 	//Pozycja wody
 	int x = getPosition().x / 32;
-	int y = getPosition().y / 32;
+	int y = getPosition().y / 32 - 1;
 
 	//Czy ponad wod¹ istnieje inna woda?
 	bool exists = false;
 
 	//Dostosowywanie grafiki wody do pozosta³ej wody
-	for (int i = 0; i < water.size(); i++)
+	if (y == 0 || water_exists[(y - 1) * grid_size.x + x])	//GÓRA
+		exists = true;
+
+	/*for (int i = 0; i < water.size(); i++)
 	{
 		//Pozycja aktualnie sprawdzanej wody
 		int x2 = water[i].getPosition().x / 32;
@@ -57,7 +60,7 @@ void cWater::graphicsCustomize(sf::Vector2u map_size, std::vector <cWater> &wate
 			exists = true;
 			break;
 		}
-	}
+	}*/
 
 	if (exists)
 		this->setTexture(t_object[1]);	//Woda pod innymi wodami
