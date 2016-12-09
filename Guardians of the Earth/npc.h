@@ -6,9 +6,6 @@
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"
-#include "ground.h"
-#include "block.h"
-#include "bonusblock.h"
 
 struct sFeatures
 {
@@ -51,7 +48,7 @@ public:
 	void moveAllPositions(sf::Vector2f pos);
 
 	//U¯YWAÆ TYLKO PRZY GENEROWANIU MAPY!
-	bool isSolidCollision(std::vector <cGround> &ground, std::vector <cBlock> &block, std::vector <cBonusBlock> &bonus_block, std::vector <cNPC> &npc);	//Sprawdzanie czy NPC koliduje z jakimœ cia³em sztywnym (gruntem, blokiem, bonusowym blokiem, innym NPC, ...)
+	bool isSolidCollision(bool *solid_object, bool *npc_exists, sf::Vector2i grid_size);	//Sprawdzanie czy NPC koliduje z jakimœ cia³em sztywnym (gruntem, blokiem, bonusowym blokiem, innym NPC, ...), grid_size - rozmiary siatki (szerokoœæ i wysokoœæ mapy podzielona przez 32)
 
 	b2Body* getBody();
 	sFeatures getFeatures();

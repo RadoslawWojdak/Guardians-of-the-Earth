@@ -192,21 +192,20 @@ void cNPC::moveAllPositions(sf::Vector2f pos)
 	//this->body->SetTransform(b2Vec2(this->getPosition().x * 0.02f, this->getPosition().y * 0.02f), 0);
 }
 
-bool cNPC::isSolidCollision(std::vector <cGround> &ground, std::vector <cBlock> &block, std::vector <cBonusBlock> &bonus_block, std::vector <cNPC> &npc)
+bool cNPC::isSolidCollision(bool *solid_object, bool *npc_exists, sf::Vector2i grid_size)
 {
-	for (unsigned int i = 0; i < ground.size(); i++)
-		if (ground[i].getGlobalBounds().intersects(this->getGlobalBounds()))
-			return true;
-	for (unsigned int i = 0; i < block.size(); i++)
-		if (block[i].getGlobalBounds().intersects(this->getGlobalBounds()))
-			return true;
-	for (unsigned int i = 0; i < bonus_block.size(); i++)
-		if (bonus_block[i].getGlobalBounds().intersects(this->getGlobalBounds()))
-			return true;
-	for (unsigned int i = 0; i < npc.size(); i++)
-		if (npc[i].getGlobalBounds().intersects(this->getGlobalBounds()))
-			return true;
-	
+	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));//((this->getPosition().x - 32) / 32, (this->getPosition().y - 32) / 32);
+
+	//Czy wysz³o poza zakres? (poza ramy poziomu)
+	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
+		return false;
+	//Sztywne obiekty
+	if (solid_object[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+		return true;
+	//NPC-y
+	if (npc_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+		return true;
+
 	return false;
 }
 
