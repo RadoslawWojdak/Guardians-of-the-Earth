@@ -31,7 +31,7 @@ class cSector
 public:
 	void loadRandomSector(eWorld type, std::string &id);	//Losowanie jednego z sektorów danego typu i wczytanie go z pliku
 	void loadSector(std::string path);		//Wczytywanie sektora z pliku
-	bool isSectorFitted(cSector &prev_sector, unsigned int level_height);	//Sprawdzanie, czy sektor pasuje do poprzedniego
+	bool isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned int level_height);	//Sprawdzanie, czy sektor pasuje do poprzedniego
 
 	unsigned short getWidth();
 	unsigned short getHeight();

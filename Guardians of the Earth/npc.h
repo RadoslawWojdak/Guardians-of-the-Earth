@@ -34,6 +34,7 @@ class cNPC :public cObjectLevel
 
 	float speed;		//Prêdkoœæ NPC
 	b2Vec2 last_speed;	//Poprzednia prêdkoœæ NPC (pionowa i pozioma)
+	sf::Vector2f last_position;
 
 	
 	void setFeatures(unsigned short id);

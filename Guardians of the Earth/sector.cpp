@@ -283,7 +283,7 @@ void cSector::loadSector(std::string path)
 	}
 }
 
-bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
+bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned int level_height)
 {
 	//LISTA OBIEKTÓW (OD GÓRY DO DO£U POZIOMU) PRAWEGO KOÑCA LEWEGO SEKTORA I LEWEGO KOÑCA PRAWEGO SEKTORA!!!
 	//iloœæ obiektów - zale¿na od wysokoœci poziomu
@@ -298,16 +298,23 @@ bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
 	{
 		if (prev_sector.getHeight() - (objects_count - i) >= 0)
 			object[0][i] = prev_sector.getObject(prev_sector.getWidth() - 1, prev_sector.getHeight() - (objects_count - i));
-		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ)
+		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ), lub gruntem (w przypadku œwiata podziemnego)
 		else
-			object[0][i] = OBJECT_NONE;
+		{
+			if (world_type == WORLD_UNDERGROUND)
+				object[0][i] = OBJECT_GROUND;
+			else
+				object[0][i] = OBJECT_NONE;
+		}
 	}
 	//Obiekty aktualnego sektora
 	for (int i = objects_count - 1; i >= 0; i--)
 	{
 		if (this->getHeight() - (objects_count - i) >= 0)
 			object[1][i] = this->getObject(0, this->getHeight() - (objects_count - i));
-		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ)
+		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ) lub gruntem (w przypadku œwiata podziemnego)
+		else if (world_type == WORLD_UNDERGROUND)
+			object[1][i] = OBJECT_GROUND;
 		else
 			object[1][i] = OBJECT_NONE;
 	}

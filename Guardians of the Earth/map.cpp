@@ -15,7 +15,7 @@ void cMap::generate()
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
-		background[i].setTexture(t_background[this->world_type][0]);
+		background[i].setTexture(t_background[this->world_type]);
 
 	//Utworzenie zmiennej sektor
 	cSector sector;
@@ -41,13 +41,24 @@ void cMap::generate()
 			sector.loadRandomSector(this->world_type, sector_id);
 			if (i == 0)	//Pierwszy sektor zawsze pasuje
 				break;
-		} while (!sector.isSectorFitted(this->prev_sector, this->getHeight()));
+		} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
+
 		int s_id = atoi((char*)sector_id.c_str());
 		std::cout << s_id << "\n";
 		how_many[s_id - 1]++;
 
 		//Przypisanie sektora poprzedniemu sektorowi - dziêki temu mo¿na bêdzie znowu wyszukiwaæ pasuj¹cy sektor
 		this->prev_sector = sector;
+
+		//Dla œwiata podziemnego generator tworzy ponad sektorem warstwy gruntu
+		if (this->world_type == WORLD_UNDERGROUND)
+			for (unsigned int i = 0; i < ceil((float)this->height / 32) - sector.getHeight(); i++)
+				for (unsigned int j = 0; j < sector.getWidth(); j++)
+				{
+					//std::cout << j << ":" << i << "\n";
+					this->ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16), this->world_type));//sector.setObject(j, i, OBJECT_GROUND);
+				}
+		//!Dla œwiata podziemnego generator tworzy ponad sektorem warstwy gruntu
 
 		//Je¿eli sektor jest wy¿szy od aktualnej wysokoœci poziomu, to ca³y poziom staje siê wy¿szy (kamera mo¿e pod¹¿aæ wy¿ej)
 		if (sector.getHeight() * 32 + 64 > this->height)
@@ -60,8 +71,8 @@ void cMap::generate()
 				switch (sector.getObject(j, i))
 				{
 				case eObjType::OBJECT_GROUND: {ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type));	break;}
-				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block_overworld[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block_overworld[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
 				case eObjType::OBJECT_WATER: {water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
 				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
 				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
@@ -69,11 +80,69 @@ void cMap::generate()
 				case eObjType::OBJECT_LADDER: {ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
 				}
 			}
+
 		//Zwiêkszanie szerokoœci poziomu
 		x_generate += sector.getWidth() * 32;
 		this->width = x_generate;
 	}
 	time_map = clock() - time_map;
+	
+
+	//Wyœwietlanie na ekranie jak wiele jest sektorów o danym ID (W celach debugowania)
+	std::cout << "\n\n\n";
+	for (int i = 0; i < how_many_sectors[this->world_type]; i++)
+		std::cout << i + 1 << " = " << how_many[i] << "\n";
+
+
+	//Dostosowywanie obiektów mapy do ustawieñ mapy
+	clock_t time_adjust = clock();
+	for (unsigned int i = 0; i < ground.size(); i++)
+		this->ground[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < water.size(); i++)
+		this->water[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < block.size(); i++)
+		this->block[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < bonus_block.size(); i++)
+		this->bonus_block[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < treasure.size(); i++)
+		this->treasure[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < trampoline.size(); i++)
+		this->trampoline[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < ladder.size(); i++)
+		this->ladder[i].adjustObjectToLevel(this->height);
+	for (unsigned int i = 0; i < spawn_pu_pos.size(); i++)		//Ta sama zasada dzia³ania, co w przypadku poprzednich pêtli
+		spawn_pu_pos[i] = sf::Vector2f(spawn_pu_pos[i].x, spawn_pu_pos[i].y + this->height - g_height);
+	time_adjust = clock() - time_adjust;
+	//!Dostosowywanie obiektów mapy do ustawieñ mapy
+	
+
+	//Zmiany w terenie ze wzglêdu na typ poziomu
+	/*switch (this->world_type)
+	{
+	
+	DLA ŒWIATA NAZIEMNEGO:
+	-Zwiêkszanie wysokoœci poziomu (mo¿na chodziæ po najwy¿szych sektorach
+	
+	case WORLD_OVERWORLD:
+	{
+		this->height += 3 * 32;
+		break;
+	}
+	
+	DLA ŒWIATA PODZIEMNEGO:
+	-Tworzenie gruntu ponad sektorami
+	
+	case WORLD_UNDERGROUND:
+	{
+		for (unsigned int i = 0; i < this->height)
+		{
+
+		}
+		break;
+	}
+	}*/
+
+	//!Zmiany w terenie ze wzglêdu na typ poziomu
 
 
 	//Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
@@ -131,32 +200,8 @@ void cMap::generate()
 	}*/
 
 	time_optimization = clock() - time_optimization;
-
-
-	//Wyœwietlanie na ekranie jak wiele jest sektorów o danym ID (W celach debugowania)
-	std::cout << "\n\n\n";
-	for (int i = 0; i < how_many_sectors[this->world_type]; i++)
-		std::cout << i + 1 << " = " << how_many[i] << "\n";
-
-	clock_t time_adjust = clock();
-	//Dostosowywanie obiektów mapy do ustawieñ mapy
-	for (unsigned int i = 0; i < ground.size(); i++)
-		this->ground[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < water.size(); i++)
-		this->water[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < block.size(); i++)
-		this->block[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < bonus_block.size(); i++)
-		this->bonus_block[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < treasure.size(); i++)
-		this->treasure[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < trampoline.size(); i++)
-		this->trampoline[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < ladder.size(); i++)
-		this->ladder[i].adjustObjectToLevel(this->height);
-	for (unsigned int i = 0; i < spawn_pu_pos.size(); i++)		//Ta sama zasada dzia³ania, co w przypadku poprzednich pêtli
-		spawn_pu_pos[i] = sf::Vector2f(spawn_pu_pos[i].x, spawn_pu_pos[i].y + this->height - g_height);
-	time_adjust = clock() - time_adjust;
+	//!Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
+	
 
 	//Algorytm wzajemnej grafiki gruntu (postawiony na samym koñcu - po wszystkich dzia³aniach na gruncie)
 	clock_t time_graph = clock();
@@ -168,7 +213,7 @@ void cMap::generate()
 
 	delete how_many;
 	time_graph = clock() - time_graph;
-
+	
 
 	//GENERATOR POZIOMU (POWER-UP'Y, T£O I NPC)
 	//POWER-UPS
@@ -266,24 +311,54 @@ void cMap::generate()
 	//OBIEKTY W TLE
 	//Pêtla tworzenia obiektów w tle
 	clock_t time_background = clock();
-	for (int i = 0; i < 75; i++)
+	for (int i = 0; i < 100; i++)
 	{
-		eType type;
-		bool end = false;
-		while (!end)
+		eBackgroundType type;
+		
+		//Losowanie typu grafiki
+		int random = rand() % 1001;	//0,0% - 100,0%
+			
+		if (random < 250)	//25% szans na obiekt w powietrzu
+			type = BG_FLYING;
+		else if (this->water.size() > 0 && random < 450)	//20% szans na obiekt w wodzie (o ile woda w ogóle istnieje)
 		{
-			end = true;
-			type = (eType)(rand() % 5);
-			if (this->water.size() <= 0 && (type == TYPE_WATER || type == TYPE_GROUND_WATER))
-				end = false;
+			switch (rand() % 3)
+			{
+			case 0: {type = BG_WATER_LYING;	break;}
+			case 1: {type = BG_WATER_DIVE;	break;}
+			case 2: {type = BG_WATER_FLOAT;	break;}
+			}
 		}
+		else if (random < 850 - (water.empty() ? 125 : 0))	//40% szans na obiekt na gruncie, chyba ¿e woda nie istnieje, to 47.5%
+		{
+			switch (rand () %3)
+			{
+			case 0: {type = BG_GROUND_LYING;		break;}
+			case 1: {type = BG_GROUND_LEVITATING;	break;}
+			case 2:
+			{
+				if (this->world_type == WORLD_OVERWORLD)
+					type = BG_TRUNK;
+				else if (this->world_type == WORLD_UNDERGROUND)	//W podziemiach nie generuj¹ siê drzewa (je¿eli bêd¹ siê mia³y generowaæ, to trzeba zmieniæ ich sposób generowania, bo w podziemiach jest mnie miejsca i drzewo mo¿e w ogóle nie znaleŸæ miejsca generowania siê)
+					type = BG_CEILING;
+				break;
+			}
+			}
+		}
+		else	//15% szans na obiekt w gruncie, chyba ¿e woda nie istnieje, to 27.5%
+			type = BG_GROUND_INSIDE;
+		//!Losowanie typu grafiki
+		
 		//Tymczasowy obiekt w tle który bêdzie póŸniej dopisany do wektora obiektów w tle (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cBackgroundObject temp_bg_obj(type, this->randomPosition());
-
+		cBackgroundObject temp_bg_obj(this->world_type, type, this->randomPosition());
+		
 		//Sprawdzanie, czy obiekt w tle nie znajduje siê w gruncie
 		switch (type)
 		{
-		case TYPE_GROUND:
+		case BG_GROUND_LYING:
+		case BG_GROUND_LEVITATING:
+		case BG_TRUNK:
+		case BG_TOP_TREE:
 		{
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
@@ -304,7 +379,7 @@ void cMap::generate()
 			}
 			break;
 		}
-		case TYPE_AIR:
+		case BG_FLYING:
 		{
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
@@ -325,20 +400,7 @@ void cMap::generate()
 			}
 			break;
 		}
-		case TYPE_WATER:	//TODO stworzyæ wodê
-		{
-			bool end = false;	//Nie przydzielono pozycji
-			while (!end)
-			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
-
-				//Je¿eli obiekt w tle jest zakopany w gruncie
-				if (temp_bg_obj.isWaterCollision(is_water, grid_size))
-					end = true;
-			}
-			break;
-		}
-		case TYPE_SOIL:
+		case BG_GROUND_INSIDE:
 		{
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
@@ -351,7 +413,7 @@ void cMap::generate()
 			}
 			break;
 		}
-		case TYPE_GROUND_WATER:
+		case BG_WATER_LYING:
 		{
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
@@ -372,8 +434,76 @@ void cMap::generate()
 			}
 			break;
 		}
+		case BG_WATER_DIVE:
+		{
+			bool end = false;	//Nie przydzielono pozycji
+			while (!end)
+			{
+				temp_bg_obj.setAllPosition(this->randomPosition());
+
+				//Je¿eli obiekt w tle znajduje siê w wodzie
+				if (temp_bg_obj.isWaterCollision(is_water, grid_size))
+				{
+					if (temp_bg_obj.isWaterCollision(is_water, grid_size))
+					{
+						temp_bg_obj.move(0, -32);
+
+						//Je¿eli wy¿ej jest woda (nie p³ywa, a znajduje siê "wewn¹trz" wody
+						if (temp_bg_obj.isWaterCollision(is_water, grid_size))
+						{
+							temp_bg_obj.move(0, 32);
+							end = true;
+						}
+					}
+				}
+			}
+			break;
 		}
-		
+		case BG_WATER_FLOAT:
+		{
+			bool end = false;
+			while (!end)
+			{
+				temp_bg_obj.setAllPosition(this->randomPosition());
+
+				//Je¿eli obiekt w tle znajduje siê w wodzie
+				if (temp_bg_obj.isWaterCollision(is_water, grid_size))
+				{
+					temp_bg_obj.move(0, -32);
+
+					//Je¿eli wy¿ej nie ma wody
+					if (!temp_bg_obj.isWaterCollision(is_water, grid_size))
+					{
+						temp_bg_obj.move(0, 26);	//Obni¿ono o nieco mniej, ¿eby obiekt "p³ywa³" na wodzie
+						end = true;
+					}
+				}
+			}
+			break;
+		}
+		case BG_CEILING:
+		{
+			bool end = false;
+			while (!end)
+			{
+				temp_bg_obj.setAllPosition(this->randomPosition());
+
+				//Je¿eli obiekt w tle nie znajduje siê w sztywnym obiekcie
+				if (!temp_bg_obj.isGroundCollision(is_solid, grid_size))
+				{
+					temp_bg_obj.move(0, -32);
+
+					//Je¿eli wy¿ej jest sztywny obiekt
+					if (temp_bg_obj.isGroundCollision(is_solid, grid_size))
+					{
+						temp_bg_obj.move(0, 32);
+						end = true;
+					}
+				}
+			}
+			break;
+		}
+		}
 		this->background_obj.push_back(temp_bg_obj);
 	}
 	time_background = clock() - time_background;
@@ -434,7 +564,8 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->ground.size(); i++)
 		win.draw(this->ground[i]);
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
-		this->background_obj[i].drawAllGraphics(win);
+		if (!this->background_obj[i].front)
+			this->background_obj[i].drawAllGraphics(win);
 	for (unsigned int i = 0; i < this->bonus_block.size(); i++)
 		win.draw(this->bonus_block[i]);
 	for (unsigned int i = 0; i < this->block.size(); i++)
@@ -449,6 +580,9 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 		win.draw(this->power_up[i]);
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
+	for (unsigned int i = 0; i < this->background_obj.size(); i++)
+		if (this->background_obj[i].front)
+			this->background_obj[i].drawAllGraphics(win);
 }
 
 unsigned int cMap::getWidth()

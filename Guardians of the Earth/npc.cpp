@@ -133,6 +133,8 @@ void cNPC::step(sf::FloatRect &view_rect)
 		//Je¿eli NPC lata, ale nie œciga postaci graczy, to po jakimœ czasie siê zatrzymuje i leci w drug¹ stronê
 		else if (this->features.flying && !this->features.chase)
 		{
+			this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50, this->last_position.y));	//Pozycja nie bêdzie siê zmienia³a, co naprawia bug dotycz¹cy opadania NPC-a, gdy coœ na niego spadnie
+
 			if (this->dir == DIR_LEFT)
 			{
 				this->speed -= 0.02f;
@@ -145,7 +147,6 @@ void cNPC::step(sf::FloatRect &view_rect)
 				if (this->speed >= this->features.max_speed)
 					this->dir = DIR_LEFT;
 			}
-
 
 			this->body->SetLinearVelocity(b2Vec2(this->speed, 0));
 		}
@@ -164,6 +165,7 @@ void cNPC::step(sf::FloatRect &view_rect)
 
 	//Pozycja
 	this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
+	this->last_position = this->getPosition();
 }
 /*
 void cNPC::startMoving()
