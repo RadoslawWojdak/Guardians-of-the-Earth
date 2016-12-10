@@ -6,11 +6,11 @@
 
 extern sf::Texture t_block[2];
 extern sf::Texture t_bonus_block[2];
-extern sf::Texture t_ground[2][47];	//Pierwszy wymiar tablicy - rodzaj podloza overground; drugi - ID podloza
+extern sf::Texture t_ground[4][47];	//Pierwszy wymiar tablicy - rodzaj podloza overground; drugi - ID podloza
 extern sf::Texture t_treasure[7];
 extern sf::Texture t_power_up[2];
-extern sf::Texture t_background[2];
-extern sf::Texture *t_background_obj[2];
+extern sf::Texture t_background[4];
+extern sf::Texture *t_background_obj[4];
 extern sf::Texture t_npc[3];
 extern sf::Texture t_object[4];
 

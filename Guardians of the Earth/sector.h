@@ -29,8 +29,8 @@ class cSector
 	eObjType *object;		//Wskaznik do pierwszego obiektu sektora (kazdy obiekt ma swoje id - 0 - pustka, 1 - block, ...)
 
 public:
-	void loadRandomSector(eWorld type, std::string &id);	//Losowanie jednego z sektorów danego typu i wczytanie go z pliku
-	void loadSector(std::string path);		//Wczytywanie sektora z pliku
+	void loadRandomSector(eWorld world_type, std::string &id);	//Losowanie jednego z sektorów danego typu i wczytanie go z pliku
+	void loadSector(eWorld world_type, std::string path);		//Wczytywanie sektora z pliku
 	bool isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned int level_height);	//Sprawdzanie, czy sektor pasuje do poprzedniego
 
 	unsigned short getWidth();

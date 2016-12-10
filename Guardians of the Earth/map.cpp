@@ -21,7 +21,7 @@ void cMap::generate()
 	cSector sector;
 
 	//Stworzenie tablicy opisuj¹cej, jak wiele w poziomie jest sektorów o danym ID (w celach debugowania)
-	std::cout << "Ilosc sektorow w tym typie siwata: " << how_many_sectors[this->world_type] << "\n\n\n";
+	std::cout << "Ilosc sektorow w tym typie swiata: " << how_many_sectors[this->world_type] << "\n\n\n";
 	int *how_many = new int[how_many_sectors[this->world_type]];
 	for (int i = 0; i < how_many_sectors[this->world_type]; i++)
 		how_many[i] = 0;
@@ -56,9 +56,19 @@ void cMap::generate()
 				for (unsigned int j = 0; j < sector.getWidth(); j++)
 				{
 					//std::cout << j << ":" << i << "\n";
-					this->ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16), this->world_type));//sector.setObject(j, i, OBJECT_GROUND);
+					this->ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16), this->world_type));
 				}
 		//!Dla œwiata podziemnego generator tworzy ponad sektorem warstwy gruntu
+		//Dla œwiata podwodnego generator tworzy ponad sektorem warstwy wody
+		else if (this->world_type == WORLD_UNDERWATER)
+			for (unsigned int i = 0; i < ceil((float)this->height / 32) - sector.getHeight(); i++)
+				for (unsigned int j = 0; j < sector.getWidth(); j++)
+				{
+
+					this->water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16)));
+				}
+		//!Dla œwiata podwodnego generator tworzy ponad sektorem warstwy wody
+
 
 		//Je¿eli sektor jest wy¿szy od aktualnej wysokoœci poziomu, to ca³y poziom staje siê wy¿szy (kamera mo¿e pod¹¿aæ wy¿ej)
 		if (sector.getHeight() * 32 + 64 > this->height)
@@ -70,14 +80,66 @@ void cMap::generate()
 			{
 				switch (sector.getObject(j, i))
 				{
-				case eObjType::OBJECT_GROUND: {ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type));	break;}
-				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_WATER: {water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
-				case eObjType::OBJECT_POWER_UP: {spawn_pu_pos.push_back(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down));	break;}
-				case eObjType::OBJECT_LADDER: {ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_GROUND:
+				{
+					ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type));
+					break;
+				}
+				case eObjType::OBJECT_BLOCK:
+				{
+					block.push_back(cBlock(&(this->physics_world), t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					break;
+				}
+				case eObjType::OBJECT_BONUS_BLOCK:
+				{
+					bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					if (this->world_type == WORLD_UNDERWATER)	//W przypadku wodnego œwiata za zniszczalnymi obiektami znajduje siê woda
+						this->water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+
+					break;
+				}
+				case eObjType::OBJECT_WATER:
+				{
+					water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					break;
+				}
+				case eObjType::OBJECT_TREASURE:
+				{
+					treasure.push_back(cTreasure(&(this->physics_world), sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					if (this->world_type == WORLD_UNDERWATER)	//W przypadku wodnego œwiata za zniszczalnymi obiektami znajduje siê woda
+						this->water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					break;
+				}
+				case eObjType::OBJECT_TRAMPOLINE:
+				{
+					trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));
+					
+					if (this->world_type == WORLD_UNDERWATER)	//W przypadku wodnego œwiata za zniszczalnymi obiektami znajduje siê woda
+						this->water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					break;
+				}
+				case eObjType::OBJECT_POWER_UP:
+				{
+					spawn_pu_pos.push_back(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down));
+					
+					if (this->world_type == WORLD_UNDERWATER)	//W przypadku wodnego œwiata za zniszczalnymi obiektami znajduje siê woda
+						this->water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					break;
+				}
+				case eObjType::OBJECT_LADDER:
+				{
+					ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					if (this->world_type == WORLD_UNDERWATER)	//W przypadku wodnego œwiata za zniszczalnymi obiektami znajduje siê woda
+						this->water.push_back(cWater(t_object[1], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
+					
+					break;
+				}
 				}
 			}
 
@@ -311,7 +373,7 @@ void cMap::generate()
 	//OBIEKTY W TLE
 	//Pêtla tworzenia obiektów w tle
 	clock_t time_background = clock();
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 0; i++)
 	{
 		eBackgroundType type;
 		
@@ -341,6 +403,8 @@ void cMap::generate()
 					type = BG_TRUNK;
 				else if (this->world_type == WORLD_UNDERGROUND)	//W podziemiach nie generuj¹ siê drzewa (je¿eli bêd¹ siê mia³y generowaæ, to trzeba zmieniæ ich sposób generowania, bo w podziemiach jest mnie miejsca i drzewo mo¿e w ogóle nie znaleŸæ miejsca generowania siê)
 					type = BG_CEILING;
+				else
+					type = BG_GROUND_LEVITATING;
 				break;
 			}
 			}

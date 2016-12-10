@@ -25,6 +25,22 @@
 
 int main()
 {
+	//Tymczasowy sposób wyboru typu poziomu
+	int option;
+	do
+	{
+		system("CLS");
+		std::cout << "Wybierz typ poziomu:\n"
+			<< "1. Overworld\n"
+			<< "2. Underground\n"
+			<< "3. Underwater\n"
+			<< "4. Ice land\n"
+			<< "Twoj wybor: ";
+		std::cin >> option;
+	} while (option < 1 || option > 4);
+	option--;
+	//!Tymczasowy sposób wyboru typu poziomu
+
 	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", sf::Style::Close);
 	win.setFramerateLimit(60);
 
@@ -43,8 +59,8 @@ int main()
 
 	sf::Event ev;
 
-	cMap map(WORLD_OVERWORLD);
-
+	cMap map((eWorld)option);
+	
 	sf::View p1;
 	p1.setCenter(400, 300);
 	p1.setSize(sf::Vector2f(800, 600));
