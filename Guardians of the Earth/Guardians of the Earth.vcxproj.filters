@@ -66,13 +66,13 @@
     <ClCompile Include="trampoline.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
-    <ClCompile Include="water.cpp">
-      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
-    </ClCompile>
     <ClCompile Include="powerup.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
     <ClCompile Include="ladder.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="fluid.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,13 +119,13 @@
     <ClInclude Include="trampoline.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
-    <ClInclude Include="water.h">
-      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
-    </ClInclude>
     <ClInclude Include="powerup.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
     <ClInclude Include="ladder.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="fluid.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
   </ItemGroup>

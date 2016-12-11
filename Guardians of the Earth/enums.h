@@ -94,4 +94,11 @@ enum eTreasure
 	T_SCEPTER = 20
 };
 
+/*enum eFluid
+{
+	FLUID_WATER = 1,
+	FLUID_ICE = 2,
+	FLUID_QUICKSAND = 3
+};*/
+
 #endif //!enums_h

@@ -12,8 +12,9 @@ extern sf::Texture t_power_up[2];
 extern sf::Texture t_background[5];
 extern sf::Texture *t_background_obj[5];
 extern sf::Texture t_npc[3];
-extern sf::Texture t_object[4];
+extern sf::Texture t_object[8];
 
 bool init_graph();
+bool shutdown_graph();
 
 #endif //!graphics_h

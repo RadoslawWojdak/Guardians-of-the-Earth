@@ -114,6 +114,7 @@ int main()
 	}
 
 	map.destroy();
+	shutdown_graph();
 
 	return 0;
 }

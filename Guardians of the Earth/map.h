@@ -11,7 +11,7 @@
 #include "npc.h"
 #include "backgroundobject.h"
 #include "trampoline.h"
-#include "water.h"
+#include "fluid.h"
 #include "powerup.h"
 #include "ladder.h"
 
@@ -26,12 +26,12 @@ class cMap
 
 	sf::Sprite background[2];			//Tlo mapy (dziêki dwóm takim samym t³om, t³o mo¿e siê przesuwaæ)
 
-	std::vector <cGround> ground;			//WEKTOR KLASY GROUND
-	std::vector <cWater> water;				//WEKTOR KLASY WATER
-	std::vector <cBlock> block;				//WEKTOR KLASY BLOCK
-	std::vector <cBonusBlock> bonus_block;	//WEKTOR KLASY BLOCK - DLA BONUSOWYCH BLOKOW (Z ZAWARTOSCIA)
-	std::vector <cNPC> npc;					//WEKTOR KLASY NPC
-	std::vector <cTreasure> treasure;		//WEKTOR KLASY TREASURE
+	std::vector <cGround> ground;			//WEKTOR KLASY cGROUND
+	std::vector <cFluid> fluid;				//WEKTOR KLASY cFLUID
+	std::vector <cBlock> block;				//WEKTOR KLASY cBLOCK
+	std::vector <cBonusBlock> bonus_block;	//WEKTOR KLASY cBLOCK - DLA BONUSOWYCH BLOKOW (Z ZAWARTOSCIA)
+	std::vector <cNPC> npc;					//WEKTOR KLASY cNPC
+	std::vector <cTreasure> treasure;		//WEKTOR KLASY cTREASURE
 	std::vector <cBackgroundObject> background_obj;
 	std::vector <cTrampoline> trampoline;
 	std::vector <cPowerUp> power_up;

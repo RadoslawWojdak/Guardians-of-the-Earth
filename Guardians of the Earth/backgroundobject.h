@@ -8,12 +8,10 @@
 
 class cBackgroundObject :public cObjectLevel
 {
-	//eType type;				//Uogólniony typ obiektu (wiadomo gdzie mo¿e siê poruszaæ)
 	eBackgroundType type;		//Szczegó³owy typ obiektu (wiadomo jak go rysowaæ)
 	cObjectLevel *extra_sprite;	//Dodatkowe sprit'y (np. w przypadku rysowania drzewa)
 	short extra_count;			//Iloœæ dodatkowych sprit'ów
 
-	//void adjustBgType();
 	sf::Texture* randomGraphics(eWorld world_type, sf::Vector2f pos);
 
 public:

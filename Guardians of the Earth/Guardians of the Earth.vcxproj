@@ -126,7 +126,7 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="objectlevel.cpp" />
     <ClCompile Include="sector.cpp" />
-    <ClCompile Include="water.cpp" />
+    <ClCompile Include="fluid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -147,7 +147,7 @@
     <ClInclude Include="objectlevel.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="sector.h" />
-    <ClInclude Include="water.h" />
+    <ClInclude Include="fluid.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

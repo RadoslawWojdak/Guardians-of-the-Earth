@@ -8,7 +8,7 @@ sf::Texture t_power_up[2];
 sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
 sf::Texture t_npc[3];
-sf::Texture t_object[4];
+sf::Texture t_object[8];
 
 bool init_graph()
 {
@@ -139,9 +139,9 @@ bool init_graph()
 		{
 		case 0: {world = "overworld";	how_many = 10;	break;}
 		case 1: {world = "underground";	how_many = 6;	break;}
-		case 2: {world = "underwater";	how_many = 0;	break;}
-		case 3: {world = "ice_land";	how_many = 0;	break;}
-		case 4: {world = "desert";		how_many = 0;	break;}
+		case 2: {world = "underwater";	how_many = 4;	break;}
+		case 3: {world = "ice_land";	how_many = 6;	break;}
+		case 4: {world = "desert";		how_many = 5;	break;}
 		}
 
 		t_background_obj[i] = new sf::Texture[how_many];
@@ -175,7 +175,7 @@ bool init_graph()
 	}
 
 	//OBIEKTY POZIOMU
-	for (unsigned int i = 0; i < 4; i++)
+	for (unsigned int i = 0; i < 8; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
@@ -188,5 +188,11 @@ bool init_graph()
 			return false;
 	}
 
+	return true;
+}
+
+
+bool shutdown_graph()
+{
 	return true;
 }

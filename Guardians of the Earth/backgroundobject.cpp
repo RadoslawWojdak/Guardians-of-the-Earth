@@ -9,47 +9,7 @@ cBackgroundObject::cBackgroundObject(eWorld world_type, eBackgroundType type, sf
 
 	this->setAllPosition(pos);
 }
-/*
-void cBackgroundObject::adjustBgType()
-{
-	switch (this->type)
-	{
-	case TYPE_GROUND:
-	{
-		switch (rand() % 3)
-		{
-		case 0: {this->bg_type = BG_GROUND_LYING;		break;}
-		case 1: {this->bg_type = BG_GROUND_LEVITATING;	break;}
-		case 2: {this->bg_type = BG_TRUNK;				break;}
-		}
-		break;
-	}
-	case TYPE_AIR:
-	{
-		this->bg_type = BG_FLYING;
-		break;
-	}
-	case TYPE_WATER:
-	{
-		switch (rand() % 2)
-		{
-		case 0: {this->bg_type = BG_WATER_DIVE;		break;}
-		case 1: {this->bg_type = BG_WATER_FLOAT;	break;}
-		}
-		break;
-	}
-	case TYPE_GROUND_INSIDE:
-	{
-		this->bg_type = BG_GROUND_INSIDE;
-		break;
-	}
-	case TYPE_GROUND_WATER:
-	{
-		this->bg_type = BG_WATER_LYING;	break;
-	}
-	}
-}
-*/
+
 sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f pos)
 {
 	this->extra_count = 0;
@@ -75,6 +35,21 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 			return &t_background_obj[1][0];
 			break;
 		}
+		case WORLD_UNDERWATER:
+		{
+			return &t_background_obj[2][1];	//Muszla
+			break;
+		}
+		case WORLD_ICE_LAND:
+		{
+			return &t_background_obj[3][4];	//Œnie¿ki
+			break;
+		}
+		case WORLD_DESERT:
+		{
+			return &t_background_obj[4][4];	//Kaktus
+			break;
+		}
 		}
 		break;
 		
@@ -93,6 +68,16 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 			return &t_background_obj[1][0];
 			break;
 		}
+		case WORLD_ICE_LAND:
+		{
+			return &t_background_obj[3][1];	//Kula (góra drzewa)
+			break;
+		}
+		case WORLD_DESERT:
+		{
+			return &t_background_obj[4][4];	//Kaktus
+			break;
+		}
 		}
 		break;
 	}
@@ -100,7 +85,13 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 	case BG_TOP_TREE:	//W razie czego doda³em tutaj koronê drzewa, chocia¿ w teorii nie powinna siê nigdy wylosowaæ
 	{
 		short height = rand() % 4 + 1;		//Wysokoœæ pnia drzewa
-		short up_height = rand() % 2 + 1;	//Wysokoœæ korony drzewa
+		short up_height;					//Wysokoœæ korony drzewa
+		
+		if (world_type == WORLD_DESERT)		//Pustynia ma grafikê korony drzewa tylko z (32x32)px
+			up_height = 1;
+		else								//Pozosta³e maj¹ grafiki koron drzew (32x32)px i (32x64)px
+			up_height = rand() % 2 + 1;
+
 		this->extra_count = height;			//Wysokoœæ pnia drzewa - 1 + korona drzewa
 		
 		this->extra_sprite = new cObjectLevel[height];	//Wysokoœæ pnia drzewa - 1 + korona drzewa
@@ -108,21 +99,44 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 														//Tworzenie reszty pnia drzewa
 		for (int i = 0; i < height - 1; i++)
 		{
-			this->extra_sprite[i] = cObjectLevel(t_background_obj[0][0]);
+			switch (world_type)
+			{
+			case WORLD_OVERWORLD: {this->extra_sprite[i] = cObjectLevel(t_background_obj[0][0]);	break;}
+			case WORLD_ICE_LAND: {this->extra_sprite[i] = cObjectLevel(t_background_obj[3][0]);		break;}
+			case WORLD_DESERT: {this->extra_sprite[i] = cObjectLevel(t_background_obj[4][0]);		break;}
+			}
 			this->extra_sprite[i].setOrigin(this->extra_sprite[i].getTextureRect().width / 2, this->extra_sprite[i].getTextureRect().height / 2);
 			this->extra_sprite[i].setPosition(pos.x, pos.y - ((i + 1) * 32));
 		}
 
 		//Tworzenie korony drzewa
 		if (up_height == 1)
-			this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[0][1]);
+		{
+			switch (world_type)
+			{
+			case WORLD_OVERWORLD: {this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[0][1]);	break;}
+			case WORLD_ICE_LAND: {this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[3][1]);	break;}
+			case WORLD_DESERT: {this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[4][1]);		break;}
+			}
+		}
 		else
-			this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[0][2]);
+		{
+			switch (world_type)
+			{
+			case WORLD_OVERWORLD: {this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[0][2]);	break;}
+			case WORLD_ICE_LAND: {this->extra_sprite[height - 1] = cObjectLevel(t_background_obj[3][2]);	break;}
+			}
+		}
 
 		this->extra_sprite[height - 1].setOrigin(this->extra_sprite[height - 1].getTextureRect().width / 2, this->extra_sprite[height - 1].getTextureRect().height / 2);
 		this->extra_sprite[height - 1].setPosition(pos.x, pos.y - ((height - 1) * up_height * 32));
 
-		return &t_background_obj[0][0];
+		switch (world_type)
+		{
+		case WORLD_OVERWORLD:	return &t_background_obj[0][0];
+		case WORLD_ICE_LAND:	return &t_background_obj[3][0];
+		case WORLD_DESERT:		return &t_background_obj[4][0];
+		}
 		break;
 	}
 	case BG_FLYING:
@@ -136,7 +150,17 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		}
 		case WORLD_UNDERGROUND:
 		{
-			return &t_background_obj[1][5];
+			return &t_background_obj[1][5];	//Œwietliki
+			break;
+		}
+		case WORLD_ICE_LAND:
+		{
+			return &t_background_obj[3][3];	//Chmura 64x32
+			break;
+		}
+		case WORLD_DESERT:
+		{
+			return &t_background_obj[4][2];	//Chmura 64x32
 			break;
 		}
 		}
@@ -148,7 +172,7 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		{
 		case WORLD_OVERWORLD:
 		{
-			return &t_background_obj[0][6];	//Zaroœniête
+			return &t_background_obj[0][6];	//Zaroœla
 			break;
 		}
 		case WORLD_UNDERGROUND:
@@ -159,6 +183,21 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 			case 1: {return &t_background_obj[1][3];	break;}
 			case 2: {return &t_background_obj[1][4];	break;}
 			}
+			break;
+		}
+		case WORLD_UNDERWATER:
+		{
+			return &t_background_obj[2][2];	//Rozgwiazda;
+			break;
+		}
+		case WORLD_ICE_LAND:
+		{
+			return &t_background_obj[3][5];	//Zaroœla
+			break;
+		}
+		case WORLD_DESERT:
+		{
+			return &t_background_obj[4][3];	//Czaszka
 			break;
 		}
 		}
@@ -178,6 +217,11 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 			return &t_background_obj[1][0];
 			break;
 		}
+		case WORLD_UNDERWATER:
+		{
+			return &t_background_obj[2][1];	//Muszla
+			break;
+		}
 		}
 		break;
 	}
@@ -193,6 +237,15 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		case WORLD_UNDERGROUND:
 		{
 			return &t_background_obj[1][0];
+			break;
+		}
+		case WORLD_UNDERWATER:
+		{
+			switch (rand() % 2)
+			{
+			case 0:	return &t_background_obj[2][0];	//Ryba
+			case 1: return &t_background_obj[2][3];	//B¹bel powietrza
+			}
 			break;
 		}
 		}
@@ -212,6 +265,11 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 			return &t_background_obj[1][0];
 			break;
 		}
+		case WORLD_UNDERWATER:
+		{
+			return &t_background_obj[2][0];	//Ryba
+			break;
+		}
 		}
 		break;
 	}
@@ -227,6 +285,11 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		case WORLD_UNDERGROUND:
 		{
 			return &t_background_obj[1][1];
+			break;
+		}
+		case WORLD_ICE_LAND:
+		{
+			return &t_background_obj[3][3];	//Chmura
 			break;
 		}
 		}
