@@ -2,11 +2,11 @@
 
 sf::Texture t_block[2];
 sf::Texture t_bonus_block[2];
-sf::Texture t_ground[4][47];
+sf::Texture t_ground[5][47];
 sf::Texture t_treasure[7];
 sf::Texture t_power_up[2];
-sf::Texture t_background[4];
-sf::Texture *t_background_obj[4];
+sf::Texture t_background[5];
+sf::Texture *t_background_obj[5];
 sf::Texture t_npc[3];
 sf::Texture t_object[4];
 
@@ -39,7 +39,7 @@ bool init_graph()
 	}
 
 	//ZIEMIA
-	for (unsigned int i = 0; i < 4; i++)
+	for (unsigned int i = 0; i < 5; i++)
 	{
 		std::string world;
 		switch (i)
@@ -48,6 +48,7 @@ bool init_graph()
 		case 1: {world = "underground";	break;}
 		case 2: {world = "underwater";	break;}
 		case 3: {world = "ice_land";	break;}
+		case 4: {world = "desert";		break;}
 		}
 
 		std::string nr = "";
@@ -100,7 +101,7 @@ bool init_graph()
 
 
 	//TLO
-	for (unsigned int i = 0; i < 4; i++)
+	for (unsigned int i = 0; i < 5; i++)
 	{
 		std::string world;
 		switch (i)
@@ -109,6 +110,7 @@ bool init_graph()
 		case 1: {world = "underground";	break;}
 		case 2: {world = "underwater";	break;}
 		case 3: {world = "ice_land";	break;}
+		case 4: {world = "desert";		break;}
 		}
 
 		/*for (int j = 0; j < 1; j++)
@@ -129,7 +131,7 @@ bool init_graph()
 	}
 
 	//OBIEKTY W TLE
-	for (unsigned int i = 0; i < 4; i++)
+	for (unsigned int i = 0; i < 5; i++)
 	{
 		std::string world;
 		int how_many;	//Jak wiele jest grafik w danym typie poziomu (ka¿dy typ mo¿e mieæ ró¿n¹ iloœæ grafik)
@@ -139,6 +141,7 @@ bool init_graph()
 		case 1: {world = "underground";	how_many = 6;	break;}
 		case 2: {world = "underwater";	how_many = 0;	break;}
 		case 3: {world = "ice_land";	how_many = 0;	break;}
+		case 4: {world = "desert";		how_many = 0;	break;}
 		}
 
 		t_background_obj[i] = new sf::Texture[how_many];

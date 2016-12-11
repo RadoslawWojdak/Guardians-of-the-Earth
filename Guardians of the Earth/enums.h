@@ -51,7 +51,8 @@ enum eWorld
 	WORLD_OVERWORLD = 0,
 	WORLD_UNDERGROUND = 1,
 	WORLD_UNDERWATER = 2,
-	WORLD_ICE_LAND = 3
+	WORLD_ICE_LAND = 3,
+	WORLD_DESERT = 4
 };
 
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...

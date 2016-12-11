@@ -35,9 +35,10 @@ int main()
 			<< "2. Underground\n"
 			<< "3. Underwater\n"
 			<< "4. Ice land\n"
+			<< "5. Desert\n"
 			<< "Twoj wybor: ";
 		std::cin >> option;
-	} while (option < 1 || option > 4);
+	} while (option < 1 || option > 5);
 	option--;
 	//!Tymczasowy sposób wyboru typu poziomu
 

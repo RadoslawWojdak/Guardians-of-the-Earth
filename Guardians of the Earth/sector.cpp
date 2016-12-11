@@ -17,14 +17,11 @@ bool howManySectors()
 	{
 		switch (i)
 		{
-			case WORLD_OVERWORLD:		{type = "overworld";		break;}
-			case WORLD_UNDERGROUND:		{type = "underground";	break;}
-			case WORLD_UNDERWATER:		{type = "underwater";	break;}
-			case WORLD_ICE_LAND:		{type = "ice_land";		break;}
-			/*case desert:				type = "desert";		break;
-			case ice_land:				type = "ice_land";		break;
-			case hot_land:				type = "hot_land";		break;
-			case sky:					type = "sky";			break;*/
+			case WORLD_OVERWORLD: {type = "overworld";		break;}
+			case WORLD_UNDERGROUND: {type = "underground";	break;}
+			case WORLD_UNDERWATER: {type = "underwater";	break;}
+			case WORLD_ICE_LAND: {type = "ice_land";		break;}
+			case WORLD_DESERT: {type = "desert";			break;}
 		}
 
 		for (int j = 0; ; j++)
@@ -66,15 +63,12 @@ void cSector::loadRandomSector(eWorld world_type, std::string &id)
 	path = "sectors\\";
 	switch (world_type)
 	{
-		case WORLD_OVERWORLD:		path += "overworld";	break;
-		case WORLD_UNDERGROUND:		path += "underground";	break;
-		case WORLD_UNDERWATER:		path += "underwater";	break;
-		case WORLD_ICE_LAND:		path += "ice_land";		break;
-		/*case desert:		path += "desert";		break;
-		case ice_land:		path += "ice_land";		break;
-		case hot_land:		path += "hot_land";		break;
-		case sky:			path += "sky";			break;
-	*/}
+		case WORLD_OVERWORLD: {path += "overworld";		break;}
+		case WORLD_UNDERGROUND: {path += "underground";	break;}
+		case WORLD_UNDERWATER: {path += "underwater";	break;}
+		case WORLD_ICE_LAND: {path += "ice_land";		break;}
+		case WORLD_DESERT: {path += "desert";			break;}
+	}
 	path += "\\sector-";
 
 	std::string nr;
@@ -294,6 +288,7 @@ void cSector::loadSector(eWorld world_type, std::string path)
 		case WORLD_UNDERGROUND: {world_str = "Underground"; break;}
 		case WORLD_UNDERWATER: {world_str = "Underwater"; break;}
 		case WORLD_ICE_LAND: {world_str = "Ice land"; break;}
+		case WORLD_DESERT: {world_str = "Desert";	break;}
 		}
 
 		std::cout << "Brak sektorow dla: " << world_str << "!\n";
