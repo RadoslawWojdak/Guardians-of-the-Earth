@@ -17,7 +17,7 @@ class cBonusBlock :public cObjectLevel
 public:
 	cBonusBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos/*, std::vector <cTreasure> *treasure*/);
 	
-	void dropTreasures(b2World *physics_world, std::vector <cTreasure> &treasure);
+	void dropTreasures(b2World *physics_world, eWorld world_type, std::vector <cTreasure> &treasure);
 
 	b2Body* getBody();
 };

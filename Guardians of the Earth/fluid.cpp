@@ -44,15 +44,22 @@ cFluid::cFluid(eWorld world_type, sf::Vector2f pos)
 	this->adjustGraphicsParameters(t_object[texture_id], pos);
 
 	//BOX2D
-	b2PolygonShape shape;
+	b2ChainShape shape;
 	const float32 x = pos.x * 0.02f;
 	const float32 y = pos.y * 0.02f;
+	
+	b2Vec2 vs[4];
+	vs[0].Set(x + 0.0f - 16 * 0.02f, y + 0.0f - 16 * 0.02f);
+	vs[1].Set(x + 32 * 0.02f - 16 * 0.02f, y + 0.0f - 16 * 0.02f);
+	vs[2].Set(x + 32 * 0.02f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
+	vs[3].Set(x + 0.0f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
 
-	shape.SetAsBox(0.02f * 32.0f / 2.0f, 0.02f * 32.0f / 2.0f, b2Vec2(x, y), 0.0f);
+	shape.CreateLoop(vs, 4);
+	//shape.SetAsBox(0.02f * 32.0f / 2.0f, 0.02f * 32.0f / 2.0f, b2Vec2(x, y), 0.0f);
 
 	b2FixtureDef fd;
 	fd.shape = &shape;
-	fd.filter.categoryBits = CATEGORY(CAT_WATER);
+	fd.filter.categoryBits = CATEGORY(CAT_FLUID);
 	//fd.filter.maskBits = CATEGORY(CAT_TREASURE) | CATEGORY(CAT_NPC) | CATEGORY(CAT_TRAMPOLINE);
 	fd.friction = 0.0f;
 	this->physics_body->CreateFixture(&fd);

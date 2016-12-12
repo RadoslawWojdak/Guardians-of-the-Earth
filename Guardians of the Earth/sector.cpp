@@ -318,7 +318,7 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 			if (object[0][i] == OBJECT_BONUS_BLOCK || object[0][i] == OBJECT_TREASURE || object[0][i] == OBJECT_TRAMPOLINE || object[0][i] == OBJECT_POWER_UP)
 			{
 				if (world_type == WORLD_UNDERWATER)
-					object[0][i] = OBJECT_WATER;
+					object[0][i] = OBJECT_FLUID;
 				else
 					object[0][i] = OBJECT_NONE;
 			}
@@ -329,7 +329,7 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 			if (world_type == WORLD_UNDERGROUND)
 				object[0][i] = OBJECT_GROUND;
 			else if (world_type == WORLD_UNDERWATER)
-				object[0][i] = OBJECT_WATER;
+				object[0][i] = OBJECT_FLUID;
 			else
 				object[0][i] = OBJECT_NONE;
 		}
@@ -345,7 +345,7 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 			if (object[1][i] == OBJECT_BONUS_BLOCK || object[1][i] == OBJECT_TREASURE || object[1][i] == OBJECT_TRAMPOLINE || object[1][i] == OBJECT_POWER_UP)
 			{
 				if (world_type == WORLD_UNDERWATER)
-					object[0][i] = OBJECT_WATER;
+					object[0][i] = OBJECT_FLUID;
 				else
 					object[0][i] = OBJECT_NONE;
 			}
@@ -354,7 +354,7 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 		else if (world_type == WORLD_UNDERGROUND)
 			object[1][i] = OBJECT_GROUND;
 		else if (world_type == WORLD_UNDERWATER)
-			object[1][i] = OBJECT_WATER;
+			object[1][i] = OBJECT_FLUID;
 		else
 			object[1][i] = OBJECT_NONE;
 	}
@@ -385,11 +385,11 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 		{
 			switch (object[0][i])
 			{
-			case OBJECT_WATER:
+			case OBJECT_FLUID:
 			{
-				if ((object[0][i - 1] == OBJECT_WATER || object[0][i - 1] == OBJECT_LADDER) && (object[0][i - 2] == OBJECT_WATER || object[0][i - 2] == OBJECT_LADDER))	//Je¿eli powy¿ej te¿ znajduje siê woda
+				if ((object[0][i - 1] == OBJECT_FLUID || object[0][i - 1] == OBJECT_LADDER) && (object[0][i - 2] == OBJECT_FLUID || object[0][i - 2] == OBJECT_LADDER))	//Je¿eli powy¿ej te¿ znajduje siê woda
 				{
-					if ((object[1][i] == OBJECT_WATER || object[1][i] == OBJECT_LADDER) && ((object[1][i - 1] == OBJECT_WATER || object[1][i - 1] == OBJECT_LADDER) || (object[1][i + 1] == OBJECT_WATER || object[1][i + 1] == OBJECT_LADDER)))
+					if ((object[1][i] == OBJECT_FLUID || object[1][i] == OBJECT_LADDER) && ((object[1][i - 1] == OBJECT_FLUID || object[1][i - 1] == OBJECT_LADDER) || (object[1][i + 1] == OBJECT_FLUID || object[1][i + 1] == OBJECT_LADDER)))
 						return true;
 				}
 				break;

@@ -76,13 +76,13 @@ void cMap::generate()
 				case eObjType::OBJECT_GROUND: {ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type)); break;}
 				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
 				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
-				case eObjType::OBJECT_WATER:
+				case eObjType::OBJECT_FLUID:
 				{
 					if (this->world_type != WORLD_UNDERWATER)	//Œwiat podwodny jest ju¿ wype³niony wod¹, a obiekty wody tylko by niepotrzebnie spowalnia³y program (przy okazji teraz mo¿na dodaæ t³o)
 						fluid.push_back(cFluid(this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
 					break;
 				}
-				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
 				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
 				case eObjType::OBJECT_POWER_UP: {spawn_pu_pos.push_back(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down));	break;}
 				case eObjType::OBJECT_LADDER: {ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
@@ -158,11 +158,12 @@ void cMap::generate()
 	sf::Vector2i grid_size(this->width / 32, this->height / 32);	//Wymiary siatki (wymiary poziomu podzielone przez 32)
 	bool *is_solid = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê sztywny obiekt (grunt, blok, ...) - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
 	bool *is_ground = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê grunt - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
-	//bool *is_fluid = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê p³yn - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
+	bool *is_fluid = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê p³yn - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
 	bool *to_fluid = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê obiekt który ma wp³yw na wygl¹d p³ynu - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
 	bool *is_npc = new bool[grid_size.x * grid_size.y];		//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê npc - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
 
-	this->fluid_tab = new bool[(grid_size.x + 1) * (grid_size.y + 1)];	//Tablica odpowiedzialna nie tylko za optymalizacjê sprawdzania p³ynów, ale równie¿ za optymalizacjê ca³ej rozgrywki pod wzglêdem p³ynów; +1 - mapa nie zawsze jest d³ugoœci podzielnej przez 32
+	//Wymagana oddzielna tablica dynamiczna dla wody w rozgryce, gdy¿ tablica ta jest wiêksza od pozosta³ych (o 1 w ka¿d¹ stronê)
+	this->fluid_tab = new bool[(grid_size.x + 1) * (grid_size.y + 1)];	//Tablica odpowiedzialna za optymalizacjê rozgrywki pod wzglêdem p³ynów; +1 - mapa nie zawsze jest d³ugoœci podzielnej przez 32
 
 	for (unsigned int i = 0; i < grid_size.y; i++)
 		for (unsigned int j = 0; j < grid_size.x; j++)
@@ -171,6 +172,11 @@ void cMap::generate()
 			is_ground[i * grid_size.x + j] = false;
 			to_fluid[i * grid_size.x + j] = false;
 			is_npc[i * grid_size.x + j] = false;
+
+			if (this->world_type == WORLD_UNDERWATER)		//W typie podwodnym wszêdzie jest woda
+				is_fluid[i * grid_size.x + j] = true;
+			else
+				is_fluid[i * grid_size.x + j] = false;
 		}
 	//Dla p³ynów jest o 1 pole w ka¿d¹ stronê wiêcej
 	for (unsigned int i = 0; i <= grid_size.y; i++)
@@ -188,24 +194,28 @@ void cMap::generate()
 		is_solid[pos.y * grid_size.x + pos.x] = true;
 		is_ground[pos.y * grid_size.x + pos.x] = true;
 		to_fluid[pos.y * grid_size.x + pos.x] = true;
+		is_fluid[pos.y * grid_size.x + pos.x] = false;	//W œwiecie underworld wszystko jest wod¹ (trzeba wy³¹czyæ pewne elementy, ¿eby nie pojawia³y siê na nich obiekty w tle)
 	}
 	for (unsigned int i = 0; i < this->block.size(); i++)
 	{
 		sf::Vector2i pos = this->block[i].posOnGrid(sf::Vector2i(32, 32));
 		is_solid[pos.y * grid_size.x + pos.x] = true;
 		to_fluid[pos.y * grid_size.x + pos.x] = true;
+		is_fluid[pos.y * grid_size.x + pos.x] = false;	//W œwiecie underworld wszystko jest wod¹ (trzeba wy³¹czyæ pewne elementy, ¿eby nie pojawia³y siê na nich obiekty w tle)
 	}
 	for (unsigned int i = 0; i < this->bonus_block.size(); i++)
 	{
 		sf::Vector2i pos = this->bonus_block[i].posOnGrid(sf::Vector2i(32, 32));
 		is_solid[pos.y * grid_size.x + pos.x] = true;
 		to_fluid[pos.y * grid_size.x + pos.x] = true;
+		is_fluid[pos.y * grid_size.x + pos.x] = false;	//W œwiecie underworld wszystko jest wod¹ (trzeba wy³¹czyæ pewne elementy, ¿eby nie pojawia³y siê na nich obiekty w tle)
 	}
 	for (unsigned int i = 0; i < this->fluid.size(); i++)
 	{
 		sf::Vector2i pos = this->fluid[i].posOnGrid(sf::Vector2i(32, 32));
 		this->fluid_tab[pos.y * grid_size.x + pos.x] = true;
 		to_fluid[pos.y * grid_size.x + pos.x] = true;
+		is_fluid[pos.y * grid_size.x + pos.x] = true;
 
 		//Dodatkowo je¿eli ostatnim elementem na osi X jest p³yn, to nastêpnym te¿ jest p³yn (naprawa b³êdów dotycz¹cych ostatnich p³ynów w przypadku gdy szerokoœæ poziomu nie jest podzielna przez 32)
 		if (pos.x == grid_size.x - 1)
@@ -270,13 +280,20 @@ void cMap::generate()
 	clock_t time_npc = clock();
 	for (int i = 0; i < 50; i++)
 	{
+		//Losowanie ID NPC-a
+		int random;
+		if (this->world_type == WORLD_UNDERWATER)
+			random = rand() % 4 + 1;
+		else
+			random = rand() % 3 + 1;
+		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), rand() % 3 + 1, this->randomPosition(), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(&(this->physics_world), this->world_type, random, this->randomPosition(), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
 		bool end = false;	//Nie przydzielono pozycji
 
 		//Dla NPC-ów poruszaj¹cych siê po sztywnych obiektach
-		if (!temp_npc.getFeatures().flying)
+		if (!temp_npc.getFeatures().flying && !temp_npc.getFeatures().swimming)
 		{
 			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
 			while (!end)
@@ -298,13 +315,14 @@ void cMap::generate()
 			}
 		}
 		//Dla lataj¹cych NPC-ów
-		else
+		else if (temp_npc.getFeatures().flying && !temp_npc.getFeatures().swimming)
 		{
 			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê odpowiednio wysoko nad powierzchni¹ sztywnego obiektu
 			while (!end)
 			{
-				temp_npc.setAllPositions(this->randomPosition());
-				sf::Vector2f main_pos = temp_npc.getPosition();		//G³ówna pozycja - pozycja pocz¹tkowa NPC-a
+				
+				sf::Vector2f main_pos = this->randomPosition();		//G³ówna pozycja - pozycja pocz¹tkowa NPC-a
+				temp_npc.setAllPositions(main_pos);
 
 				//Je¿eli NPC nie jest zakopany w sztywnym obiekcie
 				if (!temp_npc.isSolidCollision(is_solid, is_npc, grid_size))
@@ -331,6 +349,21 @@ void cMap::generate()
 				}
 			}
 		}
+		//Dla p³ywaj¹cych NPC-ów
+		else
+		{
+			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê odpowiednio wysoko nad powierzchni¹ sztywnego obiektu
+			while (!end)
+			{
+				temp_npc.setAllPositions(this->randomPosition());
+				
+				//Je¿eli NPC znajduje siê w wodzie
+				if (temp_npc.isSolidCollision(is_fluid, is_npc, grid_size))
+				{
+					end = true;
+				}
+			}
+		}
 
 		sf::Vector2i pos_on_grid((temp_npc.getPosition().x - temp_npc.getOrigin().x) / 32, (temp_npc.getPosition().y - temp_npc.getOrigin().y) / 32);
 		is_npc[pos_on_grid.y * grid_size.x + pos_on_grid.x] = true;
@@ -354,9 +387,9 @@ void cMap::generate()
 		case WORLD_UNDERWATER:
 		{
 			if (random < 550)
-				type = BG_WATER_DIVE;
+				type = BG_FLUID_DIVE;
 			else if (random < 800)
-				type = BG_WATER_LYING;
+				type = BG_FLUID_LYING;
 			else
 				type = BG_GROUND_INSIDE;
 			break;
@@ -405,9 +438,9 @@ void cMap::generate()
 			{
 				switch (rand() % 3)
 				{
-				case 0: {type = BG_WATER_LYING;	break;}
-				case 1: {type = BG_WATER_DIVE;	break;}
-				case 2: {type = BG_WATER_FLOAT;	break;}
+				case 0: {type = BG_FLUID_LYING;	break;}
+				case 1: {type = BG_FLUID_DIVE;	break;}
+				case 2: {type = BG_FLUID_FLOAT;	break;}
 				}
 			}
 			else if (random < 850 - (fluid.empty() ? 125 : 0))	//40% szans na obiekt na gruncie, chyba ¿e woda nie istnieje, to 47.5%
@@ -453,7 +486,7 @@ void cMap::generate()
 				temp_bg_obj.setAllPosition(this->randomPosition());
 
 				//Je¿eli obiekt w tle nie jest zakopany w gruncie i nie znajduje siê w wodzie
-				if (!temp_bg_obj.isGroundCollision(is_ground, grid_size) && !temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+				if (!temp_bg_obj.isGroundCollision(is_ground, grid_size) && !temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 				{
 					temp_bg_obj.move(0, 32);
 					//Je¿eli pod obiektem w tle znajduje siê grunt (bêdzie le¿a³ na gruncie)
@@ -474,7 +507,7 @@ void cMap::generate()
 				temp_bg_obj.setAllPosition(this->randomPosition());
 
 				//Je¿eli obiekt w tle nie jest zakopany w gruncie i nie znajduje siê w wodzie
-				if (!temp_bg_obj.isGroundCollision(is_ground, grid_size) && !temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+				if (!temp_bg_obj.isGroundCollision(is_ground, grid_size) && !temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 				{
 					temp_bg_obj.move(0, 32);
 					//Je¿eli pod obiektem w tle nie znajduje siê grunt (bêdzie lewitowa³ w powietrzu)
@@ -500,15 +533,15 @@ void cMap::generate()
 			}
 			break;
 		}
-		case BG_WATER_LYING:
+		case BG_FLUID_LYING:
 		{
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
 				temp_bg_obj.setAllPosition(this->randomPosition());
 
-				//Je¿eli obiekt w tle nie jest zakopany w gruncie i znajduje siê w wodzie
-				if (!temp_bg_obj.isGroundCollision(is_ground, grid_size) && temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+				//Je¿eli obiekt w tle nie jest zakopany w sztywnym obiekcie i znajduje siê w wodzie
+				if (!temp_bg_obj.isGroundCollision(is_solid, grid_size) && temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 				{
 					temp_bg_obj.move(0, 32);
 					//Je¿eli pod obiektem w tle znajduje siê grunt (bêdzie le¿a³ na gruncie)
@@ -521,22 +554,22 @@ void cMap::generate()
 			}
 			break;
 		}
-		case BG_WATER_DIVE:
+		case BG_FLUID_DIVE:
 		{
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
 				temp_bg_obj.setAllPosition(this->randomPosition());
 
-				//Je¿eli obiekt w tle znajduje siê w wodzie
-				if (temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+				//Je¿eli obiekt w tle znajduje siê w wodzie i nie znajduje siê w sztywnym obiekcie)
+				if (temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 				{
-					if (temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+					if (temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 					{
 						temp_bg_obj.move(0, -32);
 
 						//Je¿eli wy¿ej jest woda (nie p³ywa, a znajduje siê "wewn¹trz" wody
-						if (temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+						if (temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 						{
 							temp_bg_obj.move(0, 32);
 							end = true;
@@ -546,7 +579,7 @@ void cMap::generate()
 			}
 			break;
 		}
-		case BG_WATER_FLOAT:
+		case BG_FLUID_FLOAT:
 		{
 			bool end = false;
 			while (!end)
@@ -554,12 +587,12 @@ void cMap::generate()
 				temp_bg_obj.setAllPosition(this->randomPosition());
 
 				//Je¿eli obiekt w tle znajduje siê w wodzie
-				if (temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+				if (temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 				{
 					temp_bg_obj.move(0, -32);
 
 					//Je¿eli wy¿ej nie ma wody
-					if (!temp_bg_obj.isWaterCollision(this->fluid_tab, grid_size))
+					if (!temp_bg_obj.isWaterCollision(is_fluid, grid_size))
 					{
 						temp_bg_obj.move(0, 26);	//Obni¿ono o nieco mniej, ¿eby obiekt "p³ywa³" na wodzie
 						end = true;
@@ -607,7 +640,7 @@ void cMap::generate()
 	//Usuwanie zbêdnych tablic dynamicznych
 	delete[] is_solid;
 	delete[] is_ground;
-	//delete[] is_fluid;
+	delete[] is_fluid;
 	delete[] to_fluid;
 	delete[] is_npc;
 }
@@ -623,7 +656,7 @@ void cMap::movements(sf::View &view)
 		//for (int i = 0; i < this->bonus_block.size(); i++)
 		if (bonus_block.size() > 0)
 		{
-			this->bonus_block[0].dropTreasures(&(this->physics_world), this->treasure);
+			this->bonus_block[0].dropTreasures(&(this->physics_world), this->world_type, this->treasure);
 			this->physics_world.DestroyBody(this->bonus_block[0].getBody());
 			bonus_block.erase(bonus_block.begin());
 		}

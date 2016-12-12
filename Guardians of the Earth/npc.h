@@ -40,7 +40,7 @@ class cNPC :public cObjectLevel
 	void setFeatures(unsigned short id);
 
 public:
-	cNPC(b2World *physics_world, unsigned short id, sf::Vector2f pos, eDirection direction);
+	cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction);
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect);//std::vector <cGround> &ground, std::vector <cBlock> &block, std::vector <cBonusBlock> &bonus_block, std::vector <cNPC> &npc);
 	//void startMoving();

@@ -203,7 +203,7 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		}
 		break;
 	}
-	case BG_WATER_LYING:
+	case BG_FLUID_LYING:
 	{
 		switch (world_type)
 		{
@@ -225,7 +225,7 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		}
 		break;
 	}
-	case BG_WATER_DIVE:
+	case BG_FLUID_DIVE:
 	{
 		switch (world_type)
 		{
@@ -251,7 +251,7 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 		}
 		break;
 	}
-	case BG_WATER_FLOAT:
+	case BG_FLUID_FLOAT:
 	{
 		switch (world_type)
 		{
@@ -302,9 +302,9 @@ sf::Texture* cBackgroundObject::randomGraphics(eWorld world_type, sf::Vector2f p
 
 void cBackgroundObject::setAllPosition(sf::Vector2f pos)
 {
-	if (this->type == BG_GROUND_LYING || this->type == BG_WATER_LYING)
+	if (this->type == BG_GROUND_LYING || this->type == BG_FLUID_LYING)
 		this->setPosition(sf::Vector2f(pos.x, pos.y + (16 - this->getTextureRect().height / 2)));	//Obiekty w tle s¹ przyci¹gane do spodu siatki 32x32
-	else if (this->type == BG_WATER_FLOAT)	//Czêœæ dopasowywania grafiki jest ustawiona przy tworzeniu obiektu w "map.cpp"
+	else if (this->type == BG_FLUID_FLOAT)	//Czêœæ dopasowywania grafiki jest ustawiona przy tworzeniu obiektu w "map.cpp"
 		this->setPosition(sf::Vector2f(pos.x, pos.y - (16 - this->getTextureRect().height / 2)));	//Obiekty p³ywaj¹ce na wodzie s¹ wzniesione na górê siatki 32x32
 	else
 		this->setPosition(sf::Vector2f(pos.x, pos.y));	//Obiekty znajduj¹ce siê w ziemi i p³ywaj¹ce w wodzie nie s¹ przyci¹gane do spodu siatki

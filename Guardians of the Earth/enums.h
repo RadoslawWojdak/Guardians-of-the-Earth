@@ -11,7 +11,7 @@ enum eCategory
 	CAT_TREASURE = 3,
 	CAT_NPC = 4,
 	CAT_TRAMPOLINE = 5,
-	CAT_WATER = 6
+	CAT_FLUID = 6
 };
 
 enum eBackgroundType
@@ -23,9 +23,9 @@ enum eBackgroundType
 	BG_TOP_TREE = 4,			//Góra (korona) drzewa
 	BG_FLYING = 5,				//Typ lataj¹cy (np. chmury)
 	BG_GROUND_INSIDE = 6,		//Typ wewn¹trz gruntu (np. kamienie)
-	BG_WATER_LYING = 7,			//Typ wodny, le¿¹cy (np. wodorosty)
-	BG_WATER_DIVE = 8,			//Typ wodny, nurkuj¹cy (np. b¹belek powietrza)
-	BG_WATER_FLOAT = 9,			//Typ unosz¹cy siê na wodzie (np. kaczka)
+	BG_FLUID_LYING = 7,			//Typ p³ynowy, le¿¹cy (np. wodorosty)
+	BG_FLUID_DIVE = 8,			//Typ p³ynowy, nurkuj¹cy (np. b¹belek powietrza)
+	BG_FLUID_FLOAT = 9,			//Typ unosz¹cy siê na p³ynie (np. kaczka)
 	BG_CEILING = 10				//Typ wisz¹cy na suficie (np. nietoperz)
 };
 
@@ -61,7 +61,7 @@ enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc
 	OBJECT_GROUND = 1,
 	OBJECT_BLOCK = 2,
 	OBJECT_BONUS_BLOCK = 3,
-	OBJECT_WATER = 4,
+	OBJECT_FLUID = 4,
 	OBJECT_TREASURE = 5,
 	OBJECT_TRAMPOLINE = 6,
 	OBJECT_POWER_UP = 7,

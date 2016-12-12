@@ -1,6 +1,6 @@
 #include "npc.h"
 #include <iostream>
-cNPC::cNPC(b2World *physics_world, unsigned short id, sf::Vector2f pos, eDirection direction)
+cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction)
 {
 	this->adjustGraphicsParameters(t_npc[id - 1], pos);
 	
@@ -39,7 +39,7 @@ cNPC::cNPC(b2World *physics_world, unsigned short id, sf::Vector2f pos, eDirecti
 
 	//NPC - 2; Koliduje z Grunt, Blok, ...
 	fd.filter.categoryBits = CATEGORY(CAT_NPC);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | CATEGORY(CAT_NPC);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | CATEGORY(CAT_NPC) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
 
 	//body->CreateFixture(shape, 1.0f);
 	body->CreateFixture(&fd);
@@ -100,11 +100,35 @@ void cNPC::setFeatures(unsigned short id)
 
 		break;
 	}
+	case 4:
+	{
+		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+
+		this->features.friendly = false;
+
+		this->features.motion = true;
+		this->features.chase = false;
+		this->speed = 2.5f;
+		this->features.max_speed = 2.5f;
+
+		this->features.flying = false;
+		this->features.swimming = true;
+		this->features.jumping = false;
+
+		break;
+	}
 	}
 }
 
 void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect)
 {
+	//Odbicie lustrzane grafiki ze wzglêdu na kierunek ruchu
+	if (this->dir == DIR_LEFT)
+		this->setScale(sf::Vector2f(1, 1));
+	else if (this->dir == DIR_RIGHT)
+		this->setScale(sf::Vector2f(-1, 1));
+	//!Odbicie lustrzane grafiki ze wzglêdu na kierunek ruchu
+
 	if (!start && this->getGlobalBounds().intersects(view_rect))
 	{
 		this->body->SetActive(true);
@@ -177,13 +201,19 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 				this->features.flying = false;
 				this->features.max_speed = 0;
 			}
+			else if (this->features.swimming && !this->features.chase)	//P³ywaj¹ce, nie œcigaj¹ce przy zderzeniu kolizji z wod¹, zaczynaj¹ p³ywaæ (nie opadaj¹)
+			{
+				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
+				this->body->SetGravityScale(0.0f);
+			}
 
 			//Ró¿ne oddzia³ywania zale¿nie od typu p³ynu
 			switch (world_type)
 			{
 			case WORLD_DESERT:
 			{
-				this->body->SetGravityScale(0.035f);
+				if (!this->features.swimming)
+					this->body->SetGravityScale(0.035f);
 				if (this->body->GetLinearVelocity().y > 0.5f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.5f));
 				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 3.5f)
@@ -201,7 +231,8 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 			}
 			default:
 			{
-				this->body->SetGravityScale(0.35f);
+				if (!this->features.swimming)
+					this->body->SetGravityScale(0.35f);
 				if (this->body->GetLinearVelocity().y > 2.0f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 2.0f));
 				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 2.0f)
@@ -221,6 +252,7 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 		}
 		else	//Zwyk³a przestrzeñ (bez p³ynów)
 		{
+			if (!this->features.flying)
 			this->body->SetGravityScale(1.0f);
 
 			if (!this->features.chase && !this->features.flying)	//Je¿eli porusza siê ze sta³¹ prêdkoœci¹
@@ -258,6 +290,7 @@ void cNPC::setAllPositions(sf::Vector2f pos)
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);
+	last_position = pos;
 }
 
 void cNPC::moveAllPositions(sf::Vector2f pos)

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
-cTreasure::cTreasure(b2World *physics_world, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
+cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
 {
 	//Losowanie wartoœci skaru
 	clock_t t1;
@@ -64,7 +64,7 @@ cTreasure::cTreasure(b2World *physics_world, sf::Vector2f pos, bool physics, flo
 
 	//BOX2D
 	uint16 category_bits = CATEGORY(CAT_TREASURE);	//Filtr kateogri
-	uint16 mask_bits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK);		//Filtr kolizji
+	uint16 mask_bits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);		//Filtr kolizji
 	if (physics)
 	{
 		switch (this->value)
