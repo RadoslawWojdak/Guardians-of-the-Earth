@@ -37,6 +37,8 @@ class cMap
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
 
+	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
+
 public:
 	cMap(eWorld world);				//Tworzenie mapy za pomoca funkcji generate()
 	void generate();	//Generowanie mapy

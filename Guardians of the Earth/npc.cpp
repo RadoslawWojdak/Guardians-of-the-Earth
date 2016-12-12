@@ -103,7 +103,7 @@ void cNPC::setFeatures(unsigned short id)
 	}
 }
 
-void cNPC::step(sf::FloatRect &view_rect)
+void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect)
 {
 	if (!start && this->getGlobalBounds().intersects(view_rect))
 	{
@@ -126,7 +126,18 @@ void cNPC::step(sf::FloatRect &view_rect)
 			//Je¿eli prêdkoœæ pozioma NPC-a siê zmieni³a to znaczy, ¿e musia³ w coœ uderzyæ swoim bokiem, czyli teraz zmienia siê jego prêdkoœæ na odwrotn¹
 			if (this->last_speed.x != this->body->GetLinearVelocity().x)
 			{
-				this->body->SetLinearVelocity(b2Vec2(-this->last_speed.x, this->body->GetLinearVelocity().y));
+				if (last_speed.x > 0)
+				{
+					this->dir = DIR_LEFT;
+					this->body->SetLinearVelocity(b2Vec2(-this->features.max_speed, this->body->GetLinearVelocity().y));
+				}
+				else
+				{
+					this->dir = DIR_RIGHT;
+					this->body->SetLinearVelocity(b2Vec2(this->features.max_speed, this->body->GetLinearVelocity().y));
+				}
+
+				//this->body->SetLinearVelocity(b2Vec2(-this->last_speed.x, this->body->GetLinearVelocity().y));
 			}
 		}
 
@@ -158,6 +169,68 @@ void cNPC::step(sf::FloatRect &view_rect)
 				this->body->SetLinearVelocity(b2Vec2(body->GetLinearVelocity().x, -7));
 		}
 
+		//Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
+		if ((int)((this->getPosition().y - (this->getOrigin().y)) / 32) * (world_size.x / 32) + (int)((this->getGlobalBounds().left + this->getTextureRect().width) / 32) < ((world_size.x / 32 + 1) * (world_size.y / 32 + 1)) && fluid_tab[(int)((this->getPosition().y - (this->getOrigin().y)) / 32) * (world_size.x / 32) + (int)((this->getGlobalBounds().left + this->getTextureRect().width) / 32)])
+		{
+			if (this->features.flying && !this->features.swimming)	//Lataj¹ce przestaj¹ lataæ, chyba ¿e potrafi¹ p³ywaæ
+			{
+				this->features.flying = false;
+				this->features.max_speed = 0;
+			}
+
+			//Ró¿ne oddzia³ywania zale¿nie od typu p³ynu
+			switch (world_type)
+			{
+			case WORLD_DESERT:
+			{
+				this->body->SetGravityScale(0.035f);
+				if (this->body->GetLinearVelocity().y > 0.5f)
+					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.5f));
+				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 3.5f)
+				{
+					this->speed = (float)this->features.max_speed / 3.5f;
+					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed / 3.5f, this->body->GetLinearVelocity().y));
+				}
+				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed / 3.5f)
+				{
+					this->speed = -(float)this->features.max_speed / 3.5f;
+					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed / 3.5f, this->body->GetLinearVelocity().y));
+				}
+
+				break;
+			}
+			default:
+			{
+				this->body->SetGravityScale(0.35f);
+				if (this->body->GetLinearVelocity().y > 2.0f)
+					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 2.0f));
+				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 2.0f)
+				{
+					this->speed = (float)this->features.max_speed / 2.0f;
+					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed / 2.0f, this->body->GetLinearVelocity().y));
+				}
+				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed / 2.0f)
+				{
+					this->speed = -(float)this->features.max_speed / 2.0f;
+					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed / 2.0f, this->body->GetLinearVelocity().y));
+				}
+
+				break;
+			}
+			}
+		}
+		else	//Zwyk³a przestrzeñ (bez p³ynów)
+		{
+			this->body->SetGravityScale(1.0f);
+
+			if (!this->features.chase && !this->features.flying)	//Je¿eli porusza siê ze sta³¹ prêdkoœci¹
+			{
+				if (this->dir == DIR_LEFT)
+					this->body->SetLinearVelocity(b2Vec2(-this->features.max_speed, this->body->GetLinearVelocity().y));
+				else
+					this->body->SetLinearVelocity(b2Vec2(this->features.max_speed, this->body->GetLinearVelocity().y));
+			}
+		}
 		
 		//Ustawienie ostatniej pozycji musi byæ w tym miejscu, gdy¿ póŸniej zostanie zmieniona zarówno przez czynniki z tej funkcji, jak i kolizje
 		this->last_speed = this->body->GetLinearVelocity();
