@@ -17,13 +17,11 @@ bool howManySectors()
 	{
 		switch (i)
 		{
-			case WORLD_OVERWORLD:		type = "overworld";		break;
-			case WORLD_UNDERGROUND:		type = "underground";	break;
-			/*case underwater:	type = "underwater";	break;
-			case desert:		type = "desert";		break;
-			case ice_land:		type = "ice_land";		break;
-			case hot_land:		type = "hot_land";		break;
-			case sky:			type = "sky";			break;*/
+			case WORLD_OVERWORLD: {type = "overworld";		break;}
+			case WORLD_UNDERGROUND: {type = "underground";	break;}
+			case WORLD_UNDERWATER: {type = "underwater";	break;}
+			case WORLD_ICE_LAND: {type = "ice_land";		break;}
+			case WORLD_DESERT: {type = "desert";			break;}
 		}
 
 		for (int j = 0; ; j++)
@@ -50,7 +48,7 @@ bool howManySectors()
 	return true;
 }
 
-void cSector::loadRandomSector(eWorld type, std::string &id)
+void cSector::loadRandomSector(eWorld world_type, std::string &id)
 {
 	//Dok³adniejsze losowanie liczb (w oparciu o mniejsze liczby od sekund)
 	clock_t t1;
@@ -63,31 +61,29 @@ void cSector::loadRandomSector(eWorld type, std::string &id)
 	std::string path;
 
 	path = "sectors\\";
-	switch (type)
+	switch (world_type)
 	{
-		case WORLD_OVERWORLD:		path += "overworld";	break;
-		case WORLD_UNDERGROUND:		path += "underground";	break;
-		/*case underwater:	path += "underwater";	break;
-		case desert:		path += "desert";		break;
-		case ice_land:		path += "ice_land";		break;
-		case hot_land:		path += "hot_land";		break;
-		case sky:			path += "sky";			break;
-	*/}
+		case WORLD_OVERWORLD: {path += "overworld";		break;}
+		case WORLD_UNDERGROUND: {path += "underground";	break;}
+		case WORLD_UNDERWATER: {path += "underwater";	break;}
+		case WORLD_ICE_LAND: {path += "ice_land";		break;}
+		case WORLD_DESERT: {path += "desert";			break;}
+	}
 	path += "\\sector-";
 
 	std::string nr;
 	std::stringstream ss;
-	ss << rand()%how_many_sectors[type]+1;
+	ss << rand()%how_many_sectors[world_type]+1;
 	nr = ss.str();
 
 	path += nr + ".sec";
 
-	this->loadSector(path);
+	this->loadSector(world_type, path);
 
 	id = nr;
 }
 
-void cSector::loadSector(std::string path)
+void cSector::loadSector(eWorld world_type, std::string path)
 {
 	//eObjType* object;
 	bool state[9];		//czy dany stan istnienia ma byc wlaczony? (dane po kropce w sektorze)
@@ -177,8 +173,13 @@ void cSector::loadSector(std::string path)
 						}
 					}
 					//Jezeli nawet nie ma drugiej kropki
-					else if (!state[state_nr])	//Jezeli ten stan istnienia nie zostal wylosowany, to zamienia objekt na pusta przestrzen
-						id = 0;
+					else if (!state[state_nr])	//Jezeli ten stan istnienia nie zostal wylosowany, to zamienia objekt na pusta przestrzen (wodê w przypadku œwiata wodnego)
+					{
+						if (world_type == WORLD_UNDERWATER)
+							id = 4;
+						else
+							id = 0;
+					}
 				}
 
 				*(this->object + i*width + j) = (eObjType)id;
@@ -279,11 +280,24 @@ void cSector::loadSector(std::string path)
 	}
 	else
 	{
+		std::string world_str;
+
+		switch (world_type)
+		{
+		case WORLD_OVERWORLD: {world_str = "Overworld"; break;}
+		case WORLD_UNDERGROUND: {world_str = "Underground"; break;}
+		case WORLD_UNDERWATER: {world_str = "Underwater"; break;}
+		case WORLD_ICE_LAND: {world_str = "Ice land"; break;}
+		case WORLD_DESERT: {world_str = "Desert";	break;}
+		}
+
+		std::cout << "Brak sektorow dla: " << world_str << "!\n";
+		system("PAUSE");
 		exit(3);
 	}
 }
 
-bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
+bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned int level_height)
 {
 	//LISTA OBIEKTÓW (OD GÓRY DO DO£U POZIOMU) PRAWEGO KOÑCA LEWEGO SEKTORA I LEWEGO KOÑCA PRAWEGO SEKTORA!!!
 	//iloœæ obiektów - zale¿na od wysokoœci poziomu
@@ -297,34 +311,90 @@ bool cSector::isSectorFitted(cSector &prev_sector, unsigned int level_height)
 	for (int i = objects_count - 1; i >= 0; i--)
 	{
 		if (prev_sector.getHeight() - (objects_count - i) >= 0)
+		{
 			object[0][i] = prev_sector.getObject(prev_sector.getWidth() - 1, prev_sector.getHeight() - (objects_count - i));
-		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ)
+			
+			//Zamienia objekty za którymi kryje siê dany typ terenu na ten typ terenu
+			if (object[0][i] == OBJECT_BONUS_BLOCK || object[0][i] == OBJECT_TREASURE || object[0][i] == OBJECT_TRAMPOLINE || object[0][i] == OBJECT_POWER_UP)
+			{
+				if (world_type == WORLD_UNDERWATER)
+					object[0][i] = OBJECT_FLUID;
+				else
+					object[0][i] = OBJECT_NONE;
+			}
+		}
+		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ), lub gruntem (w przypadku œwiata podziemnego)
 		else
-			object[0][i] = OBJECT_NONE;
+		{
+			if (world_type == WORLD_UNDERGROUND)
+				object[0][i] = OBJECT_GROUND;
+			else if (world_type == WORLD_UNDERWATER)
+				object[0][i] = OBJECT_FLUID;
+			else
+				object[0][i] = OBJECT_NONE;
+		}
 	}
 	//Obiekty aktualnego sektora
 	for (int i = objects_count - 1; i >= 0; i--)
 	{
 		if (this->getHeight() - (objects_count - i) >= 0)
+		{
 			object[1][i] = this->getObject(0, this->getHeight() - (objects_count - i));
-		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ)
+
+			//Zamienia objekty za którymi kryje siê dany typ terenu na ten typ terenu
+			if (object[1][i] == OBJECT_BONUS_BLOCK || object[1][i] == OBJECT_TREASURE || object[1][i] == OBJECT_TRAMPOLINE || object[1][i] == OBJECT_POWER_UP)
+			{
+				if (world_type == WORLD_UNDERWATER)
+					object[0][i] = OBJECT_FLUID;
+				else
+					object[0][i] = OBJECT_NONE;
+			}
+		}
+		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ) lub gruntem (w przypadku œwiata podziemnego)
+		else if (world_type == WORLD_UNDERGROUND)
+			object[1][i] = OBJECT_GROUND;
+		else if (world_type == WORLD_UNDERWATER)
+			object[1][i] = OBJECT_FLUID;
 		else
 			object[1][i] = OBJECT_NONE;
 	}
 
 	//PÊTLA SPRAWDZANIA DOPASOWANIA SEKTORA
-	for (int i = objects_count - 1; i >= objects_count - prev_sector.getHeight(); i--)
+	if (world_type != WORLD_UNDERWATER)	//W przypadku gdy œwiat nie jest œwiatem podwodnym, to generator musi sprawdzaæ, czy da siê przejœæ chodz¹c
 	{
-		switch (object[0][i])		//id obiektu znajdujacego sie na ostatniej lini sektora
+		for (int i = objects_count - 1; i >= objects_count - prev_sector.getHeight(); i--)
 		{
-		case OBJECT_GROUND:
-		case OBJECT_BLOCK:
-			if ((object[0][i - 1] == OBJECT_NONE || object[0][i - 1] == OBJECT_TREASURE || object[0][i - 1] == OBJECT_BONUS_BLOCK || object[0][i - 1] == OBJECT_POWER_UP || object[0][i - 1] == OBJECT_LADDER) && (object[0][i - 2] == OBJECT_NONE || object[0][i - 2] == OBJECT_TREASURE || object[0][i - 2] == OBJECT_BONUS_BLOCK || object[0][i - 2] == OBJECT_POWER_UP || object[0][i - 2] == OBJECT_LADDER))	//Je¿eli ponad gruntem s¹ conajmniej 2 puste pola
+			switch (object[0][i])		//id obiektu znajdujacego sie na ostatniej lini sektora
 			{
-				if ((((object[1][i] == OBJECT_NONE || object[1][i] == OBJECT_TREASURE || object[1][i] == OBJECT_BONUS_BLOCK || object[1][i] == OBJECT_POWER_UP || object[1][i] == OBJECT_LADDER) || (object[1][i - 2] == OBJECT_NONE || object[1][i - 2] == OBJECT_TREASURE || object[1][i - 2] == OBJECT_BONUS_BLOCK || object[1][i - 2] == OBJECT_POWER_UP || object[1][i - 2] == OBJECT_LADDER)) && (object[1][i - 1] == OBJECT_NONE || object[1][i - 1] == OBJECT_TREASURE || object[1][i - 1] == OBJECT_BONUS_BLOCK || object[1][i - 1] == OBJECT_POWER_UP || object[1][i - 1] == OBJECT_LADDER)) && (object[1][i] == OBJECT_GROUND || object[1][i] == OBJECT_BLOCK || object[1][i + 1] == OBJECT_GROUND || object[1][i + 1] == OBJECT_BLOCK))	//Je¿eli na dwóch polach na równi, o stopieñ wy¿ej lub ni¿ej mo¿na przejœæ, a na równi lub stopieñ ni¿ej jest grunt lub blok, to gracz bêdzie móg³ przejœc
-					return true;
+			case OBJECT_GROUND:
+			case OBJECT_BLOCK:
+			{
+				if ((object[0][i - 1] == OBJECT_NONE || object[0][i - 1] == OBJECT_LADDER) && (object[0][i - 2] == OBJECT_NONE || object[0][i - 2] == OBJECT_LADDER))	//Je¿eli ponad gruntem s¹ conajmniej 2 puste pola
+				{
+					if ((((object[1][i] == OBJECT_NONE || object[1][i] == OBJECT_LADDER) || (object[1][i - 2] == OBJECT_NONE || object[1][i - 2] == OBJECT_LADDER)) && (object[1][i - 1] == OBJECT_NONE || object[1][i - 1] == OBJECT_LADDER)) && (object[1][i] == OBJECT_GROUND || object[1][i] == OBJECT_BLOCK || object[1][i + 1] == OBJECT_GROUND || object[1][i + 1] == OBJECT_BLOCK))	//Je¿eli na dwóch polach na równi, o stopieñ wy¿ej lub ni¿ej mo¿na przejœæ, a na równi lub stopieñ ni¿ej jest grunt lub blok, to gracz bêdzie móg³ przejœc
+						return true;
+				}
+				break;
 			}
-			break;
+			}
+		}
+	}
+	else	//Je¿eli œwiat jest œwiatem podwodnym, to wystarczy, ¿e bêdzie siê da³o przep³yn¹æ
+	{
+		for (int i = objects_count - 1; i >= 0; i--)	//Pêtla przebiega po wszystkich elementach, gdy¿ zawsze mo¿na przep³yn¹æ gór¹
+		{
+			switch (object[0][i])
+			{
+			case OBJECT_FLUID:
+			{
+				if ((object[0][i - 1] == OBJECT_FLUID || object[0][i - 1] == OBJECT_LADDER) && (object[0][i - 2] == OBJECT_FLUID || object[0][i - 2] == OBJECT_LADDER))	//Je¿eli powy¿ej te¿ znajduje siê woda
+				{
+					if ((object[1][i] == OBJECT_FLUID || object[1][i] == OBJECT_LADDER) && ((object[1][i - 1] == OBJECT_FLUID || object[1][i - 1] == OBJECT_LADDER) || (object[1][i + 1] == OBJECT_FLUID || object[1][i + 1] == OBJECT_LADDER)))
+						return true;
+				}
+				break;
+			}
+			}
 		}
 	}
 

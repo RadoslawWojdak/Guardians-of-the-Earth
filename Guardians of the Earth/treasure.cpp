@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
-cTreasure::cTreasure(b2World *physics_world, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
+cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
 {
 	//Losowanie wartoœci skaru
 	clock_t t1;
@@ -64,7 +64,7 @@ cTreasure::cTreasure(b2World *physics_world, sf::Vector2f pos, bool physics, flo
 
 	//BOX2D
 	uint16 category_bits = CATEGORY(CAT_TREASURE);	//Filtr kateogri
-	uint16 mask_bits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK);		//Filtr kolizji
+	uint16 mask_bits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);		//Filtr kolizji
 	if (physics)
 	{
 		switch (this->value)
@@ -169,13 +169,46 @@ cTreasure::cTreasure(b2World *physics_world, sf::Vector2f pos, bool physics, flo
 	}
 }
 
-void cTreasure::step()
+void cTreasure::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 {
 	if (this->physics)
 	{
 		//Pozycja
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
 		
+		//Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
+		if ((int)((this->getPosition().y - (this->getOrigin().y)) / 32) * (world_size.x / 32) + (int)((this->getGlobalBounds().left + this->getTextureRect().width) / 32) < ((world_size.x / 32 + 1) * (world_size.y / 32 + 1)) && fluid_tab[(int)((this->getPosition().y - (this->getOrigin().y)) / 32) * (world_size.x / 32) + (int)((this->getGlobalBounds().left + this->getTextureRect().width) / 32)])
+		{
+			//Ró¿ne oddzia³ywania zale¿nie od typu p³ynu
+			switch (world_type)
+			{
+			case WORLD_DESERT:
+			{
+				this->body->SetGravityScale(0.035f);
+				if (this->body->GetLinearVelocity().y > 0.5f)
+					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.5f));
+				if (this->body->GetLinearVelocity().x > 0.75f)
+					this->body->SetLinearVelocity(b2Vec2(0.75f, this->body->GetLinearVelocity().y));
+				break;
+			}
+			default:
+			{
+				this->body->SetGravityScale(0.35f);
+				if (this->body->GetLinearVelocity().y > 1.5f)
+					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 1.5f));
+				if (this->body->GetLinearVelocity().x > 2.0f)
+					this->body->SetLinearVelocity(b2Vec2(2.0f, this->body->GetLinearVelocity().y));
+				break;
+			}
+			}
+		}
+		else	//Zwyk³a przestrzeñ (bez p³ynów)
+		{
+			this->body->SetGravityScale(1.0f);
+		}
+		//!Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
+
+
 		//K¹t (obrót)
 		if ((this->value == T_COPPER_COIN) || (this->value == T_SILVER_COIN) || (this->value == T_GOLDEN_COIN))
 		{
