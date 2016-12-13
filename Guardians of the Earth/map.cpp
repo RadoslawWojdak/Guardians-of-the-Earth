@@ -57,7 +57,7 @@ void cMap::generate()
 				for (unsigned int j = 0; j < sector.getWidth(); j++)
 				{
 					//std::cout << j << ":" << i << "\n";
-					this->ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16), this->world_type));
+					this->ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 - (32 - this->height % 32)), this->world_type));
 				}
 		}
 		//!Dla œwiata podziemnego generator tworzy ponad sektorem warstwy gruntu
@@ -187,7 +187,7 @@ void cMap::generate()
 			else
 				this->fluid_tab[i * grid_size.x + j] = false;
 		}
-
+	
 	for (unsigned int i = 0; i < this->ground.size(); i++)
 	{
 		sf::Vector2i pos = this->ground[i].posOnGrid(sf::Vector2i(32, 32));
