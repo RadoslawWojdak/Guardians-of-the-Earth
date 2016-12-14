@@ -15,37 +15,36 @@ void cObjectLevel::adjustGraphicsParameters(sf::Texture &texture, sf::Vector2f p
 {
 	this->setTexture(texture);
 	
-	//Przycinanie tekstury do maksymalnego rozmiaru 32x32 (jedno pole mapy)
-	/*int new_width = this->getTextureRect().width, new_height = this->getTextureRect().height;
-	if (this->getTextureRect().width > 32)
-		new_width = 32;
-	if (this->getTextureRect().height > 32)
-		new_height = 32;
-	this->setTextureRect(sf::IntRect(0, 0, new_width, new_height));
-	*/
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);
 }
 
-//UWAGA!!! Je¿eli coœ tutaj zmienisz, nie zapomnij zmieniæ równie¿ w map.cpp przy pêtli spawn_pu_pos!
+//UWAGA!!! Je¿eli coœ tutaj zmienisz, nie zapomnij zmieniæ równie¿ w map.cpp przy pêtli spawn_pu_pos, która korzysta z takiego samego algorytmu!
 void cObjectLevel::adjustObjectToLevel(unsigned int map_height)
 {
 	this->setPosition(sf::Vector2f(this->getPosition().x, this->getPosition().y + map_height - g_height));
 }
-/*
-bool cObjectLevel::isInView(sf::View &view)
-{
-	if (this->getLocalBounds().intersects(view.getViewport()))
-		return true;
-	return false;
-}*/
 
 sf::Vector2i cObjectLevel::posOnGrid(sf::Vector2i grid_rect_size)
 {
 	sf::Vector2i pos;
 
-	pos.x = (this->getPosition().x) / 32;// +(this->getLocalBounds().width > 32 ? 1 : 0);
-	pos.y = (this->getPosition().y - 32) / 32;// +(this->getLocalBounds().height > 32 ? 1 : 0);
+	pos.x = (this->getPosition().x) / 32;
+	pos.y = (this->getPosition().y - 32) / 32;
 
 	return pos;
+}
+
+bool cObjectLevel::isCollisionOnGrid(bool *object_on_grid_exists, sf::Vector2i grid_size)
+{
+	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));
+
+	//Czy wysz³o poza zakres? (poza ramy poziomu)
+	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
+		return false;
+	
+	if (object_on_grid_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+		return true;
+
+	return false;
 }

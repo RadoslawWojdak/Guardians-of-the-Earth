@@ -42,14 +42,9 @@ class cNPC :public cObjectLevel
 public:
 	cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction);
 
-	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect);//std::vector <cGround> &ground, std::vector <cBlock> &block, std::vector <cBonusBlock> &bonus_block, std::vector <cNPC> &npc);
-	//void startMoving();
+	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect);
 
 	void setAllPositions(sf::Vector2f pos);
-	void moveAllPositions(sf::Vector2f pos);
-
-	//U¯YWAÆ TYLKO PRZY GENEROWANIU MAPY!
-	bool isSolidCollision(bool *solid_object, bool *npc_exists, sf::Vector2i grid_size);	//Sprawdzanie czy NPC koliduje z jakimœ cia³em sztywnym (gruntem, blokiem, bonusowym blokiem, innym NPC, ...), grid_size - rozmiary siatki (szerokoœæ i wysokoœæ mapy podzielona przez 32)
 
 	b2Body* getBody();
 	sFeatures getFeatures();

@@ -85,7 +85,6 @@ void cSector::loadRandomSector(eWorld world_type, std::string &id)
 
 void cSector::loadSector(eWorld world_type, std::string path)
 {
-	//eObjType* object;
 	bool state[9];		//czy dany stan istnienia ma byc wlaczony? (dane po kropce w sektorze)
 	for (int i = 0; i < 9; i++)
 		state[i] = rand() % 2;	//true/false
@@ -184,25 +183,7 @@ void cSector::loadSector(eWorld world_type, std::string path)
 
 				*(this->object + i*width + j) = (eObjType)id;
 			}
-		/*
-		for (int i = 0; i < this->height; i++)
-		{
-			for (int j = 0; j < this->width; j++)
-				std::cout << *(this->object + i*width + j);
-			std::cout << "\n";
-		}*/
-
-		//SPRAWDZANIE NOWYCH WYMIARÓW SEKTORA
-		/*for (int i = 0; i < this->height; i++)
-		{
-			for (int j = 0; j < this->width; j++)
-			{
-				std::cout << this->getObject(j, i) << " ";
-			}
-			std::cout << "\n";
-		}
-		std::cout << "\n";*/
-
+		
 		//Sprawdzanie jak wysoki jest sektor po zmianach stanu
 		bool found = false;
 		unsigned short decrease_height = 0;	//O ile ma sie zmniejszyc sektor
@@ -220,8 +201,6 @@ void cSector::loadSector(eWorld world_type, std::string path)
 				break;
 			decrease_height++;
 		}
-		//Zmniejszeni wysokoœci sektora
-		//this->height -= decrease;
 
 		//Sprawdzanie jak szeroki jest sektor po zmianach stanu
 		found = false;
@@ -241,9 +220,6 @@ void cSector::loadSector(eWorld world_type, std::string path)
 			decrease_width++;
 		}
 
-		//std::cout << this->width << ":" << this->height << "\n";
-		//std::cout << decrease_width << ":" << decrease_height << "\n";
-
 		//USUWANIE WSZYSTKICH PÓL SPOZA SZEROKOŒCI I WYSOKOŒCI SEKTORA
 		eObjType *temp = new eObjType[this->width * this->height];
 		for (int i = 0; i < this->height; i++)
@@ -251,7 +227,7 @@ void cSector::loadSector(eWorld world_type, std::string path)
 			{
 				*(temp + i * this->width + j) = *(this->object + i * this->width + j);
 			}
-		delete this->object;
+		delete[] this->object;
 
 		//Zmniejszenie sektora
 		unsigned short last_width = this->width, last_height = this->height;
@@ -265,18 +241,7 @@ void cSector::loadSector(eWorld world_type, std::string path)
 			{
 				this->setObject(j, i - decrease_height, *(temp + i * last_width + j));
 			}
-		delete temp;
-
-		/*for (int i = 0; i < this->height; i++)
-		{
-			for (int j = 0; j < this->width; j++)
-			{
-				std::cout << this->getObject(j, i) << " ";
-			}
-			std::cout << "\n";
-		}
-		std::cout << "\n";
-		system("PAUSE");*/
+		delete[] temp;
 	}
 	else
 	{

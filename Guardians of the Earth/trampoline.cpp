@@ -5,9 +5,6 @@ cTrampoline::cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f
 	this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 	this->adjustGraphicsParameters(t_object[id - 1], pos);
 
-	//this->id = id;
-	//this->dir = direction;
-	//this->setFeatures(id);
 	this->force = force;
 
 	//BOX2D
@@ -30,7 +27,6 @@ cTrampoline::cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f
 	fd.friction = 1.0f;
 	fd.restitution = 1.0f;
 
-	//NPC - 2; Koliduje z grunt - 0 i NPC - 2
 	fd.filter.categoryBits = CATEGORY(CAT_TRAMPOLINE);
 	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK);
 

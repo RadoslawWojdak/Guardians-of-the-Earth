@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Classes\cObjectLevel-&gt;">
       <UniqueIdentifier>{9426521f-edd3-4f51-b512-8cc5cb1e3b40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Classes\cObjectLevel-&gt;\cBlock-&gt;">
+      <UniqueIdentifier>{dbceaada-ed00-402e-8b1d-e1ce52bad9d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Classes\cObjectLevel-&gt;\cBlock-&gt;">
+      <UniqueIdentifier>{8989226f-d43a-413d-8467-0ea4ab932a2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -37,9 +43,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="block.cpp">
-      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
-    </ClCompile>
-    <ClCompile Include="bonusblock.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
     <ClCompile Include="ground.cpp">
@@ -75,6 +78,9 @@
     <ClCompile Include="fluid.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="bonusblock.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -90,9 +96,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="block.h">
-      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
-    </ClInclude>
-    <ClInclude Include="bonusblock.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
     <ClInclude Include="ground.h">
@@ -127,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="fluid.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="bonusblock.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

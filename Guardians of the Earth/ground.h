@@ -23,7 +23,6 @@ public:
 	cGround();		//Przeznaczony tylko do groundsInit
 	cGround(sf::Vector2f pos, eWorld world);
 
-	//void bodyCustomize(bool tab_ground[][], int x, int y);
 	void graphicsCustomize(sf::Vector2u map_size, bool *ground_exists, sf::Vector2i grid_size);
 
 	void resetMainParameters(b2World *physics_world);	//Resetowanie parametrów nale¿¹cych do wszystkich gruntów (statycznych)

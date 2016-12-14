@@ -21,7 +21,6 @@ class cTreasure :public cObjectLevel
 	short value;	//Wartoœæ skarbu; wartoœci ujemne okreœlaj¹ skarb o innych cechach (dodatkowe ¿ycie, itp.)
 	
 	bool physics;	//Czy na skarb dzia³a fizyka? (ruch, grawitacja, itd.)
-	//sf::Vector2f speed;	//Prêdkoœæ poruszania sie obiektu
 
 public:
 	cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos, bool physics = false, float speed_x = 0, float speed_y = 0);

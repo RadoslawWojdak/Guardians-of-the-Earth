@@ -18,7 +18,6 @@ cBlock::cBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos)
 	vs[3].Set(x + 0.0f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
 	
 	shape.CreateLoop(vs, 4);
-	//shape.SetAsBox(0.02f * 32.0f / 2.0f, 0.02f * 32.0f / 2.0f, b2Vec2(x, y), 0.0f);
 	
 	b2FixtureDef fd;
 	fd.shape = &shape;

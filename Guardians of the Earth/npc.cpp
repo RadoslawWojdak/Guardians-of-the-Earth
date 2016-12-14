@@ -27,21 +27,18 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 	if (this->features.flying)
 		this->body->SetGravityScale(0.0f);
 
-	//GOTO Gdy NPC-y spadn¹ na siebie, to niszczy siê ich poruszanie siê
+
 	b2PolygonShape shape;	//NPC-y musz¹ byæ wype³nione, gdy¿ pojedyncze krawêdzie nie koliduj¹ ze sob¹ (NPC-y przelatywa³yby przez wszystko co jest stworzone na bazie krawêdzi)
 	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.02f);		//Y zmiejszone o 0.02f - teraz NPC mo¿e przechodziæ w szczelinach o swojej wysokoœci
 	
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.density = 20.0f;
-	//fd.friction = 1.0f;
-	//fd.restitution = 0.0f;
 
 	//NPC - 2; Koliduje z Grunt, Blok, ...
 	fd.filter.categoryBits = CATEGORY(CAT_NPC);
 	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | CATEGORY(CAT_NPC) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
 
-	//body->CreateFixture(shape, 1.0f);
 	body->CreateFixture(&fd);
 }
 
@@ -160,8 +157,6 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 					this->dir = DIR_RIGHT;
 					this->body->SetLinearVelocity(b2Vec2(this->features.max_speed, this->body->GetLinearVelocity().y));
 				}
-
-				//this->body->SetLinearVelocity(b2Vec2(-this->last_speed.x, this->body->GetLinearVelocity().y));
 			}
 		}
 
@@ -186,10 +181,10 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 			this->body->SetLinearVelocity(b2Vec2(this->speed, 0));
 		}
 
-		//Je¿eli NPC bêdzie mia³ wczeœniej prêdkoœæ Y mniejsz¹ od zero, a teraz równ¹ zero, to podskoczy
+		//Je¿eli NPC bêdzie mia³ wczeœniej prêdkoœæ Y mniejsz¹ lub równ¹ od zero, a teraz równ¹ zero, to podskoczy
 		if (this->features.jumping)
 		{
-			if (this->last_speed.y > 0 && this->body->GetLinearVelocity().y <= 0)
+			if (this->last_speed.y >= 0 && this->body->GetLinearVelocity().y <= 0)
 				this->body->SetLinearVelocity(b2Vec2(body->GetLinearVelocity().x, -7));
 		}
 
@@ -272,49 +267,13 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 	this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
 	this->last_position = this->getPosition();
 }
-/*
-void cNPC::startMoving()
-{
-	if (this->motion)
-	{
-		if (this->dir == DIR_LEFT)
-			body->SetLinearVelocity(b2Vec2(-this->speed, 0));
-		else if (this->dir == DIR_RIGHT)
-			body->SetLinearVelocity(b2Vec2(this->speed, 0));
-	}
-}
-*/
+
 void cNPC::setAllPositions(sf::Vector2f pos)
 {
-	//this->adjustGraphicsParameters(t_npc[this->id - 1], pos);
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);
 	last_position = pos;
-}
-
-void cNPC::moveAllPositions(sf::Vector2f pos)
-{
-	this->move(pos);
-	this->body->SetLinearVelocity(b2Vec2(pos.x, this->body->GetLinearVelocity().y));
-	//this->body->SetTransform(b2Vec2(this->getPosition().x * 0.02f, this->getPosition().y * 0.02f), 0);
-}
-
-bool cNPC::isSolidCollision(bool *solid_object, bool *npc_exists, sf::Vector2i grid_size)
-{
-	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));//((this->getPosition().x - 32) / 32, (this->getPosition().y - 32) / 32);
-
-	//Czy wysz³o poza zakres? (poza ramy poziomu)
-	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
-		return false;
-	//Sztywne obiekty
-	if (solid_object[pos_on_grid.y * grid_size.x + pos_on_grid.x])
-		return true;
-	//NPC-y
-	if (npc_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
-		return true;
-
-	return false;
 }
 
 b2Body* cNPC::getBody()

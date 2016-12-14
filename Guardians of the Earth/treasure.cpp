@@ -59,7 +59,6 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 	}
 
 	this->physics = physics;
-	//this->speed = sf::Vector2f(speed_x, speed_y);
 
 
 	//BOX2D
@@ -79,7 +78,6 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			body_def.position.Set(pos.x * 0.02f, pos.y * 0.02f);
 			body_def.fixedRotation = true;
 			body_def.allowSleep = true;
-			//body_def.angularDamping = 0.7f;
 			body_def.linearDamping = 0.55f;
 
 			body = physics_world->CreateBody(&body_def);
@@ -93,7 +91,6 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			fd.density = 1.0f;
 			fd.friction = 0.4f;
 
-			//Skarb - 1; Koliduje z grunt - 0
 			fd.filter.categoryBits = category_bits;
 			fd.filter.maskBits = mask_bits;
 
@@ -109,7 +106,6 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			body_def.position.Set(pos.x * 0.02f, pos.y * 0.02f);
 			body_def.fixedRotation = true;
 			body_def.allowSleep = false;
-			//body_def.linearDamping = 0.15f;
 
 			body = physics_world->CreateBody(&body_def);
 			body->SetLinearVelocity(b2Vec2(speed_x, speed_y));
@@ -123,7 +119,6 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			fd.friction = 0.4f;
 			fd.restitution = 1.0f;
 
-			//Skarb - 1; Koliduje z grunt - 0
 			fd.filter.categoryBits = category_bits;
 			fd.filter.maskBits = mask_bits;
 
@@ -147,17 +142,12 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 
 			b2PolygonShape shape;
 			shape.SetAsBox((float)a / 2.0f, (float)b / 2.0f);
-			/*sf::Vector2i size(this->getTextureRect().width, this->getTextureRect().height);
-			const int vxNum = 3;
-			b2Vec2 vx[3] = { b2Vec2(0, (size.y * 0.02f) / 2.0f), b2Vec2((size.x * 0.02f - 0.03f) / 2.0f, 0), b2Vec2((size.x * 0.02f) / 2.0f, 0.03f) };
-			shape.Set(vx, vxNum);
-			*/
+
 			b2FixtureDef fd;
 			fd.shape = &shape;
 			fd.density = 1.0f;
 			fd.friction = 1.0f;
 
-			//Skarb - 1; Koliduje z grunt - 0
 			fd.filter.categoryBits = category_bits;
 			fd.filter.maskBits = mask_bits;
 

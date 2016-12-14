@@ -26,16 +26,18 @@ class cMap
 
 	sf::Sprite background[2];			//Tlo mapy (dziêki dwóm takim samym t³om, t³o mo¿e siê przesuwaæ)
 
-	std::vector <cGround> ground;			//WEKTOR KLASY cGROUND
-	std::vector <cFluid> fluid;				//WEKTOR KLASY cFLUID
-	std::vector <cBlock> block;				//WEKTOR KLASY cBLOCK
-	std::vector <cBonusBlock> bonus_block;	//WEKTOR KLASY cBLOCK - DLA BONUSOWYCH BLOKOW (Z ZAWARTOSCIA)
-	std::vector <cNPC> npc;					//WEKTOR KLASY cNPC
-	std::vector <cTreasure> treasure;		//WEKTOR KLASY cTREASURE
+	//Obiekty na mapie
+	std::vector <cGround> ground;
+	std::vector <cFluid> fluid;
+	std::vector <cBlock> block;
+	std::vector <cBonusBlock> bonus_block;
+	std::vector <cNPC> npc;
+	std::vector <cTreasure> treasure;
 	std::vector <cBackgroundObject> background_obj;
 	std::vector <cTrampoline> trampoline;
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
+	//!Obiekty na mapie
 
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 

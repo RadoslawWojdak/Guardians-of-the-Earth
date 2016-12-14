@@ -5,20 +5,6 @@
 #include "map.h"
 #include "sector.h"
 #include "global_variables.h"
-//#include "ground.h"
-
-/*
-0 - overworld
-1 - underground
-2 - underwater
-3 - desert
-4 - ice land
-5 - hot land
-6 - sky
-*/
-
-//STWORZYÆ TYLKO Z SAMEGO GRUNTU CIA£O STATYCZNE BIBLIOTEKI BOX2D - KLASA TERRAIN?
-//NADAÆ KA¯DEMU BLOKOWI I BONUSOWEMU BLOKOWI CIA£O
 
 #include <iostream>
 #include <cstdlib>
@@ -102,7 +88,7 @@ int main()
 				p1.setCenter(sf::Vector2f(p1.getCenter().x, map.getHeight() - 300));
 		}
 		win.setView(p1);
-		//std::cout << p1.getViewport().width << " " << p1.getViewport().width << "\n";
+
 		//Poruszanie siê obiektów w poziomie
 		map.movements(p1);
 

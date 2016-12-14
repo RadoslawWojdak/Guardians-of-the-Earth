@@ -3,10 +3,8 @@
 cBackgroundObject::cBackgroundObject(eWorld world_type, eBackgroundType type, sf::Vector2f pos)
 {
 	this->type = type;
-	//adjustBgType();
 
 	this->adjustGraphicsParameters(*this->randomGraphics(world_type, pos), pos);
-
 	this->setAllPosition(pos);
 }
 
@@ -324,44 +322,20 @@ void cBackgroundObject::drawAllGraphics(sf::RenderWindow &win)
 		win.draw(this->extra_sprite[i]);
 }
 
-bool cBackgroundObject::isGroundCollision(bool *ground_exists, sf::Vector2i grid_size)
+bool cBackgroundObject::isCollisionOnGrid(bool *object_on_grid_exists, sf::Vector2i grid_size)
 {
 	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));	//Pozycja obiektu na siatce (w którym kwadracie siatki znajduje siê obiekt)
 	
-	//Czy wysz³o poza zakres? (poza ramy poziomu)
-	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
-		return false;
-	//Sprawdzanie g³ównej czêœci grafiki
-	if (ground_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+	if (this->cObjectLevel::isCollisionOnGrid(object_on_grid_exists, grid_size))
 		return true;
+	
 	//Sprawdzanie grafik dodatkowych
 	for (unsigned short i = 0; i < this->extra_count; i++)
 	{
 		pos_on_grid = this->extra_sprite[i].posOnGrid(sf::Vector2i(32, 32));
-		if (ground_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
+		if (object_on_grid_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
 			return true;
 	}
 
-	return false;
-}
-
-bool cBackgroundObject::isWaterCollision(bool *water_exists, sf::Vector2i grid_size)
-{
-	sf::Vector2i pos_on_grid = this->posOnGrid(sf::Vector2i(32, 32));	//Pozycja obiektu na siatce (w którym kwadracie siatki znajduje siê obiekt)
-	
-	//Czy wysz³o poza zakres? (poza ramy poziomu)
-	if (pos_on_grid.x < 0 || pos_on_grid.x >= grid_size.x || pos_on_grid.y < 0 || pos_on_grid.y >= grid_size.y)
-		return false;
-	//Sprawdzanie g³ównej czêœci grafiki
-	if (water_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
-		return true;
-	//Sprawdzanie grafik dodatkowych
-	for (unsigned short i = 0; i < this->extra_count; i++)
-	{
-		pos_on_grid = this->extra_sprite[i].posOnGrid(sf::Vector2i(32, 32));
-		if (water_exists[pos_on_grid.y * grid_size.x + pos_on_grid.x])
-			return true;
-	}
-	
 	return false;
 }

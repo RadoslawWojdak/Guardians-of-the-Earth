@@ -23,19 +23,16 @@ cFluid::cFluid(eWorld world_type, sf::Vector2f pos)
 	{
 	case WORLD_ICE_LAND:
 	{
-		//this->fluid_type = FLUID_ICE;
 		texture_id = 4;
 		break;
 	}
 	case WORLD_DESERT:
 	{
-		//this->fluid_type = FLUID_QUICKSAND;
 		texture_id = 6;
 		break;
 	}
 	default:
 	{
-		//this->fluid_type = FLUID_WATER;
 		texture_id = 1;
 		break;
 	}
@@ -55,12 +52,10 @@ cFluid::cFluid(eWorld world_type, sf::Vector2f pos)
 	vs[3].Set(x + 0.0f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
 
 	shape.CreateLoop(vs, 4);
-	//shape.SetAsBox(0.02f * 32.0f / 2.0f, 0.02f * 32.0f / 2.0f, b2Vec2(x, y), 0.0f);
 
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.filter.categoryBits = CATEGORY(CAT_FLUID);
-	//fd.filter.maskBits = CATEGORY(CAT_TREASURE) | CATEGORY(CAT_NPC) | CATEGORY(CAT_TRAMPOLINE);
 	fd.friction = 0.0f;
 	this->physics_body->CreateFixture(&fd);
 

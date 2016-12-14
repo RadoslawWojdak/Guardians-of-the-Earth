@@ -9,6 +9,7 @@
 
 class cBlock :public cObjectLevel
 {
+protected:
 	b2BodyDef body_def;
 	b2Body *body;
 
