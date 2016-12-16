@@ -37,7 +37,7 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 
 	//NPC - 2; Koliduje z Grunt, Blok, ...
 	fd.filter.categoryBits = CATEGORY(CAT_NPC);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | CATEGORY(CAT_NPC) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL) | CATEGORY(CAT_CHARACTER);
 
 	body->CreateFixture(&fd);
 }

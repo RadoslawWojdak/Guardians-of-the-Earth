@@ -46,7 +46,7 @@ int main()
 
 	sf::Event ev;
 
-	cMap map((eWorld)option);
+	cMap map((eWorld)option, 1);
 	
 	sf::View p1;
 	p1.setCenter(400, 300);
@@ -63,7 +63,7 @@ int main()
 		}
 
 		//DZIALANIA W GRZE
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
 			p1.setCenter(sf::Vector2f(p1.getCenter().x + 7, p1.getCenter().y));
 			if (p1.getCenter().x > map.getWidth() - 400)
@@ -87,7 +87,7 @@ int main()
 			if (p1.getCenter().y > map.getHeight() - 300)
 				p1.setCenter(sf::Vector2f(p1.getCenter().x, map.getHeight() - 300));
 		}
-		win.setView(p1);
+		win.setView(p1);*/
 
 		//Poruszanie siê obiektów w poziomie
 		map.movements(p1);

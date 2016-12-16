@@ -81,6 +81,9 @@
     <ClCompile Include="bonusblock.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="character.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -133,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="bonusblock.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="character.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

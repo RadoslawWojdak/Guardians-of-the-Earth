@@ -11,7 +11,8 @@ enum eCategory
 	CAT_TREASURE = 3,
 	CAT_NPC = 4,
 	CAT_TRAMPOLINE = 5,
-	CAT_FLUID = 6
+	CAT_FLUID = 6,
+	CAT_CHARACTER = 7
 };
 
 enum eBackgroundType

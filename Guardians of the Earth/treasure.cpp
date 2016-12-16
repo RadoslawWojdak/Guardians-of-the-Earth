@@ -207,3 +207,8 @@ void cTreasure::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab
 		}
 	}
 }
+
+short cTreasure::getValue()
+{
+	return this->value;
+}

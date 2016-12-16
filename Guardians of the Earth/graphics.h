@@ -13,6 +13,7 @@ extern sf::Texture t_background[5];
 extern sf::Texture *t_background_obj[5];
 extern sf::Texture t_npc[4];
 extern sf::Texture t_object[8];
+extern sf::Texture t_character[2];
 
 bool init_graph();
 bool shutdown_graph();

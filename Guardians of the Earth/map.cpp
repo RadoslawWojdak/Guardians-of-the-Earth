@@ -1,16 +1,16 @@
 #include "map.h"
 #include <iostream>
 
-cMap::cMap(eWorld world) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10.0f))
 {
 	groundsInit(&(this->physics_world));
 	fluidInit(&(this->physics_world));
 	this->world_type = world;
 	this->prev_sector.clear();
-	generate();
+	generate(number_of_players);
 }
 
-void cMap::generate()
+void cMap::generate(short number_of_players)
 {
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
@@ -580,6 +580,36 @@ void cMap::generate()
 	}
 	time_background = clock() - time_background;
 
+	//Generowanie graczy
+	for (int i = 0; i < number_of_players; i++)
+	{
+		cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition());
+
+		bool end = false;	//Nie przydzielono pozycji
+
+		//Pêtla trwa tak d³ugo a¿ postaæ nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
+		while (!end)
+		{
+			temp_player.setAllPositions(this->randomPosition());
+
+			//Je¿eli postaæ nie jest zakopany w sztywnym obiekcie
+			if (!temp_player.isCollisionOnGrid(is_solid, grid_size) && !temp_player.isCollisionOnGrid(is_npc, grid_size))
+			{
+				temp_player.setAllPositions(sf::Vector2f(temp_player.getPosition().x, temp_player.getPosition().y + 32));
+
+				//Je¿eli pod postaci¹ znajduje siê sztywny obiekt
+				if (temp_player.isCollisionOnGrid(is_solid, grid_size) || temp_player.isCollisionOnGrid(is_npc, grid_size))
+				{
+					temp_player.setAllPositions(sf::Vector2f(temp_player.getPosition().x, temp_player.getPosition().y - 32));
+					end = true;
+				}
+			}
+		}
+
+		this->player.push_back(temp_player);
+	}
+	//!Generowanie graczy
+
 	std::cout << "\n\n";
 	std::cout << "Czas generowania terenu: " << time_map << "\n";
 	std::cout << "Czas dostosowywania obiektow do terenu: " << time_adjust << "\n";
@@ -626,12 +656,29 @@ void cMap::movements(sf::View &view)
 
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		this->npc[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab, view_rect);
+	for (unsigned int i = 0; i < this->player.size(); i++)
+	{
+		this->player[i].control();
+		this->player[i].specjalCollisions(this->treasure);
+	}
 
 	this->physics_world.Step((float)1 / 60, 8, 3);
 }
 
 void cMap::draw(sf::RenderWindow &win, sf::View &view)
 {
+	//Przesuwanie kamery na postaæ gracza
+	view.setCenter(this->player[0].getPosition());
+	if (view.getCenter().x > this->getWidth() - 400)
+		view.setCenter(this->getWidth() - 400, view.getCenter().y);
+	else if (view.getCenter().x < 400)
+		view.setCenter(sf::Vector2f(400, view.getCenter().y));
+	if (view.getCenter().y < 300)
+		view.setCenter(sf::Vector2f(view.getCenter().x, 300));
+	else if (view.getCenter().y > this->getHeight() - 300)
+		view.setCenter(sf::Vector2f(view.getCenter().x, this->getHeight() - 300));
+	win.setView(view);
+
 	//Przesuwanie ekranu
 	//(TODO) Przesuwanie ekranu dzia³a poprawnie, jednak jeszcze nie jestem pewien jak - rozszyfrowaæ
 	this->background[0].setPosition((view.getCenter().x - 400) / 1.2 + (((int)((view.getCenter().x - 400) / 1.2 / 5) / this->background[0].getTextureRect().width) * this->background[0].getTextureRect().width), (view.getCenter().y - 300) / 1.2);
@@ -661,6 +708,8 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 		win.draw(this->power_up[i]);
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
+	for (unsigned short i = 0; i < this->player.size(); i++)
+		win.draw(this->player[i]);
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
@@ -676,7 +725,7 @@ unsigned int cMap::getHeight()
 	return this->height;
 }
 
-sf::Vector2f cMap::randomPosition()
+sf::Vector2f cMap::randomPosition(/*unsigned int min_x, unsigned int max_x*/)
 {
 	return sf::Vector2f(this->width - (rand() % (this->width / 32) * 32 + 16), this->height - (rand() % (this->height / 32) * 32 + 16));
 }

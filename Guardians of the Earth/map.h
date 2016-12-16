@@ -14,6 +14,7 @@
 #include "fluid.h"
 #include "powerup.h"
 #include "ladder.h"
+#include "character.h"
 
 class cMap
 {
@@ -37,20 +38,21 @@ class cMap
 	std::vector <cTrampoline> trampoline;
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
+	std::vector <cCharacter> player;
 	//!Obiekty na mapie
 
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 
 public:
-	cMap(eWorld world);				//Tworzenie mapy za pomoca funkcji generate()
-	void generate();	//Generowanie mapy
+	cMap(eWorld world, short number_of_players);				//Tworzenie mapy za pomoca funkcji generate()
+	void generate(short number_of_players);	//Generowanie mapy
 	void movements(sf::View &view);	//Ruch œwiata (Box2D + ewentualne dodatkowe)
 	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran
 
 	unsigned int getWidth();
 	unsigned int getHeight();
 
-	sf::Vector2f randomPosition();
+	sf::Vector2f randomPosition(/*unsigned int min_x, unsigned int max_x*/);
 
 	void destroy();
 };

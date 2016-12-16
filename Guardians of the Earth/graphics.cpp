@@ -9,6 +9,7 @@ sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
 sf::Texture t_npc[4];
 sf::Texture t_object[8];
+sf::Texture t_character[2];
 
 bool init_graph()
 {
@@ -185,6 +186,20 @@ bool init_graph()
 
 		std::string path = "graphics\\level_objects\\object-" + nr + ".png";
 		if (!t_object[i].loadFromFile(path))
+			return false;
+	}
+
+	//POSTACIE
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\characters\\character-" + nr + ".png";
+		if (!t_character[i].loadFromFile(path))
 			return false;
 	}
 
