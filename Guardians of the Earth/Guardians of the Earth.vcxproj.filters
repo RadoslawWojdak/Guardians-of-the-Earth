@@ -84,6 +84,9 @@
     <ClCompile Include="character.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="fonts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -139,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="character.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,12 +1,14 @@
 #ifndef character_h
 #define character_h
 
+#include <sstream>	//Konwersja liczby na tekst
 #include "SFML\Graphics.hpp";
 #include "Box2D.h"
 #include "objectlevel.h"
 #include "enums.h"
 #include "graphics.h"
 #include "treasure.h"
+#include "fonts.h"
 
 struct sControlKey
 {
@@ -45,6 +47,8 @@ public:
 	void specjalCollisions(std::vector <cTreasure> &treasure);	//kolizje nie wp³ywaj¹ce na fizykê postaci (np. kolizje z monetami, NPC-ami, trampolinami)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move();
+
+	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 
 	void setAllPositions(sf::Vector2f pos);
 };

@@ -1,5 +1,7 @@
 #include "character.h"
 
+#include <iostream>
+
 cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos)
 {
 	this->adjustGraphicsParameters(t_character[0], pos);
@@ -161,6 +163,9 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 	}
 	else
 	{
+		if (this->is_immersed_in != FLUID_NONE && sf::Keyboard::isKeyPressed(this->key.jump))	//Je¿eli wyskoczy³ z wody
+			this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -5.0f));
+
 		this->body->SetGravityScale(1.0f);
 		this->is_immersed_in = FLUID_NONE;
 	}
@@ -188,6 +193,50 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 		break;
 	}
 	}
+}
+
+void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
+{
+	left_top_corner.x += win.getView().getCenter().x - win.getSize().x / 2;
+	left_top_corner.y += win.getView().getCenter().y - win.getSize().y / 2;
+
+	sf::String text_str(L"SCORE: ");
+	std::string nr;
+	std::stringstream ss;
+	ss << this->score;
+	nr = ss.str();
+	ss.str("");
+
+	text_str += nr;
+	sf::Text text(text_str, font, 22);
+	text.setPosition(left_top_corner);
+	win.draw(text);
+
+
+	text_str.clear();
+	text_str = L"LIFE: ";
+	ss << this->life;
+	nr = ss.str();
+	ss.str("");
+
+	text_str += nr;
+	text.setString(text_str);
+	left_top_corner.y += 16;
+	text.setPosition(left_top_corner);
+	win.draw(text);
+
+
+	text_str.clear();
+	text_str = L"CASH: ";
+	ss << this->cash;
+	nr = ss.str();
+	ss.clear();
+
+	text_str += nr;
+	text.setString(text_str);
+	left_top_corner.y += 16;
+	text.setPosition(left_top_corner);
+	win.draw(text);
 }
 
 void cCharacter::setAllPositions(sf::Vector2f pos)

@@ -11,7 +11,7 @@ sf::Texture t_npc[4];
 sf::Texture t_object[8];
 sf::Texture t_character[2];
 
-bool init_graph()
+bool initGraph()
 {
 	//BLOKI
 	for (unsigned int i = 0; i < 1; i++)
@@ -207,7 +207,7 @@ bool init_graph()
 }
 
 
-bool shutdown_graph()
+bool shutdownGraph()
 {
 	return true;
 }

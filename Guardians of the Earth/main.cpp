@@ -5,6 +5,7 @@
 #include "map.h"
 #include "sector.h"
 #include "global_variables.h"
+#include "fonts.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -31,11 +32,17 @@ int main()
 	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", sf::Style::Close);
 	win.setFramerateLimit(60);
 
-	if (!init_graph())
+	if (!initGraph())
 	{
 		std::cout << "Blad wczytywania grafik!\n";
 		system("PAUSE");
 		return 1;
+	}
+	if (!initFonts())
+	{
+		std::cout << "Blad wczytywania czcionek!\n";
+		system("PAUSE");
+		return 4;
 	}
 	if (!howManySectors())
 	{
@@ -100,7 +107,7 @@ int main()
 	}
 
 	map.destroy();
-	shutdown_graph();
+	shutdownGraph();
 
 	return 0;
 }

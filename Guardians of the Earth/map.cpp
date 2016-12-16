@@ -715,6 +715,8 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
+	for (unsigned short i = 0; i < this->player.size(); i++)
+		this->player[i].drawStats(win, sf::Vector2f(16, 16));
 }
 
 unsigned int cMap::getWidth()
