@@ -1,6 +1,6 @@
 ﻿  character.cpp
 c:\users\radosław\desktop\guardians of the earth\guardians of the earth\character.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\radosław\desktop\guardians of the earth\guardians of the earth\character.cpp(103): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
-c:\users\radosław\desktop\guardians of the earth\guardians of the earth\character.cpp(245): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\radosław\desktop\guardians of the earth\guardians of the earth\character.cpp(62): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+c:\users\radosław\desktop\guardians of the earth\guardians of the earth\character.cpp(340): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Guardians of the Earth.vcxproj -> C:\Users\Radosław\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\Radosław\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)

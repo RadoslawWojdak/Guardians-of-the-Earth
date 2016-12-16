@@ -9,6 +9,8 @@
 #include "graphics.h"
 #include "treasure.h"
 #include "fonts.h"
+#include "fluid.h"
+#include "npc.h"
 
 struct sControlKey
 {
@@ -37,20 +39,26 @@ class cCharacter :public cObjectLevel
 	float max_speed_x;
 
 	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
+	bool is_on_ice;
+	bool dead;
 
 	void addStatsForTreasure(cTreasure &treasure);
+	void addStatsForNPC(cNPC &npc);
+	void jump(float force);
 
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos);
 
+	void kill();
 	void control();
-	void specjalCollisions(std::vector <cTreasure> &treasure);	//kolizje nie wp³ywaj¹ce na fizykê postaci (np. kolizje z monetami, NPC-ami, trampolinami)
+	void specjalCollisions(std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
-	void move();
+	void move(sf::Vector2f level_size);
 
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 
 	void setAllPositions(sf::Vector2f pos);
+	bool isDead();
 };
 
 #endif character_h

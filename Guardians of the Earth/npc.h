@@ -30,6 +30,7 @@ class cNPC :public cObjectLevel
 	b2Body *body;
 
 	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
+	bool dead;
 
 	//CECHY NPC-ÓW
 	sFeatures features;
@@ -45,11 +46,13 @@ public:
 	cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction);
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect);
+	void kill();
 
 	void setAllPositions(sf::Vector2f pos);
 
 	b2Body* getBody();
 	sFeatures getFeatures();
+	bool isDead();
 };
 
 #endif //!npc_h

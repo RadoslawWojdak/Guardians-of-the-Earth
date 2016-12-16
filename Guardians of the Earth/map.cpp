@@ -657,12 +657,17 @@ void cMap::movements(sf::View &view)
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		this->npc[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab, view_rect);
 	for (unsigned int i = 0; i < this->player.size(); i++)
-	{
-		this->player[i].control();
-		this->player[i].specjalCollisions(this->treasure);
-		this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-		this->player[i].move();
-	}
+		if (!this->player[i].isDead())
+		{
+			this->player[i].control();
+			this->player[i].specjalCollisions(this->npc, this->treasure, this->fluid);
+			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
+			this->player[i].move(sf::Vector2f(this->width, this->height));
+		}
+
+	for (int i = npc.size() - 1; i >= 0; i--)
+		if (npc[i].isDead())
+			this->npc.erase(this->npc.begin() + i);
 
 	this->physics_world.Step((float)1 / 60, 8, 3);
 }
@@ -711,7 +716,8 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
 	for (unsigned short i = 0; i < this->player.size(); i++)
-		win.draw(this->player[i]);
+		if (!this->player[i].isDead())
+			win.draw(this->player[i]);
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);

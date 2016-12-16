@@ -13,6 +13,8 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 	else
 		this->last_speed = b2Vec2(this->speed, 0.5f);
 
+	this->dead = false;
+
 	//BOX2D
 	float32 a = this->getTextureRect().width * 0.02f;
 	float32 b = this->getTextureRect().height * 0.02f;
@@ -275,6 +277,15 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 	this->last_position = this->getPosition();
 }
 
+void cNPC::kill()
+{
+	if (!this->isDead())
+	{
+		this->body->GetWorld()->DestroyBody(this->body);
+		this->dead = true;
+	}
+}
+
 void cNPC::setAllPositions(sf::Vector2f pos)
 {
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
@@ -291,4 +302,9 @@ b2Body* cNPC::getBody()
 sFeatures cNPC::getFeatures()
 {
 	return this->features;
+}
+
+bool cNPC::isDead()
+{
+	return this->dead;
 }
