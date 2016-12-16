@@ -28,7 +28,9 @@ class cNPC :public cObjectLevel
 	
 	b2BodyDef body_def;
 	b2Body *body;
-	
+
+	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
+
 	//CECHY NPC-ÓW
 	sFeatures features;
 

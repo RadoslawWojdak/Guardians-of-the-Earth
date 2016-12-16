@@ -37,7 +37,7 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 
 	//NPC - 2; Koliduje z Grunt, Blok, ...
 	fd.filter.categoryBits = CATEGORY(CAT_NPC);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL) | CATEGORY(CAT_CHARACTER);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | CATEGORY(CAT_NPC) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
 
 	body->CreateFixture(&fd);
 }
@@ -119,6 +119,13 @@ void cNPC::setFeatures(unsigned short id)
 
 void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect)
 {
+	float speed_multipler = 1;
+	switch (this->is_immersed_in)
+	{
+	case FLUID_WATER: {speed_multipler = g_fluid_speed_multipler.water; break;}
+	case FLUID_QUICKSAND: {speed_multipler = g_fluid_speed_multipler.quicksand; break;}
+	}
+
 	//Odbicie lustrzane grafiki ze wzglêdu na kierunek ruchu
 	if (this->dir == DIR_LEFT)
 		this->setScale(sf::Vector2f(1, 1));
@@ -167,14 +174,14 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 
 			if (this->dir == DIR_LEFT)
 			{
-				this->speed -= 0.02f;
-				if (this->speed <= -this->features.max_speed)
+				this->speed -= 0.02f * speed_multipler;
+				if (this->speed <= -this->features.max_speed * speed_multipler)
 					this->dir = DIR_RIGHT;
 			}
 			else if (this->dir == DIR_RIGHT)
 			{
-				this->speed += 0.02f;
-				if (this->speed >= this->features.max_speed)
+				this->speed += 0.02f * speed_multipler;
+				if (this->speed >= this->features.max_speed * speed_multipler)
 					this->dir = DIR_LEFT;
 			}
 
@@ -211,15 +218,15 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 					this->body->SetGravityScale(0.035f);
 				if (this->body->GetLinearVelocity().y > 0.5f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.5f));
-				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 3.5f)
+				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = (float)this->features.max_speed / 3.5f;
-					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed / 3.5f, this->body->GetLinearVelocity().y));
+					this->speed = (float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
-				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed / 3.5f)
+				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = -(float)this->features.max_speed / 3.5f;
-					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed / 3.5f, this->body->GetLinearVelocity().y));
+					this->speed = -(float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
 
 				break;
@@ -230,15 +237,15 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 					this->body->SetGravityScale(0.35f);
 				if (this->body->GetLinearVelocity().y > 2.0f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 2.0f));
-				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 2.0f)
+				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = (float)this->features.max_speed / 2.0f;
-					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed / 2.0f, this->body->GetLinearVelocity().y));
+					this->speed = (float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
-				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed / 2.0f)
+				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = -(float)this->features.max_speed / 2.0f;
-					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed / 2.0f, this->body->GetLinearVelocity().y));
+					this->speed = -(float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
 
 				break;

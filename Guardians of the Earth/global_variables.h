@@ -3,5 +3,13 @@
 
 extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
 extern float g_g;	//Si³a grawitacji
+//Struktura zawieraj¹ca mno¿nik prêdkoœci obiektów, które siê w niej znajduj¹
+struct sFluidSpeedMultipler
+{
+	float water = 0.5f;
+	float quicksand = 0.2f;
+	float ice = 0.0f;
+};
+extern sFluidSpeedMultipler g_fluid_speed_multipler;
 
 #endif global_variables_h

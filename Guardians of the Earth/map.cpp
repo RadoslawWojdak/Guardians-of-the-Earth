@@ -660,6 +660,8 @@ void cMap::movements(sf::View &view)
 	{
 		this->player[i].control();
 		this->player[i].specjalCollisions(this->treasure);
+		this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
+		this->player[i].move();
 	}
 
 	this->physics_world.Step((float)1 / 60, 8, 3);
