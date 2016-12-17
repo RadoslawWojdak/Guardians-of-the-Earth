@@ -1,7 +1,5 @@
 #include "character.h"
 
-#include <iostream>
-
 cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos)
 {
 	this->adjustGraphicsParameters(t_character[0], pos);
@@ -9,6 +7,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
 
+	this->immunity_time = 0;
 	this->life = 3;
 	this->score = 0;
 	this->cash = 0;
@@ -52,6 +51,15 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->body->CreateFixture(&fd);
 }
 
+void cCharacter::initPet()
+{
+	this->pet_point = this->getPosition();
+	this->pet = cPet(&(this->pet_point));
+	this->pet.increaseHP();
+	this->pet.increaseHP();
+	this->pet.increaseHP();
+}
+
 void cCharacter::jump(float force)
 {
 	switch (this->is_immersed_in)
@@ -61,8 +69,38 @@ void cCharacter::jump(float force)
 	default: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force)); break;}
 	}
 
-	
 	this->can_jump = false;
+}
+
+void cCharacter::startInviolability()
+{
+	this->immunity_time = 120;
+}
+
+void cCharacter::immunityCountdown()
+{
+	if (this->isInviolability())
+	{
+		this->immunity_time--;
+
+		if (this->immunity_time == 0)
+			this->setColor(sf::Color(this->getColor().r, this->getColor().g, this->getColor().b, 255));
+		else if (this->immunity_time < 75)
+			this->setColor(sf::Color(this->getColor().r, this->getColor().g, this->getColor().b, this->getColor().a + 1));
+		else if (this->getColor().a == 255)
+			this->setColor(sf::Color(this->getColor().r, this->getColor().g, this->getColor().b, 127));
+	}
+}
+
+void cCharacter::beenHit()
+{
+	if (this->isPetAlive())
+	{
+		this->pet.decreaseHP();
+		this->startInviolability();
+	}
+	else
+		this->kill();
 }
 
 void cCharacter::kill()
@@ -128,14 +166,24 @@ void cCharacter::control()
 		}
 		if (sf::Keyboard::isKeyPressed(this->key.jump))
 		{
+			if (!stop_jump)
+				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
 			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
-				this->jump(-7.0f);
+			{
+				this->jump(-5.0f);
+				if (this->is_immersed_in == FLUID_NONE)
+					this->stop_jump = false;
+			}
 		}
+		else
+			this->stop_jump = true;
 	}
 }
 
 void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
+	this->immunityCountdown();
+
 	if (!this->isDead())
 	{
 		//Kolizje z Bonusowymi blokami
@@ -157,7 +205,7 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 			if (b_bs_to_destroy[i])
 			{
 				this->addStatsForBonusBlock();
-				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 1.4f));
+				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f));
 				bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
 				bonus_block.erase(bonus_block.begin() + i);
 			}
@@ -175,13 +223,17 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 					this->addStatsForNPC(npc[i]);
 					npcs_to_destroy[i] = true;
 					if (sf::Keyboard::isKeyPressed(this->key.jump))
-						this->jump(-7.0f);
+					{
+						this->jump(-5.0f);
+						this->stop_jump = false;
+					}
 					else
 						this->jump(-3.0f);
 				}
 				else	//Je¿eli dotkniêto NPC-a w inny sposób
 				{
-					this->kill();
+					if (!this->isInviolability())
+						this->beenHit();
 					npcs_to_destroy[i] = false;
 				}
 			}
@@ -238,9 +290,12 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
 			{
 				if (sf::Keyboard::isKeyPressed(this->key.jump))
-					this->jump(-10.0f);
+				{
+					this->jump(-6.0f);
+					this->stop_jump = false;
+				}
 				else
-					this->jump(-5.0f);
+					this->jump(-4.0f);
 
 				break;	//Nawet gdyby by³o wiêcej trampolin to nie robi³oby to ró¿nicy
 			}
@@ -258,6 +313,7 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 				{
 					this->body->SetGravityScale(0.0f);
 					this->is_on_ladder = true;
+					this->stop_jump = true;
 
 					if (sf::Keyboard::isKeyPressed(this->key.up) && sf::Keyboard::isKeyPressed(this->key.down))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
@@ -283,7 +339,8 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 					
 					if (sf::Keyboard::isKeyPressed(this->key.jump))
 					{
-						this->jump(-7.0f);
+						this->jump(-5.0f);
+						this->stop_jump = false;
 						this->is_on_ladder = false;
 					}
 				}
@@ -300,6 +357,10 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 {
 	if (!this->isDead() && !this->is_on_ladder)	//Gdy gracz jest na drabinie, nie dzia³a na niego ¿adna grawitacja
 	{
+		//Gracz nie mo¿e przyspieszyæ postaci, gdy ta spada
+		if (this->body->GetLinearVelocity().y >= 0)
+			this->stop_jump = true;
+
 		//Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
 		if (this->isCollisionOnGrid(fluid, grid_size))
 		{
@@ -346,9 +407,12 @@ void cCharacter::move(sf::Vector2f level_size)
 {
 	if (!this->isDead())
 	{
+		this->pet.move();
+
 		this->last_speed = this->body->GetLinearVelocity();
 		this->last_position = this->getPosition();
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
+		this->pet_point = this->getPosition();
 
 		//Czy gracz wylecia³ poza ramkê poziomu
 		if (this->getGlobalBounds().left < 0)
@@ -448,7 +512,26 @@ void cCharacter::setAllPositions(sf::Vector2f pos)
 	this->setPosition(pos);
 }
 
+cPet cCharacter::getPet()
+{
+	return this->pet;
+}
+
+bool cCharacter::isPetAlive()
+{
+	if (this->pet.getHP() > 0)
+		return true;
+	return false;
+}
+
 bool cCharacter::isDead()
 {
 	return this->dead;
+}
+
+bool cCharacter::isInviolability()
+{
+	if (this->immunity_time > 0)
+		return true;
+	return false;
 }

@@ -14,6 +14,7 @@
 #include "trampoline.h"
 #include "ladder.h"
 #include "bonusblock.h"
+#include "pet.h"
 
 struct sControlKey
 {
@@ -30,11 +31,16 @@ class cCharacter :public cObjectLevel
 	b2BodyDef body_def;
 	b2Body *body;
 
+	cPet pet;
+	sf::Vector2f pet_point;	//Punkt do którego bêdzie lata³ pet (wskaŸnik ze wzglêdu na to, ¿e gdy wstawia siê postaæ z temp_character do tablicy wektorowej character, to za ka¿dym razem zmienia³ siê adres)
+
 	b2Vec2 last_speed;
 	bool can_jump = false;
+	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
 
 	sControlKey key;
 
+	unsigned int immunity_time;
 	unsigned short life;
 	unsigned int score;
 	unsigned int cash;
@@ -51,10 +57,15 @@ class cCharacter :public cObjectLevel
 	void addStatsForNPC(cNPC &npc);
 	void addStatsForBonusBlock();
 	void jump(float force);
+	void startInviolability();
+	void immunityCountdown();
 
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos);
 
+	void initPet();	//Inicjalizacja pet'a powinna siê odbywaæ przy ka¿dym utworzeniu obiektu klasy cCharacter (chyba ¿e jest to obiekt tymczasowy)
+	
+	void beenHit();
 	void kill();
 	void control();
 	void specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
@@ -64,7 +75,11 @@ public:
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 
 	void setAllPositions(sf::Vector2f pos);
+	
+	cPet getPet();
+	bool isPetAlive();
 	bool isDead();
+	bool isInviolability();
 };
 
 #endif character_h

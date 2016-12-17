@@ -118,6 +118,7 @@
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="ladder.cpp" />
     <ClCompile Include="npc.cpp" />
+    <ClCompile Include="pet.cpp" />
     <ClCompile Include="powerup.cpp" />
     <ClCompile Include="trampoline.cpp" />
     <ClCompile Include="treasure.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="fonts.h" />
     <ClInclude Include="ladder.h" />
     <ClInclude Include="npc.h" />
+    <ClInclude Include="pet.h" />
     <ClInclude Include="powerup.h" />
     <ClInclude Include="trampoline.h" />
     <ClInclude Include="treasure.h" />

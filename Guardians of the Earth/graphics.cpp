@@ -10,6 +10,7 @@ sf::Texture *t_background_obj[5];
 sf::Texture t_npc[4];
 sf::Texture t_object[8];
 sf::Texture t_character[2];
+sf::Texture t_pet[2];
 
 bool initGraph()
 {
@@ -200,6 +201,20 @@ bool initGraph()
 
 		std::string path = "graphics\\characters\\character-" + nr + ".png";
 		if (!t_character[i].loadFromFile(path))
+			return false;
+	}
+
+	//PET-Y
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\pets\\pet-" + nr + ".png";
+		if (!t_pet[i].loadFromFile(path))
 			return false;
 	}
 
