@@ -629,22 +629,6 @@ void cMap::generate(short number_of_players)
 
 void cMap::movements(sf::View &view)
 {
-	//Automatyczne niszczenie bonusowych bloków
-	static int abc = 0;
-	abc++;
-	if (abc == 100)
-	{
-		abc = 0;
-		//for (int i = 0; i < this->bonus_block.size(); i++)
-		if (bonus_block.size() > 0)
-		{
-			this->bonus_block[0].dropTreasures(&(this->physics_world), this->world_type, this->treasure);
-			this->physics_world.DestroyBody(this->bonus_block[0].getBody());
-			bonus_block.erase(bonus_block.begin());
-		}
-	}
-	//!Automatyczne niszczenie bonusowych bloków
-
 	for (unsigned int i = 0; i < this->treasure.size(); i++)
 		this->treasure[i].step(this->world_type, sf::Vector2i(this->width, this->height), this->fluid_tab);
 
@@ -660,7 +644,7 @@ void cMap::movements(sf::View &view)
 		if (!this->player[i].isDead())
 		{
 			this->player[i].control();
-			this->player[i].specjalCollisions(this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder);
+			this->player[i].specjalCollisions(&(this->physics_world), this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
 			this->player[i].move(sf::Vector2f(this->width, this->height));
 		}

@@ -134,10 +134,36 @@ void cCharacter::control()
 	}
 }
 
-void cCharacter::specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> trampoline, std::vector <cLadder> ladder)
+void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
+		//Kolizje z Bonusowymi blokami
+		bool *b_bs_to_destroy = new bool[bonus_block.size()];	//b_bs - bonus blocks
+		for (unsigned short i = 0; i < bonus_block.size(); i++)
+		{
+			if (this->getGlobalBounds().intersects(bonus_block[i].getGlobalBounds()))
+			{
+				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
+					b_bs_to_destroy[i] = true;
+				else
+					b_bs_to_destroy[i] = false;
+			}
+			else
+				b_bs_to_destroy[i] = false;
+		}
+
+		for (int i = bonus_block.size() - 1; i >= 0; i--)
+			if (b_bs_to_destroy[i])
+			{
+				this->addStatsForBonusBlock();
+				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 1.4f));
+				bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
+				bonus_block.erase(bonus_block.begin() + i);
+			}
+
+		delete[] b_bs_to_destroy;
+
 		//Kolizje z NPC-ami
 		bool *npcs_to_destroy = new bool[npc.size()];
 		for (unsigned short i = 0; i < npc.size(); i++)
@@ -361,6 +387,11 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 void cCharacter::addStatsForNPC(cNPC &npc)
 {
 	this->score += 50;
+}
+
+void cCharacter::addStatsForBonusBlock()
+{
+	this->score += 25;
 }
 
 void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
