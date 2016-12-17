@@ -37,7 +37,8 @@ class cCharacter :public cObjectLevel
 	unsigned int cash;
 
 	float max_speed_x;
-
+	sf::Vector2f last_position;
+	
 	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
 	bool is_on_ice;
 	bool dead;
@@ -51,7 +52,7 @@ public:
 
 	void kill();
 	void control();
-	void specjalCollisions(std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	void specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::Vector2f level_size);
 

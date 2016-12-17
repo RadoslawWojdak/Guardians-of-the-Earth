@@ -52,7 +52,7 @@ public:
 	unsigned int getWidth();
 	unsigned int getHeight();
 
-	sf::Vector2f randomPosition(/*unsigned int min_x, unsigned int max_x*/);
+	sf::Vector2f randomPosition(unsigned int min_x, unsigned int max_x);
 
 	void destroy();
 };

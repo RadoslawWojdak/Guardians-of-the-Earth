@@ -14,6 +14,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->cash = 0;
 
 	this->max_speed_x = 4.0f;
+	this->last_position = this->getPosition();
 
 	this->key.up = sf::Keyboard::Key::Up;
 	this->key.down = sf::Keyboard::Key::Down;
@@ -38,7 +39,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->body = physics_world->CreateBody(&body_def);
 	
 	b2PolygonShape shape;
-	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.04f);
+	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.06f);
 	
 	b2FixtureDef fd;
 	fd.shape = &shape;
@@ -52,14 +53,14 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 
 void cCharacter::jump(float force)
 {
-	float speed_multipler = 1;
 	switch (this->is_immersed_in)
 	{
-	case FLUID_WATER: {speed_multipler = g_fluid_speed_multipler.water; break;}
-	case FLUID_QUICKSAND: {speed_multipler = g_fluid_speed_multipler.quicksand; break;}
+	case FLUID_WATER: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(g_fluid_speed_multipler.water, 1.5))); break;}
+	case FLUID_QUICKSAND: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(g_fluid_speed_multipler.quicksand, 1.5))); break;}
+	default: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force)); break;}
 	}
 
-	this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(speed_multipler, 1.5)));
+	
 	this->can_jump = false;
 }
 
@@ -132,7 +133,7 @@ void cCharacter::control()
 	}
 }
 
-void cCharacter::specjalCollisions(std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid)
+void cCharacter::specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid)
 {
 	if (!this->isDead())
 	{
@@ -142,11 +143,14 @@ void cCharacter::specjalCollisions(std::vector <cNPC> &npc, std::vector <cTreasu
 		{
 			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
 			{
-				if (this->getPosition().y + this->getOrigin().y <= npc[i].getGlobalBounds().top + 6)	//Je¿eli postaæ spad³a na NPC-a
+				if (this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko
 				{
 					this->addStatsForNPC(npc[i]);
 					npcs_to_destroy[i] = true;
-					this->jump(-3.0f);
+					if (sf::Keyboard::isKeyPressed(this->key.jump))
+						this->jump(-7.0f);
+					else
+						this->jump(-3.0f);
 				}
 				else	//Je¿eli dotkniêto NPC-a w inny sposób
 				{
@@ -161,6 +165,8 @@ void cCharacter::specjalCollisions(std::vector <cNPC> &npc, std::vector <cTreasu
 		for (int i = npc.size() - 1; i >= 0; i--)
 			if (npcs_to_destroy[i])
 				npc[i].kill();
+
+		delete[] npcs_to_destroy;
 
 		if (this->isDead())
 			return;
@@ -182,15 +188,20 @@ void cCharacter::specjalCollisions(std::vector <cNPC> &npc, std::vector <cTreasu
 			if (treasures_to_destroy[i])
 				treasure.erase(treasure.begin() + i);
 
+		delete[] treasures_to_destroy;
+
 		//Kolizje z lodem
-		if (this->can_jump)	//Dopiero jak stanie na czymœ innym ni¿ lód, to przestaje siê œlizgaæ
-			this->is_on_ice = false;
-		for (unsigned short i = 0; i < fluid.size(); i++)
+		if (world_type == WORLD_ICE_LAND)
 		{
-			if (this->getGlobalBounds().intersects(fluid[i].getGlobalBounds()))
+			if (this->can_jump)	//Dopiero jak stanie na czymœ innym ni¿ lód, to przestaje siê œlizgaæ
+				this->is_on_ice = false;
+			for (unsigned short i = 0; i < fluid.size(); i++)
 			{
-				this->is_on_ice = true;
-				break;
+				if (this->getGlobalBounds().intersects(fluid[i].getGlobalBounds()))
+				{
+					this->is_on_ice = true;
+					break;
+				}
 			}
 		}
 	}
@@ -247,6 +258,7 @@ void cCharacter::move(sf::Vector2f level_size)
 	if (!this->isDead())
 	{
 		this->last_speed = this->body->GetLinearVelocity();
+		this->last_position = this->getPosition();
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
 
 		//Czy gracz wylecia³ poza ramkê poziomu
@@ -336,6 +348,7 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 
 void cCharacter::setAllPositions(sf::Vector2f pos)
 {
+	this->last_position = this->getPosition();
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);

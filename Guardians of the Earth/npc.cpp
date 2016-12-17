@@ -273,8 +273,7 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 	}
 
 	//Pozycja
-	this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
-	this->last_position = this->getPosition();
+	this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f));
 }
 
 void cNPC::kill()
@@ -288,10 +287,11 @@ void cNPC::kill()
 
 void cNPC::setAllPositions(sf::Vector2f pos)
 {
+	this->last_position = this->getPosition();
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);
-	last_position = pos;
+	//this->last_position = pos;
 }
 
 b2Body* cNPC::getBody()
@@ -302,6 +302,11 @@ b2Body* cNPC::getBody()
 sFeatures cNPC::getFeatures()
 {
 	return this->features;
+}
+
+sf::Vector2f cNPC::getLastPosition()
+{
+	return this->last_position;
 }
 
 bool cNPC::isDead()
