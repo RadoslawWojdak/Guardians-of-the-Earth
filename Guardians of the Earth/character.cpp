@@ -25,6 +25,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 
 	this->is_immersed_in = FLUID_NONE;
 	this->is_on_ice = false;
+	this->is_on_ladder = false;
 	this->dead = false;
 
 	//BOX2D
@@ -133,7 +134,7 @@ void cCharacter::control()
 	}
 }
 
-void cCharacter::specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid)
+void cCharacter::specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> trampoline, std::vector <cLadder> ladder)
 {
 	if (!this->isDead())
 	{
@@ -143,7 +144,7 @@ void cCharacter::specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, s
 		{
 			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
 			{
-				if (this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko
+				if (this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
 				{
 					this->addStatsForNPC(npc[i]);
 					npcs_to_destroy[i] = true;
@@ -204,12 +205,74 @@ void cCharacter::specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, s
 				}
 			}
 		}
+
+		//Kolizje z trampolinami
+		for (unsigned short i = 0; i < trampoline.size(); i++)
+		{
+			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
+			{
+				if (sf::Keyboard::isKeyPressed(this->key.jump))
+					this->jump(-10.0f);
+				else
+					this->jump(-5.0f);
+
+				break;	//Nawet gdyby by³o wiêcej trampolin to nie robi³oby to ró¿nicy
+			}
+		}
+
+		//Kolizje z drabinami
+		bool ladder_collision = false;
+		for (unsigned int i = 0; i < ladder.size(); i++)
+		{
+			if (this->getGlobalBounds().intersects(ladder[i].getGlobalBounds()))
+			{
+				ladder_collision = true;
+				
+				if (sf::Keyboard::isKeyPressed(this->key.up) || sf::Keyboard::isKeyPressed(this->key.down))
+				{
+					this->body->SetGravityScale(0.0f);
+					this->is_on_ladder = true;
+
+					if (sf::Keyboard::isKeyPressed(this->key.up) && sf::Keyboard::isKeyPressed(this->key.down))
+						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+					else if (sf::Keyboard::isKeyPressed(this->key.up))
+						this->body->SetLinearVelocity(b2Vec2(0.0f, -1.75f));
+					else if (sf::Keyboard::isKeyPressed(this->key.down))
+						this->body->SetLinearVelocity(b2Vec2(0.0f, 1.75f));
+				}
+				
+				if (this->is_on_ladder)
+				{
+					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
+
+					if (!sf::Keyboard::isKeyPressed(this->key.up) && !sf::Keyboard::isKeyPressed(this->key.down))
+						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
+					
+					if (sf::Keyboard::isKeyPressed(this->key.up) && sf::Keyboard::isKeyPressed(this->key.down))
+						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
+					else if (sf::Keyboard::isKeyPressed(this->key.left))
+						this->body->SetLinearVelocity(b2Vec2(-1.0f, this->body->GetLinearVelocity().y));
+					else if (sf::Keyboard::isKeyPressed(this->key.right))
+						this->body->SetLinearVelocity(b2Vec2(1.0f, this->body->GetLinearVelocity().y));
+					
+					if (sf::Keyboard::isKeyPressed(this->key.jump))
+					{
+						this->jump(-7.0f);
+						this->is_on_ladder = false;
+					}
+				}
+
+				break;	//Nawet gdyby by³o wiêcej drabin to nie robi³oby to ró¿nicy
+			}
+		}
+		if (!ladder_collision)
+			this->is_on_ladder = false;
 	}
 }
 
 void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size)
 {
-	if (!this->isDead())
+	if (!this->isDead() && !this->is_on_ladder)	//Gdy gracz jest na drabinie, nie dzia³a na niego ¿adna grawitacja
 	{
 		//Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
 		if (this->isCollisionOnGrid(fluid, grid_size))

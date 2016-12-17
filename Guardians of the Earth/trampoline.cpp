@@ -2,8 +2,9 @@
 
 cTrampoline::cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f pos, float force)
 {
-	this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+	this->setTextureRect(sf::IntRect(0, 20, 32, 12));
 	this->adjustGraphicsParameters(t_object[id - 1], pos);
+	this->move(0, 10);	//Przyci¹gniêcie do pod³o¿a (bêdzie le¿eæ tu¿ nad pod³o¿em (¿eby siê nie zlewa³o z pod³o¿em))
 
 	this->force = force;
 

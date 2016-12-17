@@ -137,6 +137,7 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 
 	if (!start && this->getGlobalBounds().intersects(view_rect))
 	{
+		this->last_position = this->getPosition();	//Naprawa b³êdów z NPC-ami które pojawiaj¹ siê ju¿ na samym poczatku rozgrywki
 		this->body->SetActive(true);
 		this->start = true;
 		
@@ -291,7 +292,6 @@ void cNPC::setAllPositions(sf::Vector2f pos)
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);
-	//this->last_position = pos;
 }
 
 b2Body* cNPC::getBody()

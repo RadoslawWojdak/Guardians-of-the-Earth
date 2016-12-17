@@ -11,6 +11,8 @@
 #include "fonts.h"
 #include "fluid.h"
 #include "npc.h"
+#include "trampoline.h"
+#include "ladder.h"
 
 struct sControlKey
 {
@@ -41,6 +43,7 @@ class cCharacter :public cObjectLevel
 	
 	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
 	bool is_on_ice;
+	bool is_on_ladder;
 	bool dead;
 
 	void addStatsForTreasure(cTreasure &treasure);
@@ -52,7 +55,7 @@ public:
 
 	void kill();
 	void control();
-	void specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	void specjalCollisions(eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> trampoline, std::vector <cLadder> ladder);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::Vector2f level_size);
 

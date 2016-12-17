@@ -319,7 +319,7 @@ void cMap::generate(short number_of_players)
 
 		sf::Vector2i pos_on_grid((temp_npc.getPosition().x - temp_npc.getOrigin().x) / 32, (temp_npc.getPosition().y - temp_npc.getOrigin().y) / 32);
 		is_npc[pos_on_grid.y * grid_size.x + pos_on_grid.x] = true;
-
+		
 		this->npc.push_back(temp_npc);
 	}
 	time_npc = clock() - time_npc;
@@ -660,7 +660,7 @@ void cMap::movements(sf::View &view)
 		if (!this->player[i].isDead())
 		{
 			this->player[i].control();
-			this->player[i].specjalCollisions(this->world_type, this->npc, this->treasure, this->fluid);
+			this->player[i].specjalCollisions(this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
 			this->player[i].move(sf::Vector2f(this->width, this->height));
 		}
