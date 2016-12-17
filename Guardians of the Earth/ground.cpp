@@ -397,3 +397,8 @@ void cGround::resetMainParameters(b2World *physics_world)
 	this->ground_id = 0;
 	this->physics_body = physics_world->CreateBody(&(this->physics_body_def));
 }
+
+b2Body *cGround::getBody()
+{
+	return this->physics_body;
+}

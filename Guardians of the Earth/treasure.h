@@ -27,7 +27,9 @@ public:
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab);
 
+	b2Body *getBody();
 	short getValue();
+	bool isPhysical();
 };
 
 #endif //!treasure_h

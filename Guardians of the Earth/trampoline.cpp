@@ -33,3 +33,8 @@ cTrampoline::cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f
 
 	body->CreateFixture(&fd);
 }
+
+b2Body *cTrampoline::getBody()
+{
+	return this->body;
+}

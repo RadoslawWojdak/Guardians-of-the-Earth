@@ -26,3 +26,8 @@ cBlock::cBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos)
 	fd.friction = 0.0f;
 	this->body->CreateFixture(&fd);
 }
+
+b2Body *cBlock::getBody()
+{
+	return this->body;
+}

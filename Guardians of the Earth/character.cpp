@@ -51,6 +51,32 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->body->CreateFixture(&fd);
 }
 
+void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
+{
+	//BOX2D
+	float32 a = this->getTextureRect().width * 0.02f;
+	float32 b = this->getTextureRect().height * 0.02f;
+
+	body_def.position.Set(this->getPosition().x * 0.02f, this->getPosition().y * 0.02f);
+	body_def.type = b2_dynamicBody;
+	body_def.fixedRotation = true;
+	body_def.allowSleep = false;
+
+	this->body = physics_world.CreateBody(&body_def);
+
+	b2PolygonShape shape;
+	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.06f);
+
+	b2FixtureDef fd;
+	fd.shape = &shape;
+	fd.density = 1.0f;
+
+	fd.filter.categoryBits = CATEGORY(CAT_CHARACTER);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+
+	this->body->CreateFixture(&fd);
+}
+
 void cCharacter::initPet()
 {
 	this->pet_point = this->getPosition();
@@ -153,13 +179,13 @@ void cCharacter::control()
 		{
 			if (this->body->GetLinearVelocity().x > 0)
 			{
-				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.1f / speed_multipler, this->body->GetLinearVelocity().y));
+				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 				if (this->body->GetLinearVelocity().x < 0)
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 			}
 			else if (this->body->GetLinearVelocity().x < 0)
 			{
-				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.1f / speed_multipler, this->body->GetLinearVelocity().y));
+				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 				if (this->body->GetLinearVelocity().x > 0)
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 			}
@@ -430,6 +456,24 @@ void cCharacter::move(sf::Vector2f level_size)
 	}
 }
 
+void cCharacter::rebirth()
+{
+	this->last_speed.x = 0;
+	this->last_speed.y = 1;
+
+	this->immunity_time = 0;
+	this->setColor(sf::Color(255, 255, 255, 255));
+
+	this->is_immersed_in = FLUID_NONE;
+	this->is_on_ice = false;
+	this->is_on_ladder = false;
+
+	this->initPet();
+
+	if (this->life > 0)
+		this->dead = false;
+}
+
 void cCharacter::addStatsForTreasure(cTreasure &treasure)
 {
 	switch (treasure.getValue())
@@ -515,6 +559,18 @@ void cCharacter::setAllPositions(sf::Vector2f pos)
 cPet cCharacter::getPet()
 {
 	return this->pet;
+}
+
+b2Body *cCharacter::getBody()
+{
+	return this->body;
+}
+
+bool cCharacter::hasLife()
+{
+	if (this->life == 0)
+		return false;
+	return true;
 }
 
 bool cCharacter::isPetAlive()

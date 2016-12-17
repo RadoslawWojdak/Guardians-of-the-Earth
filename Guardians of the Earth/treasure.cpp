@@ -208,7 +208,17 @@ void cTreasure::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab
 	}
 }
 
+b2Body *cTreasure::getBody()
+{
+	return this->body;
+}
+
 short cTreasure::getValue()
 {
 	return this->value;
+}
+
+bool cTreasure::isPhysical()
+{
+	return this->physics;
 }

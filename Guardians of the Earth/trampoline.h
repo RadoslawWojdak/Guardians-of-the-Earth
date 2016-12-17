@@ -19,6 +19,8 @@ class cTrampoline :public cObjectLevel
 
 public:
 	cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f pos, float force);
+
+	b2Body *getBody();
 };
 
 #endif //!trampoline_h

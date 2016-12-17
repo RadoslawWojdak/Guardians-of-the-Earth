@@ -106,7 +106,7 @@ int main()
 		win.display();
 	}
 
-	map.destroy();
+	map.destroy(true);
 	shutdownGraph();
 
 	return 0;

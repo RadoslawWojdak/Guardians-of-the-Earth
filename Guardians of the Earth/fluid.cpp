@@ -116,3 +116,8 @@ void cFluid::resetMainParameters(b2World *physics_world)
 
 	this->physics_body = physics_world->CreateBody(&(this->physics_body_def));
 }
+
+b2Body *cFluid::getBody()
+{
+	return this->physics_body;
+}

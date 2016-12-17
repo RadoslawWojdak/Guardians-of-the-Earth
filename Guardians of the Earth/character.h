@@ -63,6 +63,8 @@ class cCharacter :public cObjectLevel
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos);
 
+	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
+
 	void initPet();	//Inicjalizacja pet'a powinna siê odbywaæ przy ka¿dym utworzeniu obiektu klasy cCharacter (chyba ¿e jest to obiekt tymczasowy)
 	
 	void beenHit();
@@ -71,12 +73,15 @@ public:
 	void specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::Vector2f level_size);
+	void rebirth();
 
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 
 	void setAllPositions(sf::Vector2f pos);
 	
 	cPet getPet();
+	b2Body *getBody();
+	bool hasLife();
 	bool isPetAlive();
 	bool isDead();
 	bool isInviolability();
