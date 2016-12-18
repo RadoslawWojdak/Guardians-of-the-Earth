@@ -11,6 +11,7 @@
 
 /*
 -1 - dodatkowe ¿ycie
+-2 - dodatkowe hp peta
 */
 
 class cTreasure :public cObjectLevel

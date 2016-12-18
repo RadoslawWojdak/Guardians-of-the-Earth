@@ -6,11 +6,18 @@ cPet::cPet()
 	;
 }
 
-cPet::cPet(sf::Vector2f *point_follow)
+cPet::cPet(sf::Vector2f *point_follow, short initial_hp)
 {
 	this->point_follow = point_follow;
 	this->adjustGraphicsParameters(t_pet[0], sf::Vector2f(this->point_follow->x - 4.0f, this->point_follow->y - 16.0f));
-	this->hp = 0;
+	
+	this->hp = initial_hp;
+	if (this->hp < 0)
+		this->hp = 0;
+	else if (this->hp > 3)
+		this->hp = 3;
+
+	this->adjustGraphics();
 }
 
 void cPet::move()
@@ -42,6 +49,9 @@ void cPet::adjustGraphics()
 
 void cPet::increaseHP()
 {
+	if (this->hp == 0)
+		this->setPosition(*(this->point_follow));
+
 	this->hp++;
 	if (this->hp > 3)
 		this->hp = 3;
@@ -56,6 +66,11 @@ void cPet::decreaseHP()
 		this->hp = 0;
 
 	this->adjustGraphics();
+}
+
+void cPet::kill()
+{
+	this->hp = 0;
 }
 
 unsigned short cPet::getHP()

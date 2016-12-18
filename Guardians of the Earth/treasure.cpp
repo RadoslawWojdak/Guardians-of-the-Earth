@@ -20,42 +20,29 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 		this->value = 2;
 	else if (nr <= 890)
 		this->value = 3;
-	else if (nr <= 961)
+	else if (nr <= 952)
 		this->value = 5;
-	else if (nr <= 984)
+	else if (nr <= 971)
 		this->value = 10;
-	else if (nr <= 996)
+	else if (nr <= 981)
 		this->value = 20;
+	else if (nr <= 997)
+		this->value = -2;
 	else
 		this->value = -1;
 
 	//Przypisanie grafiki skarbowi ze wzglêdu na jego wartoœæ
 	switch (this->value)
 	{
-	case -1:
-		this->adjustGraphicsParameters(t_treasure[5], pos);
-		break;
-	case 1:
-		this->adjustGraphicsParameters(t_treasure[2], pos);
-		break;
-	case 2:
-		this->adjustGraphicsParameters(t_treasure[1], pos);
-		break;
-	case 3:
-		this->adjustGraphicsParameters(t_treasure[0], pos);
-		break;
-	case 5:
-		this->adjustGraphicsParameters(t_treasure[6], pos);
-		break;
-	case 10:
-		this->adjustGraphicsParameters(t_treasure[4], pos);
-		break;
-	case 20:
-		this->adjustGraphicsParameters(t_treasure[3], pos);
-		break;
-	default:
-		this->adjustGraphicsParameters(t_treasure[0], pos);
-		break;
+	case -1: {this->adjustGraphicsParameters(t_treasure[5], pos); break;}
+	case -2: {this->adjustGraphicsParameters(t_treasure[7], pos); break;}
+	case 1: {this->adjustGraphicsParameters(t_treasure[2], pos); break;}
+	case 2: {this->adjustGraphicsParameters(t_treasure[1], pos); break;}
+	case 3: {this->adjustGraphicsParameters(t_treasure[0], pos); break;}
+	case 5: {this->adjustGraphicsParameters(t_treasure[6], pos); break;}
+	case 10: {this->adjustGraphicsParameters(t_treasure[4], pos); break;}
+	case 20: {this->adjustGraphicsParameters(t_treasure[3], pos); break;}
+	default: {this->adjustGraphicsParameters(t_treasure[0], pos); break;}
 	}
 
 	this->physics = physics;

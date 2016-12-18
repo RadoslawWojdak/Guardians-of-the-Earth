@@ -80,10 +80,7 @@ void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
 void cCharacter::initPet()
 {
 	this->pet_point = this->getPosition();
-	this->pet = cPet(&(this->pet_point));
-	this->pet.increaseHP();
-	this->pet.increaseHP();
-	this->pet.increaseHP();
+	this->pet = cPet(&(this->pet_point), 1);
 }
 
 void cCharacter::jump(float force)
@@ -135,6 +132,7 @@ void cCharacter::kill()
 	{
 		this->life--;
 		this->dead = true;
+		this->pet.kill();
 
 		this->body->GetWorld()->DestroyBody(this->body);
 	}
@@ -446,11 +444,6 @@ void cCharacter::move(sf::Vector2f level_size)
 			this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 			this->setAllPositions(sf::Vector2f(this->getOrigin().x, this->getPosition().y));
 		}
-		else if (this->getPosition().x + this->getOrigin().x > level_size.x)
-		{
-			this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-			this->setAllPositions(sf::Vector2f(level_size.x - this->getOrigin().x, this->getPosition().y));
-		}
 		if (this->getPosition().y - this->getOrigin().y > level_size.y)
 			this->kill();
 	}
@@ -468,7 +461,8 @@ void cCharacter::rebirth()
 	this->is_on_ice = false;
 	this->is_on_ladder = false;
 
-	this->initPet();
+	this->pet_point = this->getPosition();
+	this->pet.setPosition(this->pet_point);
 
 	if (this->life > 0)
 		this->dead = false;
@@ -481,6 +475,11 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 	case -1:
 	{
 		this->life++;
+		break;
+	}
+	case -2:
+	{
+		this->pet.increaseHP();
 		break;
 	}
 	default:

@@ -14,13 +14,14 @@ class cPet :public cObjectLevel
 
 public:
 	cPet();
-	cPet(sf::Vector2f *point_follow);
+	cPet(sf::Vector2f *point_follow, short initial_hp);
 
 	void move();
 
 	void adjustGraphics();
 	void increaseHP();
 	void decreaseHP();
+	void kill();
 
 	unsigned short getHP();
 };

@@ -446,7 +446,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 		//!Losowanie typu grafiki
 		
 		//Tymczasowy obiekt w tle który bêdzie póŸniej dopisany do wektora obiektów w tle (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cBackgroundObject temp_bg_obj(this->world_type, type, this->randomPosition(416, this->width));
+		cBackgroundObject temp_bg_obj(this->world_type, type, this->randomPosition(0, this->width));
 		
 		//Sprawdzanie, czy obiekt w tle nie znajduje siê w gruncie
 		switch (type)
@@ -459,7 +459,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie jest zakopany w gruncie i nie znajduje siê w wodzie
 				if (!temp_bg_obj.isCollisionOnGrid(is_ground, grid_size) && !temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -480,7 +480,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie jest zakopany w gruncie i nie znajduje siê w wodzie
 				if (!temp_bg_obj.isCollisionOnGrid(is_ground, grid_size) && !temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -501,7 +501,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle jest zakopany w gruncie
 				if (temp_bg_obj.isCollisionOnGrid(is_ground, grid_size))
@@ -514,7 +514,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie jest zakopany w sztywnym obiekcie i znajduje siê w wodzie
 				if (!temp_bg_obj.isCollisionOnGrid(is_solid, grid_size) && temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -535,7 +535,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle znajduje siê w wodzie i nie znajduje siê w sztywnym obiekcie)
 				if (temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -560,7 +560,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle znajduje siê w wodzie
 				if (temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -582,7 +582,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			bool end = false;
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition(416, this->width));
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie znajduje siê w sztywnym obiekcie
 				if (!temp_bg_obj.isCollisionOnGrid(is_solid, grid_size))
@@ -714,7 +714,7 @@ void cMap::movements(sf::View &view)
 			this->player[i].move(sf::Vector2f(this->width, this->height));
 
 			//Rozpoczêcie nastêpnego poziomu
-			if (this->player[i].getPosition().x > this->width - 128)
+			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
 				this->levelGenerator(player.size(), false, true);
 		}
 	}

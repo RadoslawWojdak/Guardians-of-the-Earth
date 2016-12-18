@@ -3,7 +3,7 @@
 sf::Texture t_block[2];
 sf::Texture t_bonus_block[2];
 sf::Texture t_ground[5][47];
-sf::Texture t_treasure[7];
+sf::Texture t_treasure[8];
 sf::Texture t_power_up[2];
 sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
@@ -74,7 +74,7 @@ bool initGraph()
 
 	//BONUSY
 	//Skarby
-	for (unsigned int i = 0; i < 7; i++)
+	for (unsigned int i = 0; i < 8; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
