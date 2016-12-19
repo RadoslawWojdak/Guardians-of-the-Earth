@@ -93,9 +93,6 @@
     <ClCompile Include="bonusblock.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
     </ClCompile>
-    <ClCompile Include="fonts.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="pet.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
     </ClCompile>
@@ -107,6 +104,9 @@
     </ClCompile>
     <ClCompile Include="character.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

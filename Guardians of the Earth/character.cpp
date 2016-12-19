@@ -8,6 +8,10 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
 
+	this->stats_window.setTexture(t_stats_window);
+	this->stats_window.setColor(sf::Color(this->stats_window.getColor().g, this->stats_window.getColor().b, this->stats_window.getColor().a, 192));
+	this->heart.setTexture(t_heart);
+	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
 	this->immunity_time = 0;
 	this->life = 3;
 	this->score = 0;
@@ -231,41 +235,31 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 	if (!this->isDead())
 	{
 		//Kolizje z Bonusowymi blokami
-		bool *b_bs_to_destroy = new bool[bonus_block.size()];	//b_bs - bonus blocks
-		for (unsigned short i = 0; i < bonus_block.size(); i++)
+		for (int i = bonus_block.size() - 1; i >= 0; i--)
 		{
 			if (this->getGlobalBounds().intersects(bonus_block[i].getGlobalBounds()))
 			{
-				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
-					b_bs_to_destroy[i] = true;
-				else
-					b_bs_to_destroy[i] = false;
+				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y)
+				{
+					this->addStatsForBonusBlock();
+					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f));
+					bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
+					bonus_block.erase(bonus_block.begin() + i);
+				}
 			}
-			else
-				b_bs_to_destroy[i] = false;
 		}
 
-		for (int i = bonus_block.size() - 1; i >= 0; i--)
-			if (b_bs_to_destroy[i])
-			{
-				this->addStatsForBonusBlock();
-				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f));
-				bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
-				bonus_block.erase(bonus_block.begin() + i);
-			}
-
-		delete[] b_bs_to_destroy;
-
 		//Kolizje z NPC-ami
-		bool *npcs_to_destroy = new bool[npc.size()];
-		for (unsigned short i = 0; i < npc.size(); i++)
+		for (int i = npc.size() - 1; i >= 0; i--)
 		{
 			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
 			{
 				if (this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && !npc[i].getFeatures().top_hurts)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
 				{
 					this->addStatsForNPC(npc[i]);
-					npcs_to_destroy[i] = true;
+					npc[i].kill();
+					npc.erase(npc.begin() + i);
+
 					if (sf::Keyboard::isKeyPressed(this->key.jump))
 					{
 						this->jump(-5.0f);
@@ -278,40 +272,22 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 				{
 					if (!this->isInviolability())
 						this->beenHit();
-					npcs_to_destroy[i] = false;
 				}
 			}
-			else
-				npcs_to_destroy[i] = false;
 		}
-
-		for (int i = npc.size() - 1; i >= 0; i--)
-			if (npcs_to_destroy[i])
-				npc[i].kill();
-
-		delete[] npcs_to_destroy;
 
 		if (this->isDead())
 			return;
 
 		//Kolizje ze skarbami
-		bool *treasures_to_destroy = new bool[treasure.size()];
-		for (unsigned short i = 0; i < treasure.size(); i++)
+		for (int i = treasure.size() - 1; i >= 0; i--)
 		{
 			if (this->getGlobalBounds().intersects(treasure[i].getGlobalBounds()))
 			{
 				this->addStatsForTreasure(treasure[i]);
-				treasures_to_destroy[i] = true;
-			}
-			else
-				treasures_to_destroy[i] = false;
-		}
-
-		for (int i = treasure.size() - 1; i >= 0; i--)
-			if (treasures_to_destroy[i])
 				treasure.erase(treasure.begin() + i);
-
-		delete[] treasures_to_destroy;
+			}
+		}
 
 		//Kolizje z lodem
 		if (world_type == WORLD_ICE_LAND)
@@ -533,45 +509,62 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 	left_top_corner.x += win.getView().getCenter().x - win.getSize().x / 2;
 	left_top_corner.y += win.getView().getCenter().y - win.getSize().y / 2;
 
-	sf::String text_str(L"SCORE: ");
-	std::string nr;
+	this->stats_window.setPosition(left_top_corner);
+	win.draw(stats_window);
+
+	//Punkty
+	sf::String text_str;
+	std::string number;
 	std::stringstream ss;
 	ss << this->score;
-	nr = ss.str();
+	number = ss.str();
 	ss.str("");
 
-	text_str += nr;
-	sf::Text text(text_str, font, 22);
-	text.setPosition(left_top_corner);
+	text_str = number;
+	sf::Text text(text_str, font[1], 20);
+	text.setFillColor(sf::Color(255, 255, 255, 192));
+	text.setPosition(sf::Vector2f(left_top_corner.x + 10, left_top_corner.y + 74 - text.getGlobalBounds().height / 2));
 	if (this->isDead())
 		text.setFillColor(sf::Color(127, 127, 127));
 	win.draw(text);
 
-
+	//Gotówka
 	text_str.clear();
-	text_str = L"LIFE: ";
-	ss << this->life;
-	nr = ss.str();
+	text_str = " x ";
+	ss << this->cash;
+	number = ss.str();
 	ss.str("");
 
-	text_str += nr;
+	text_str += number;
 	text.setString(text_str);
-	left_top_corner.y += 16;
-	text.setPosition(left_top_corner);
+	text.setPosition(sf::Vector2f(left_top_corner.x + 20, left_top_corner.y + 52 - text.getGlobalBounds().height / 2));
 	win.draw(text);
 
+	//¯ycia
+	if (this->life <= 6)
+	{
+		for (short i = 0; i < this->life; i++)
+		{
+			this->heart.setPosition(left_top_corner.x + 10 + i * 16, left_top_corner.y + 30);
+			win.draw(this->heart);
+		}
+	}
+	else
+	{
+		this->heart.setPosition(left_top_corner.x + 10, left_top_corner.y + 30);
+		win.draw(this->heart);
 
-	text_str.clear();
-	text_str = L"CASH: ";
-	ss << this->cash;
-	nr = ss.str();
-	ss.clear();
+		text_str.clear();
+		text_str = L" x ";
+		ss << this->life;
+		number = ss.str();
+		ss.str("");
 
-	text_str += nr;
-	text.setString(text_str);
-	left_top_corner.y += 16;
-	text.setPosition(left_top_corner);
-	win.draw(text);
+		text_str += number;
+		text.setString(text_str);
+		text.setPosition(left_top_corner.x + 10 + this->heart.getTextureRect().width, left_top_corner.y + 30 - text.getGlobalBounds().height / 2);
+		win.draw(text);
+	}
 }
 
 void cCharacter::setAllPositions(sf::Vector2f pos)

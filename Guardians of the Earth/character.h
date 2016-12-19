@@ -40,6 +40,8 @@ class cCharacter :public cCharacterAnimation
 
 	sControlKey key;
 
+	sf::Sprite stats_window;
+	sf::Sprite heart;
 	unsigned int immunity_time;
 	unsigned short life;
 	unsigned int score;

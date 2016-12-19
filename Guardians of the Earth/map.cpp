@@ -826,7 +826,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	ss.str("");
 	lvl_no_str += nr;
 	
-	sf::Text lvl_no(lvl_no_str, font, 48);
+	sf::Text lvl_no(lvl_no_str, font[0], 48);
 	lvl_no.setOrigin(lvl_no.getGlobalBounds().width / 2, lvl_no.getGlobalBounds().height / 2);
 	lvl_no.setPosition(view.getCenter().x, 32);
 

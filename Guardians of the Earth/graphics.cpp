@@ -12,6 +12,9 @@ sf::Texture t_object[8];
 sf::Texture t_character[2][2];
 sf::Texture t_pet[2];
 
+sf::Texture t_stats_window;
+sf::Texture t_heart;
+
 bool initGraph()
 {
 	//BLOKI
@@ -218,6 +221,12 @@ bool initGraph()
 		if (!t_pet[i].loadFromFile(path))
 			return false;
 	}
+
+	//INNE
+	if (!t_stats_window.loadFromFile("graphics\\others\\stats_window.png"))
+		return false;
+	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+		return false;
 
 	return true;
 }

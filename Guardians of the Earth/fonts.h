@@ -2,9 +2,9 @@
 #define fonts_h
 
 #include "SFML\Graphics.hpp"
-#include <sstream>	//Konwersja liczby na tekst
+#include <sstream>
 
-extern sf::Font font;
+extern sf::Font font[2];
 
 bool initFonts();
 

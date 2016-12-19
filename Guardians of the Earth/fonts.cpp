@@ -1,11 +1,19 @@
 #include "fonts.h"
 
-sf::Font font;
+sf::Font font[2];
 
 bool initFonts()
 {
-	if (!font.loadFromFile("fonts\\font-1.ttf"))
-		return false;
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
 
-	return true;
+		std::string path = "fonts\\font-" + nr + ".ttf";
+		if (!font[i].loadFromFile(path))
+			return false;
+	}
 }

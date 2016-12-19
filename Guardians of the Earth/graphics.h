@@ -16,6 +16,9 @@ extern sf::Texture t_object[8];
 extern sf::Texture t_character[2][2];
 extern sf::Texture t_pet[2];
 
+extern sf::Texture t_stats_window;
+extern sf::Texture t_heart;
+
 bool initGraph();
 bool shutdownGraph();
 
