@@ -22,17 +22,17 @@ cPet::cPet(sf::Vector2f *point_follow, short initial_hp)
 
 void cPet::move()
 {
-	this->speed.x += (point_follow->x - this->getPosition().x) / 100;
-	if (speed.x > 2.5f)
-		speed.x = 2.5f;
-	else if (speed.x < -2.5f)
-		speed.x = -2.5f;
+	this->speed.x = (point_follow->x - this->getPosition().x) / 25;
+	if (speed.x > 3.0f)
+		speed.x = 3.0f;
+	else if (speed.x < -3.0f)
+		speed.x = -3.0f;
 
-	this->speed.y += (point_follow->y - this->getPosition().y) / 100;
-	if (speed.y > 2.5f)
-		speed.y = 2.5f;
-	else if (speed.y < -2.5f)
-		speed.y = -2.5f;
+	this->speed.y = (point_follow->y - this->getPosition().y) / 25;
+	if (speed.y > 3.0f)
+		speed.y = 3.0f;
+	else if (speed.y < -3.0f)
+		speed.y = -3.0f;
 
 	this->cObjectLevel::move(speed);
 }

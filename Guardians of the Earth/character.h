@@ -4,7 +4,7 @@
 #include <sstream>	//Konwersja liczby na tekst
 #include "SFML\Graphics.hpp";
 #include "Box2D.h"
-#include "objectlevel.h"
+#include "characterAnimation.h"
 #include "enums.h"
 #include "graphics.h"
 #include "treasure.h"
@@ -26,7 +26,7 @@ struct sControlKey
 	sf::Keyboard::Key fire;
 };
 
-class cCharacter :public cObjectLevel
+class cCharacter :public cCharacterAnimation
 {
 	b2BodyDef body_def;
 	b2Body *body;

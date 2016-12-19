@@ -9,7 +9,7 @@ sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
 sf::Texture t_npc[4];
 sf::Texture t_object[8];
-sf::Texture t_character[2];
+sf::Texture t_character[2][2];
 sf::Texture t_pet[2];
 
 bool initGraph()
@@ -191,6 +191,7 @@ bool initGraph()
 	}
 
 	//POSTACIE
+	//Rycerz
 	for (unsigned int i = 0; i < 1; i++)
 	{
 		std::string nr;
@@ -199,8 +200,8 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\characters\\character-" + nr + ".png";
-		if (!t_character[i].loadFromFile(path))
+		std::string path = "graphics\\characters\\knight\\knight-" + nr + ".png";
+		if (!t_character[0][i].loadFromFile(path))
 			return false;
 	}
 

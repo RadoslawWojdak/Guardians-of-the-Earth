@@ -1,8 +1,9 @@
 #include "character.h"
 
 cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos)
+	:cCharacterAnimation(t_character[0][0], pos)
 {
-	this->adjustGraphicsParameters(t_character[0], pos);
+	this->animationStanding();
 
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
@@ -12,7 +13,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->score = 0;
 	this->cash = 0;
 
-	this->max_speed_x = 4.0f;
+	this->max_speed_x = 4.5f;
 	this->last_position = this->getPosition();
 
 	this->key.up = sf::Keyboard::Key::Up;
@@ -79,7 +80,7 @@ void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
 
 void cCharacter::initPet()
 {
-	this->pet_point = this->getPosition();
+	this->pet_point = sf::Vector2f(this->getPosition().x, this->getPosition().y + 24);
 	this->pet = cPet(&(this->pet_point), 1);
 }
 
@@ -152,8 +153,21 @@ void cCharacter::control()
 		if (this->last_speed.y >= 0 && this->body->GetLinearVelocity().y <= 0)
 			this->can_jump = true;
 
+		if (!this->is_on_ladder)
+		{
+			if (!this->can_jump && this->is_immersed_in == FLUID_NONE)
+				this->animationJumping();
+			else if (this->body->GetLinearVelocity().y > 0.0f && this->is_immersed_in == FLUID_NONE)
+				this->animationStanding();
+			else if (this->body->GetLinearVelocity().y != 0.0f && this->is_immersed_in != FLUID_NONE)
+				this->animationSwimming();
+		}
+
 		if (sf::Keyboard::isKeyPressed(this->key.right))
 		{
+			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
+				this->animationWalking();
+			
 			this->setScale(1.0f, 1.0f);
 
 			this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
@@ -164,6 +178,9 @@ void cCharacter::control()
 		}
 		if (sf::Keyboard::isKeyPressed(this->key.left))
 		{
+			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
+				this->animationWalking();
+
 			this->setScale(-1.0f, 1.0f);
 
 			this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
@@ -175,6 +192,9 @@ void cCharacter::control()
 		//Gdy nie jest naciœniêty ¿aden z klawiszy (lewo, prawo), to postaæ zaczyna siê zatrzymywaæ
 		if (!sf::Keyboard::isKeyPressed(this->key.right) && !sf::Keyboard::isKeyPressed(this->key.left))
 		{
+			if (this->can_jump && !this->is_on_ladder)
+				this->animationStanding();
+
 			if (this->body->GetLinearVelocity().x > 0)
 			{
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
@@ -338,13 +358,20 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 					this->body->SetGravityScale(0.0f);
 					this->is_on_ladder = true;
 					this->stop_jump = true;
+					this->can_jump = true;
 
 					if (sf::Keyboard::isKeyPressed(this->key.up) && sf::Keyboard::isKeyPressed(this->key.down))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 					else if (sf::Keyboard::isKeyPressed(this->key.up))
+					{
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -1.75f));
+						this->animationClimbing(true);
+					}
 					else if (sf::Keyboard::isKeyPressed(this->key.down))
+					{
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 1.75f));
+						this->animationClimbing(false);
+					}
 				}
 				
 				if (this->is_on_ladder)
@@ -436,7 +463,7 @@ void cCharacter::move(sf::Vector2f level_size)
 		this->last_speed = this->body->GetLinearVelocity();
 		this->last_position = this->getPosition();
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
-		this->pet_point = this->getPosition();
+		this->pet_point = sf::Vector2f(this->getPosition().x, this->getPosition().y + 24);
 
 		//Czy gracz wylecia³ poza ramkê poziomu
 		if (this->getGlobalBounds().left < 0)
@@ -461,7 +488,7 @@ void cCharacter::rebirth()
 	this->is_on_ice = false;
 	this->is_on_ladder = false;
 
-	this->pet_point = this->getPosition();
+	this->pet_point = sf::Vector2f(this->getPosition().x, this->getPosition().y + 24);
 	this->pet.setPosition(this->pet_point);
 
 	if (this->life > 0)

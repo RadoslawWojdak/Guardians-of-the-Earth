@@ -1,6 +1,5 @@
-﻿  pet.cpp
-c:\users\radosław\desktop\guardians of the earth\guardians of the earth\pet.cpp(43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-c:\users\radosław\desktop\guardians of the earth\guardians of the earth\pet.cpp(45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-c:\users\radosław\desktop\guardians of the earth\guardians of the earth\pet.cpp(47): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+﻿  treasure.cpp
+c:\users\radosław\desktop\guardians of the earth\guardians of the earth\treasure.cpp(12): warning C4244: 'argument': conversion from 'unsigned __int64' to 'unsigned int', possible loss of data
+c:\users\radosław\desktop\guardians of the earth\guardians of the earth\treasure.cpp(193): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Guardians of the Earth.vcxproj -> C:\Users\Radosław\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\Radosław\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)

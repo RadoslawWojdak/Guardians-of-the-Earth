@@ -111,10 +111,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="animatedObjectLevel.cpp" />
     <ClCompile Include="backgroundobject.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bonusblock.cpp" />
     <ClCompile Include="character.cpp" />
+    <ClCompile Include="characterAnimation.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="ladder.cpp" />
     <ClCompile Include="npc.cpp" />
@@ -135,10 +137,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animatedObjectLevel.h" />
     <ClInclude Include="backgroundobject.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="bonusblock.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="characterAnimation.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="ladder.h" />
