@@ -44,6 +44,40 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 	body->CreateFixture(&fd);
 }
 
+unsigned short randomNPCID(eWorld world_type)
+{
+	switch (world_type)
+	{
+	case WORLD_OVERWORLD:
+	case WORLD_UNDERGROUND:
+	case WORLD_ICE_LAND:
+	case WORLD_DESERT:
+	{
+		short random = rand() % 4 + 1;
+		switch (random)
+		{
+		case 1: {return 1; break;}
+		case 2: {return 2; break;}
+		case 3: {return 3; break;}
+		case 4: {return 5; break;}
+		}
+		break;
+	}
+	case WORLD_UNDERWATER:
+	{
+		short random = rand() % 4 + 1;
+		switch (random)
+		{
+		case 1: {return 1; break;}
+		case 2: {return 2; break;}
+		case 3: {return 4; break;}
+		case 4: {return 5; break;}
+		}
+		break;
+	}
+	}
+}
+
 void cNPC::setFeatures(unsigned short id)
 {
 	switch(id)
@@ -53,6 +87,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 		
 		this->features.motion = true;
 		this->features.chase = false;
@@ -70,6 +105,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
@@ -87,6 +123,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
@@ -104,6 +141,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
@@ -112,6 +150,24 @@ void cNPC::setFeatures(unsigned short id)
 
 		this->features.flying = false;
 		this->features.swimming = true;
+		this->features.jumping = false;
+
+		break;
+	}
+	case 5:
+	{
+		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+
+		this->features.friendly = false;
+		this->features.top_hurts = true;
+
+		this->features.motion = true;
+		this->features.chase = false;
+		this->speed = 1.5f;
+		this->features.max_speed = 1.5f;
+
+		this->features.flying = false;
+		this->features.swimming = false;
 		this->features.jumping = false;
 
 		break;

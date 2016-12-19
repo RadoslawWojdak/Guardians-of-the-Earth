@@ -10,15 +10,18 @@
 struct sFeatures
 {
 	bool friendly;		//Czy NPC bêdzie zaprzyjaŸniony z postaciami gracza? (nie bêdzie ich rani³, ani one jego)
+	bool top_hurts;		//Czy Górna czêœæ NPC-a bêdzie raniæ postacie gracza?
 
 	bool motion;		//Czy NPC bêdzie siê poruszaæ?
 	bool chase;			//Czy NPC bêdzie goni³ postacie graczy?
 	float max_speed;	//Maksymalna prêdkoœæ NPC (w przypadku chase prêdkoœæ nie jest sta³a)
-
+	
 	bool flying;		//Czy NPC bêdzie móg³ lataæ?
 	bool swimming;		//Czy NPC bêdzie móg³ p³ywaæ?
 	bool jumping;		//Czy NPC bêdzie podskakiwaæ?
 };
+
+unsigned short randomNPCID(eWorld world_type);
 
 class cNPC :public cObjectLevel
 {

@@ -259,11 +259,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	for (int i = 0; i < 50; i++)
 	{
 		//Losowanie ID NPC-a
-		int random;
-		if (this->world_type == WORLD_UNDERWATER)
-			random = rand() % 4 + 1;
-		else
-			random = rand() % 3 + 1;
+		int random = randomNPCID(this->world_type);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
 		cNPC temp_npc(&(this->physics_world), this->world_type, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
@@ -690,8 +686,14 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 void cMap::movements(sf::View &view)
 {
-	for (unsigned int i = 0; i < this->treasure.size(); i++)
+	for (int i = this->treasure.size() - 1; i >= 0; i--)
+	{
 		this->treasure[i].step(this->world_type, sf::Vector2i(this->width, this->height), this->fluid_tab);
+
+		//Wypad³ poza obszar mapy
+		if (this->treasure[i].getPosition().y - this->treasure[i].getOrigin().y > this->height)
+			this->treasure.erase(this->treasure.begin() + i);
+	}
 
 	sf::FloatRect view_rect;	//view_rect to prostok¹t, który zape³nia aktualny widok kamery. Dziêki temu mo¿na sprawdziæ, czy NPC-y znajduj¹ siê w polu widoku i maj¹ zacz¹æ siê poruszaæ.
 	view_rect.left = view.getCenter().x - view.getSize().x / 2;
@@ -699,8 +701,18 @@ void cMap::movements(sf::View &view)
 	view_rect.width = view.getCenter().x + view.getSize().x / 2;
 	view_rect.height = view.getCenter().y + view.getSize().y / 2;
 
-	for (unsigned int i = 0; i < this->npc.size(); i++)
+	for (int i = this->npc.size() - 1; i >= 0; i--)
+	{
 		this->npc[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab, view_rect);
+		
+		//Wyszed³ poza obszar mapy
+		if (this->npc[i].getPosition().y - this->npc[i].getOrigin().y > this->height)
+		{
+			this->npc[i].kill();
+			this->npc.erase(this->npc.begin() + i);
+		}
+	}
+
 	bool are_all_players_dead = true;
 	for (unsigned int i = 0; i < this->player.size(); i++)
 	{
