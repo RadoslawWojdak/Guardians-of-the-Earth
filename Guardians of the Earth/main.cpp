@@ -5,6 +5,7 @@
 #include "map.h"
 #include "sector.h"
 #include "global_variables.h"
+#include "fonts.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -31,11 +32,17 @@ int main()
 	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", sf::Style::Close);
 	win.setFramerateLimit(60);
 
-	if (!init_graph())
+	if (!initGraph())
 	{
 		std::cout << "Blad wczytywania grafik!\n";
 		system("PAUSE");
 		return 1;
+	}
+	if (!initFonts())
+	{
+		std::cout << "Blad wczytywania czcionek!\n";
+		system("PAUSE");
+		return 4;
 	}
 	if (!howManySectors())
 	{
@@ -46,7 +53,7 @@ int main()
 
 	sf::Event ev;
 
-	cMap map((eWorld)option);
+	cMap map((eWorld)option, 1);
 	
 	sf::View p1;
 	p1.setCenter(400, 300);
@@ -63,7 +70,7 @@ int main()
 		}
 
 		//DZIALANIA W GRZE
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
 			p1.setCenter(sf::Vector2f(p1.getCenter().x + 7, p1.getCenter().y));
 			if (p1.getCenter().x > map.getWidth() - 400)
@@ -87,7 +94,7 @@ int main()
 			if (p1.getCenter().y > map.getHeight() - 300)
 				p1.setCenter(sf::Vector2f(p1.getCenter().x, map.getHeight() - 300));
 		}
-		win.setView(p1);
+		win.setView(p1);*/
 
 		//Poruszanie siê obiektów w poziomie
 		map.movements(p1);
@@ -99,8 +106,8 @@ int main()
 		win.display();
 	}
 
-	map.destroy();
-	shutdown_graph();
+	map.destroy(true);
+	shutdownGraph();
 
 	return 0;
 }

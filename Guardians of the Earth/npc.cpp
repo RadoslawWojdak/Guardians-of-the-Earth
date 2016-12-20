@@ -13,6 +13,8 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 	else
 		this->last_speed = b2Vec2(this->speed, 0.5f);
 
+	this->dead = false;
+
 	//BOX2D
 	float32 a = this->getTextureRect().width * 0.02f;
 	float32 b = this->getTextureRect().height * 0.02f;
@@ -42,6 +44,40 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vec
 	body->CreateFixture(&fd);
 }
 
+unsigned short randomNPCID(eWorld world_type)
+{
+	switch (world_type)
+	{
+	case WORLD_OVERWORLD:
+	case WORLD_UNDERGROUND:
+	case WORLD_ICE_LAND:
+	case WORLD_DESERT:
+	{
+		short random = rand() % 4 + 1;
+		switch (random)
+		{
+		case 1: {return 1; break;}
+		case 2: {return 2; break;}
+		case 3: {return 3; break;}
+		case 4: {return 5; break;}
+		}
+		break;
+	}
+	case WORLD_UNDERWATER:
+	{
+		short random = rand() % 4 + 1;
+		switch (random)
+		{
+		case 1: {return 1; break;}
+		case 2: {return 2; break;}
+		case 3: {return 4; break;}
+		case 4: {return 5; break;}
+		}
+		break;
+	}
+	}
+}
+
 void cNPC::setFeatures(unsigned short id)
 {
 	switch(id)
@@ -51,6 +87,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 		
 		this->features.motion = true;
 		this->features.chase = false;
@@ -68,6 +105,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
@@ -85,6 +123,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
@@ -102,6 +141,7 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->features.friendly = false;
+		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
@@ -114,11 +154,36 @@ void cNPC::setFeatures(unsigned short id)
 
 		break;
 	}
+	case 5:
+	{
+		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+
+		this->features.friendly = false;
+		this->features.top_hurts = true;
+
+		this->features.motion = true;
+		this->features.chase = false;
+		this->speed = 1.5f;
+		this->features.max_speed = 1.5f;
+
+		this->features.flying = false;
+		this->features.swimming = false;
+		this->features.jumping = false;
+
+		break;
+	}
 	}
 }
 
 void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect)
 {
+	float speed_multipler = 1;
+	switch (this->is_immersed_in)
+	{
+	case FLUID_WATER: {speed_multipler = g_fluid_speed_multipler.water; break;}
+	case FLUID_QUICKSAND: {speed_multipler = g_fluid_speed_multipler.quicksand; break;}
+	}
+
 	//Odbicie lustrzane grafiki ze wzglêdu na kierunek ruchu
 	if (this->dir == DIR_LEFT)
 		this->setScale(sf::Vector2f(1, 1));
@@ -128,6 +193,7 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 
 	if (!start && this->getGlobalBounds().intersects(view_rect))
 	{
+		this->last_position = this->getPosition();	//Naprawa b³êdów z NPC-ami które pojawiaj¹ siê ju¿ na samym poczatku rozgrywki
 		this->body->SetActive(true);
 		this->start = true;
 		
@@ -167,14 +233,14 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 
 			if (this->dir == DIR_LEFT)
 			{
-				this->speed -= 0.02f;
-				if (this->speed <= -this->features.max_speed)
+				this->speed -= 0.02f * speed_multipler;
+				if (this->speed <= -this->features.max_speed * speed_multipler)
 					this->dir = DIR_RIGHT;
 			}
 			else if (this->dir == DIR_RIGHT)
 			{
-				this->speed += 0.02f;
-				if (this->speed >= this->features.max_speed)
+				this->speed += 0.02f * speed_multipler;
+				if (this->speed >= this->features.max_speed * speed_multipler)
 					this->dir = DIR_LEFT;
 			}
 
@@ -211,15 +277,15 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 					this->body->SetGravityScale(0.035f);
 				if (this->body->GetLinearVelocity().y > 0.5f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.5f));
-				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 3.5f)
+				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = (float)this->features.max_speed / 3.5f;
-					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed / 3.5f, this->body->GetLinearVelocity().y));
+					this->speed = (float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
-				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed / 3.5f)
+				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = -(float)this->features.max_speed / 3.5f;
-					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed / 3.5f, this->body->GetLinearVelocity().y));
+					this->speed = -(float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
 
 				break;
@@ -230,15 +296,15 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 					this->body->SetGravityScale(0.35f);
 				if (this->body->GetLinearVelocity().y > 2.0f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 2.0f));
-				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed / 2.0f)
+				if (this->body->GetLinearVelocity().x > (float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = (float)this->features.max_speed / 2.0f;
-					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed / 2.0f, this->body->GetLinearVelocity().y));
+					this->speed = (float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2((float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
-				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed / 2.0f)
+				else if (this->body->GetLinearVelocity().x < -(float)this->features.max_speed * speed_multipler)
 				{
-					this->speed = -(float)this->features.max_speed / 2.0f;
-					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed / 2.0f, this->body->GetLinearVelocity().y));
+					this->speed = -(float)this->features.max_speed * speed_multipler;
+					this->body->SetLinearVelocity(b2Vec2(-(float)this->features.max_speed * speed_multipler, this->body->GetLinearVelocity().y));
 				}
 
 				break;
@@ -264,16 +330,24 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 	}
 
 	//Pozycja
-	this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
-	this->last_position = this->getPosition();
+	this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f));
+}
+
+void cNPC::kill()
+{
+	if (!this->isDead())
+	{
+		this->body->GetWorld()->DestroyBody(this->body);
+		this->dead = true;
+	}
 }
 
 void cNPC::setAllPositions(sf::Vector2f pos)
 {
+	this->last_position = this->getPosition();
 	this->body->SetTransform(b2Vec2(pos.x * 0.02f, pos.y * 0.02f), 0);
 	this->setOrigin(this->getTextureRect().width / 2, this->getTextureRect().height / 2);
 	this->setPosition(pos);
-	last_position = pos;
 }
 
 b2Body* cNPC::getBody()
@@ -284,4 +358,14 @@ b2Body* cNPC::getBody()
 sFeatures cNPC::getFeatures()
 {
 	return this->features;
+}
+
+sf::Vector2f cNPC::getLastPosition()
+{
+	return this->last_position;
+}
+
+bool cNPC::isDead()
+{
+	return this->dead;
 }

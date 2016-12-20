@@ -31,6 +31,18 @@
     <Filter Include="Header Files\Classes\cObjectLevel-&gt;\cBlock-&gt;">
       <UniqueIdentifier>{8989226f-d43a-413d-8467-0ea4ab932a2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;">
+      <UniqueIdentifier>{cd8a59ca-c046-4812-b6f8-d1b9336fa90f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;">
+      <UniqueIdentifier>{25f20ac1-c203-4a8a-aed3-232f77ba03e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;">
+      <UniqueIdentifier>{fefea47b-4706-4070-bf05-18292d4d9aa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;">
+      <UniqueIdentifier>{df68466a-e573-4c5f-81fe-cbc471a33ca0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -80,6 +92,21 @@
     </ClCompile>
     <ClCompile Include="bonusblock.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="pet.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="animatedObjectLevel.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="characterAnimation.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="character.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +160,21 @@
     </ClInclude>
     <ClInclude Include="bonusblock.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;\cBlock-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pet.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="animatedObjectLevel.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="characterAnimation.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="character.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

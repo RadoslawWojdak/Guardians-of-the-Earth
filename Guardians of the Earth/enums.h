@@ -11,7 +11,8 @@ enum eCategory
 	CAT_TREASURE = 3,
 	CAT_NPC = 4,
 	CAT_TRAMPOLINE = 5,
-	CAT_FLUID = 6
+	CAT_FLUID = 6,
+	CAT_CHARACTER = 7
 };
 
 enum eBackgroundType
@@ -68,6 +69,14 @@ enum eTreasure
 	T_GOLD_BAR = 5,
 	T_RED_GEM = 10,
 	T_SCEPTER = 20
+};
+
+enum eFluidType
+{
+	FLUID_NONE = 0,
+	FLUID_WATER = 1,
+	FLUID_ICE = 2,
+	FLUID_QUICKSAND = 3
 };
 
 #endif //!enums_h

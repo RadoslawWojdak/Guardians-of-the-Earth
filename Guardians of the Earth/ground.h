@@ -26,6 +26,8 @@ public:
 	void graphicsCustomize(sf::Vector2u map_size, bool *ground_exists, sf::Vector2i grid_size);
 
 	void resetMainParameters(b2World *physics_world);	//Resetowanie parametrów nale¿¹cych do wszystkich gruntów (statycznych)
+
+	b2Body *getBody();
 };
 
 #endif //!ground_h

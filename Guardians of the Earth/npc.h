@@ -10,15 +10,18 @@
 struct sFeatures
 {
 	bool friendly;		//Czy NPC bêdzie zaprzyjaŸniony z postaciami gracza? (nie bêdzie ich rani³, ani one jego)
+	bool top_hurts;		//Czy Górna czêœæ NPC-a bêdzie raniæ postacie gracza?
 
 	bool motion;		//Czy NPC bêdzie siê poruszaæ?
 	bool chase;			//Czy NPC bêdzie goni³ postacie graczy?
 	float max_speed;	//Maksymalna prêdkoœæ NPC (w przypadku chase prêdkoœæ nie jest sta³a)
-
+	
 	bool flying;		//Czy NPC bêdzie móg³ lataæ?
 	bool swimming;		//Czy NPC bêdzie móg³ p³ywaæ?
 	bool jumping;		//Czy NPC bêdzie podskakiwaæ?
 };
+
+unsigned short randomNPCID(eWorld world_type);
 
 class cNPC :public cObjectLevel
 {
@@ -28,7 +31,10 @@ class cNPC :public cObjectLevel
 	
 	b2BodyDef body_def;
 	b2Body *body;
-	
+
+	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
+	bool dead;
+
 	//CECHY NPC-ÓW
 	sFeatures features;
 
@@ -43,11 +49,14 @@ public:
 	cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction);
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect);
+	void kill();
 
 	void setAllPositions(sf::Vector2f pos);
 
 	b2Body* getBody();
 	sFeatures getFeatures();
+	sf::Vector2f getLastPosition();
+	bool isDead();
 };
 
 #endif //!npc_h

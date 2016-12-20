@@ -3,14 +3,19 @@
 sf::Texture t_block[2];
 sf::Texture t_bonus_block[2];
 sf::Texture t_ground[5][47];
-sf::Texture t_treasure[7];
+sf::Texture t_treasure[8];
 sf::Texture t_power_up[2];
 sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
-sf::Texture t_npc[4];
+sf::Texture t_npc[5];
 sf::Texture t_object[8];
+sf::Texture t_character[2][2];
+sf::Texture t_pet[2];
 
-bool init_graph()
+sf::Texture t_stats_window;
+sf::Texture t_heart;
+
+bool initGraph()
 {
 	//BLOKI
 	for (unsigned int i = 0; i < 1; i++)
@@ -72,7 +77,7 @@ bool init_graph()
 
 	//BONUSY
 	//Skarby
-	for (unsigned int i = 0; i < 7; i++)
+	for (unsigned int i = 0; i < 8; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
@@ -161,7 +166,7 @@ bool init_graph()
 	}
 
 	//NPC-Y
-	for (unsigned int i = 0; i < 4; i++)
+	for (unsigned int i = 0; i < 5; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
@@ -188,11 +193,46 @@ bool init_graph()
 			return false;
 	}
 
+	//POSTACIE
+	//Rycerz
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\characters\\knight\\knight-" + nr + ".png";
+		if (!t_character[0][i].loadFromFile(path))
+			return false;
+	}
+
+	//PET-Y
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\pets\\pet-" + nr + ".png";
+		if (!t_pet[i].loadFromFile(path))
+			return false;
+	}
+
+	//INNE
+	if (!t_stats_window.loadFromFile("graphics\\others\\stats_window.png"))
+		return false;
+	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+		return false;
+
 	return true;
 }
 
 
-bool shutdown_graph()
+bool shutdownGraph()
 {
 	return true;
 }

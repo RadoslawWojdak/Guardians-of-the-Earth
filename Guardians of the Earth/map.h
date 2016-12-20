@@ -2,6 +2,7 @@
 #define map_h
 
 #include <vector>
+#include <sstream>
 #include "graphics.h"
 #include "sector.h"
 #include "block.h"
@@ -14,6 +15,8 @@
 #include "fluid.h"
 #include "powerup.h"
 #include "ladder.h"
+#include "character.h"
+#include "fonts.h"
 
 class cMap
 {
@@ -23,6 +26,7 @@ class cMap
 	unsigned int width, height = 600;
 	unsigned int x_generate = 0;		//aktualne miejsce w ktorym ma sie wygenerowac nastepny sektor (aktualizuje sie po stworzeniu sektora)
 	cSector prev_sector;
+	unsigned int level_number;
 
 	sf::Sprite background[2];			//Tlo mapy (dziêki dwóm takim samym t³om, t³o mo¿e siê przesuwaæ)
 
@@ -37,22 +41,29 @@ class cMap
 	std::vector <cTrampoline> trampoline;
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
+	std::vector <cCharacter> player;
 	//!Obiekty na mapie
+
+	//Zapasowe obiekty mapy (obiekty u¿ywane po œmierci wszystkich graczy do cofniêcia mapy do stanu sprzed jej rozpoczêcia)
+	std::vector <cSector> reserve_sector;
+	//!Zapasowe obiekty mapy
 
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 
 public:
-	cMap(eWorld world);				//Tworzenie mapy za pomoca funkcji generate()
-	void generate();	//Generowanie mapy
+	cMap(eWorld world, short number_of_players);				//Tworzenie mapy za pomoca funkcji generate()
+	
+	void levelGenerator(short number_of_players, bool refresh, bool next_level);	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
+	
 	void movements(sf::View &view);	//Ruch œwiata (Box2D + ewentualne dodatkowe)
 	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran
 
 	unsigned int getWidth();
 	unsigned int getHeight();
 
-	sf::Vector2f randomPosition();
+	sf::Vector2f randomPosition(unsigned int min_x, unsigned int max_x);
 
-	void destroy();
+	void destroy(bool destroy_players);
 };
 
 #endif // !map_h

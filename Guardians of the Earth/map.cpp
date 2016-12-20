@@ -1,24 +1,39 @@
 #include "map.h"
 #include <iostream>
 
-cMap::cMap(eWorld world) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10.0f))
 {
-	groundsInit(&(this->physics_world));
-	fluidInit(&(this->physics_world));
+	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	generate();
+	levelGenerator(number_of_players, false, false);
 }
 
-void cMap::generate()
+void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
 {
+	system("CLS");
+	if (refresh || next_level)
+		this->destroy(false);
+	if (next_level)
+	{
+		this->level_number++;
+		this->world_type = (eWorld)(rand() % 5);
+	}
+	if (!refresh)
+		this->reserve_sector.clear();
+
+	groundsInit(&(this->physics_world));
+	fluidInit(&(this->physics_world));
+
+	this->width = 0;
+	this->height = 600;
+	
+	this->x_generate = 0;
+
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
 		background[i].setTexture(t_background[this->world_type]);
-
-	//Utworzenie zmiennej sektor
-	cSector sector;
 
 	//Stworzenie tablicy opisuj¹cej, jak wiele w poziomie jest sektorów o danym ID (w celach debugowania)
 	std::cout << "Ilosc sektorow w tym typie swiata: " << how_many_sectors[this->world_type] << "\n\n\n";
@@ -29,26 +44,35 @@ void cMap::generate()
 	//Wektor zmiennych odpowiedzialnych za pozycje spawnów bonusów
 	std::vector <sf::Vector2f> spawn_pu_pos;
 
+	//Utworzenie zmiennej sektor
+	cSector sector;
+
 	//Pêtla tworzenia terenu
 	clock_t time_map = clock();
 	for (int i = 0; i < 50; i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
 	{
-		std::cout << i << " ";
-		std::string sector_id;
-		//Pêtla wyszukiwania pasuj¹cego sektora
-		do
+		if (!refresh)	//Tworzenie poziomu od podstaw
 		{
-			sector.loadRandomSector(this->world_type, sector_id);
-			if (i == 0)	//Pierwszy sektor zawsze pasuje
-				break;
-		} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
+			std::cout << i << " ";
+			std::string sector_id;
+			//Pêtla wyszukiwania pasuj¹cego sektora
+			do
+			{
+				sector.loadRandomSector(this->world_type, sector_id);
+				if (i == 0)	//Pierwszy sektor zawsze pasuje
+					break;
+			} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
 
-		int s_id = atoi((char*)sector_id.c_str());
-		std::cout << s_id << "\n";
-		how_many[s_id - 1]++;
+			reserve_sector.push_back(sector);
+			int s_id = atoi((char*)sector_id.c_str());
+			std::cout << s_id << "\n";
+			how_many[s_id - 1]++;
 
-		//Przypisanie sektora poprzedniemu sektorowi - dziêki temu mo¿na bêdzie znowu wyszukiwaæ pasuj¹cy sektor
-		this->prev_sector = sector;
+			//Przypisanie sektora poprzedniemu sektorowi - dziêki temu mo¿na bêdzie znowu wyszukiwaæ pasuj¹cy sektor
+			this->prev_sector = sector;
+		}
+		else	//Skorzystanie z gotowego poziomu (sektory)
+			sector = this->reserve_sector[i];
 
 		//Dla œwiata podziemnego generator tworzy ponad sektorem warstwy gruntu
 		if (this->world_type == WORLD_UNDERGROUND)
@@ -235,14 +259,10 @@ void cMap::generate()
 	for (int i = 0; i < 50; i++)
 	{
 		//Losowanie ID NPC-a
-		int random;
-		if (this->world_type == WORLD_UNDERWATER)
-			random = rand() % 4 + 1;
-		else
-			random = rand() % 3 + 1;
+		int random = randomNPCID(this->world_type);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), this->world_type, random, this->randomPosition(), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(&(this->physics_world), this->world_type, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
 		bool end = false;	//Nie przydzielono pozycji
 
@@ -252,7 +272,7 @@ void cMap::generate()
 			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
 			while (!end)
 			{
-				temp_npc.setAllPositions(this->randomPosition());
+				temp_npc.setAllPositions(this->randomPosition(416, this->width));
 
 				//Je¿eli NPC nie jest zakopany w sztywnym obiekcie
 				if (!temp_npc.isCollisionOnGrid(is_solid, grid_size) && !temp_npc.isCollisionOnGrid(is_npc, grid_size))
@@ -275,7 +295,7 @@ void cMap::generate()
 			while (!end)
 			{
 				
-				sf::Vector2f main_pos = this->randomPosition();		//G³ówna pozycja - pozycja pocz¹tkowa NPC-a
+				sf::Vector2f main_pos = this->randomPosition(416, this->width);		//G³ówna pozycja - pozycja pocz¹tkowa NPC-a
 				temp_npc.setAllPositions(main_pos);
 
 				//Je¿eli NPC nie jest zakopany w sztywnym obiekcie
@@ -309,7 +329,7 @@ void cMap::generate()
 			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê w p³ynie
 			while (!end)
 			{
-				temp_npc.setAllPositions(this->randomPosition());
+				temp_npc.setAllPositions(this->randomPosition(416, this->width));
 				
 				//Je¿eli NPC znajduje siê w wodzie
 				if (temp_npc.isCollisionOnGrid(is_fluid, grid_size))
@@ -319,7 +339,7 @@ void cMap::generate()
 
 		sf::Vector2i pos_on_grid((temp_npc.getPosition().x - temp_npc.getOrigin().x) / 32, (temp_npc.getPosition().y - temp_npc.getOrigin().y) / 32);
 		is_npc[pos_on_grid.y * grid_size.x + pos_on_grid.x] = true;
-
+		
 		this->npc.push_back(temp_npc);
 	}
 	time_npc = clock() - time_npc;
@@ -422,7 +442,7 @@ void cMap::generate()
 		//!Losowanie typu grafiki
 		
 		//Tymczasowy obiekt w tle który bêdzie póŸniej dopisany do wektora obiektów w tle (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cBackgroundObject temp_bg_obj(this->world_type, type, this->randomPosition());
+		cBackgroundObject temp_bg_obj(this->world_type, type, this->randomPosition(0, this->width));
 		
 		//Sprawdzanie, czy obiekt w tle nie znajduje siê w gruncie
 		switch (type)
@@ -435,7 +455,7 @@ void cMap::generate()
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie jest zakopany w gruncie i nie znajduje siê w wodzie
 				if (!temp_bg_obj.isCollisionOnGrid(is_ground, grid_size) && !temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -456,7 +476,7 @@ void cMap::generate()
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie jest zakopany w gruncie i nie znajduje siê w wodzie
 				if (!temp_bg_obj.isCollisionOnGrid(is_ground, grid_size) && !temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -477,7 +497,7 @@ void cMap::generate()
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle jest zakopany w gruncie
 				if (temp_bg_obj.isCollisionOnGrid(is_ground, grid_size))
@@ -490,7 +510,7 @@ void cMap::generate()
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie jest zakopany w sztywnym obiekcie i znajduje siê w wodzie
 				if (!temp_bg_obj.isCollisionOnGrid(is_solid, grid_size) && temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -511,7 +531,7 @@ void cMap::generate()
 			bool end = false;	//Nie przydzielono pozycji
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle znajduje siê w wodzie i nie znajduje siê w sztywnym obiekcie)
 				if (temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -536,7 +556,7 @@ void cMap::generate()
 			bool end = false;
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle znajduje siê w wodzie
 				if (temp_bg_obj.isCollisionOnGrid(is_fluid, grid_size))
@@ -558,7 +578,7 @@ void cMap::generate()
 			bool end = false;
 			while (!end)
 			{
-				temp_bg_obj.setAllPosition(this->randomPosition());
+				temp_bg_obj.setAllPosition(this->randomPosition(0, this->width));
 
 				//Je¿eli obiekt w tle nie znajduje siê w sztywnym obiekcie
 				if (!temp_bg_obj.isCollisionOnGrid(is_solid, grid_size))
@@ -580,6 +600,73 @@ void cMap::generate()
 	}
 	time_background = clock() - time_background;
 
+	//Generowanie graczy
+	if (player.size() == 0)
+	{
+		for (int i = 0; i < number_of_players; i++)
+		{
+			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192));
+
+			bool end = false;	//Nie przydzielono pozycji
+
+			//Pêtla trwa tak d³ugo a¿ postaæ nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
+			while (!end)
+			{
+				temp_player.setAllPositions(this->randomPosition(0, 192));
+
+				//Je¿eli postaæ nie jest zakopany w sztywnym obiekcie
+				if (!temp_player.isCollisionOnGrid(is_solid, grid_size) && !temp_player.isCollisionOnGrid(is_npc, grid_size))
+				{
+					temp_player.setAllPositions(sf::Vector2f(temp_player.getPosition().x, temp_player.getPosition().y + 32));
+
+					//Je¿eli pod postaci¹ znajduje siê sztywny obiekt
+					if (temp_player.isCollisionOnGrid(is_solid, grid_size) || temp_player.isCollisionOnGrid(is_npc, grid_size))
+					{
+						temp_player.setAllPositions(sf::Vector2f(temp_player.getPosition().x, temp_player.getPosition().y - 32));
+						end = true;
+					}
+				}
+			}
+
+			this->player.push_back(temp_player);
+		}
+
+		for (unsigned short i = 0; i < number_of_players; i++)
+			player[i].initPet();
+	}
+	else
+	{
+		for (unsigned short i = 0; i < number_of_players; i++)
+		{
+			player[i].bodyRecreate(this->physics_world, this->world_type);
+
+			bool end = false;	//Nie przydzielono pozycji
+
+			//Pêtla trwa tak d³ugo a¿ postaæ nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
+			while (!end)
+			{
+				this->player[i].setAllPositions(this->randomPosition(0, 192));
+				
+				//Je¿eli postaæ nie jest zakopana w sztywnym obiekcie
+				if (!this->player[i].isCollisionOnGrid(is_solid, grid_size) && !this->player[i].isCollisionOnGrid(is_npc, grid_size))
+				{
+					this->player[i].setAllPositions(sf::Vector2f(this->player[i].getPosition().x, this->player[i].getPosition().y + 32));
+
+					//Je¿eli pod postaci¹ znajduje siê sztywny obiekt
+					if (this->player[i].isCollisionOnGrid(is_solid, grid_size))
+					{
+						this->player[i].setAllPositions(sf::Vector2f(this->player[i].getPosition().x, this->player[i].getPosition().y - 32));
+						end = true;
+					}
+				}
+			}
+
+			this->player[i].rebirth();
+		}
+	}
+
+	//!Generowanie graczy
+
 	std::cout << "\n\n";
 	std::cout << "Czas generowania terenu: " << time_map << "\n";
 	std::cout << "Czas dostosowywania obiektow do terenu: " << time_adjust << "\n";
@@ -599,24 +686,14 @@ void cMap::generate()
 
 void cMap::movements(sf::View &view)
 {
-	//Automatyczne niszczenie bonusowych bloków
-	static int abc = 0;
-	abc++;
-	if (abc == 100)
+	for (int i = this->treasure.size() - 1; i >= 0; i--)
 	{
-		abc = 0;
-		//for (int i = 0; i < this->bonus_block.size(); i++)
-		if (bonus_block.size() > 0)
-		{
-			this->bonus_block[0].dropTreasures(&(this->physics_world), this->world_type, this->treasure);
-			this->physics_world.DestroyBody(this->bonus_block[0].getBody());
-			bonus_block.erase(bonus_block.begin());
-		}
-	}
-	//!Automatyczne niszczenie bonusowych bloków
-
-	for (unsigned int i = 0; i < this->treasure.size(); i++)
 		this->treasure[i].step(this->world_type, sf::Vector2i(this->width, this->height), this->fluid_tab);
+
+		//Wypad³ poza obszar mapy
+		if (this->treasure[i].getPosition().y - this->treasure[i].getOrigin().y > this->height)
+			this->treasure.erase(this->treasure.begin() + i);
+	}
 
 	sf::FloatRect view_rect;	//view_rect to prostok¹t, który zape³nia aktualny widok kamery. Dziêki temu mo¿na sprawdziæ, czy NPC-y znajduj¹ siê w polu widoku i maj¹ zacz¹æ siê poruszaæ.
 	view_rect.left = view.getCenter().x - view.getSize().x / 2;
@@ -624,14 +701,78 @@ void cMap::movements(sf::View &view)
 	view_rect.width = view.getCenter().x + view.getSize().x / 2;
 	view_rect.height = view.getCenter().y + view.getSize().y / 2;
 
-	for (unsigned int i = 0; i < this->npc.size(); i++)
+	for (int i = this->npc.size() - 1; i >= 0; i--)
+	{
 		this->npc[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab, view_rect);
+		
+		//Wyszed³ poza obszar mapy
+		if (this->npc[i].getPosition().y - this->npc[i].getOrigin().y > this->height)
+		{
+			this->npc[i].kill();
+			this->npc.erase(this->npc.begin() + i);
+		}
+	}
+
+	bool are_all_players_dead = true;
+	for (unsigned int i = 0; i < this->player.size(); i++)
+	{
+		if (!this->player[i].isDead())
+		{
+			are_all_players_dead = false;
+
+			this->player[i].control();
+			this->player[i].specjalCollisions(&(this->physics_world), this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
+			this->player[i].move(sf::Vector2f(this->width, this->height));
+
+			//Rozpoczêcie nastêpnego poziomu
+			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
+				this->levelGenerator(player.size(), false, true);
+		}
+	}
+
+	//Rozpoczêcie poziomu od nowa, je¿eli wszyscy gracze s¹ martwi
+	if (are_all_players_dead)
+	{
+		//Zakoñczenie gry, je¿eli ¿aden z graczy nie ma wiêcej ¿yæ
+		bool no_more_life = true;
+		for (short i = 0; i < this->player.size(); i++)
+		{
+			if (this->player[i].hasLife())
+			{
+				no_more_life = false;
+				break;
+			}
+		}
+
+		if (no_more_life)
+			exit(0);
+
+		this->levelGenerator(player.size(), true, false);
+		return;
+	}
+
+	for (int i = npc.size() - 1; i >= 0; i--)
+		if (npc[i].isDead())
+			this->npc.erase(this->npc.begin() + i);
 
 	this->physics_world.Step((float)1 / 60, 8, 3);
 }
 
 void cMap::draw(sf::RenderWindow &win, sf::View &view)
 {
+	//Przesuwanie kamery na postaæ gracza
+	view.setCenter(this->player[0].getPosition());
+	if (view.getCenter().x > this->getWidth() - 400)
+		view.setCenter(this->getWidth() - 400, view.getCenter().y);
+	else if (view.getCenter().x < 400)
+		view.setCenter(sf::Vector2f(400, view.getCenter().y));
+	if (view.getCenter().y < 300)
+		view.setCenter(sf::Vector2f(view.getCenter().x, 300));
+	else if (view.getCenter().y > this->getHeight() - 300)
+		view.setCenter(sf::Vector2f(view.getCenter().x, this->getHeight() - 300));
+	win.setView(view);
+
 	//Przesuwanie ekranu
 	//(TODO) Przesuwanie ekranu dzia³a poprawnie, jednak jeszcze nie jestem pewien jak - rozszyfrowaæ
 	this->background[0].setPosition((view.getCenter().x - 400) / 1.2 + (((int)((view.getCenter().x - 400) / 1.2 / 5) / this->background[0].getTextureRect().width) * this->background[0].getTextureRect().width), (view.getCenter().y - 300) / 1.2);
@@ -661,9 +802,35 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 		win.draw(this->power_up[i]);
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
+	for (unsigned short i = 0; i < this->player.size(); i++)
+		if (!this->player[i].isDead())
+		{
+			win.draw(this->player[i]);
+			if (this->player[i].isPetAlive())
+				win.draw(this->player[i].getPet());
+		}
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
+	for (unsigned short i = 0; i < this->player.size(); i++)
+		this->player[i].drawStats(win, sf::Vector2f(16, 16));
+
+	//Numer poziomu
+	sf::String lvl_no_str(L"Level:");
+	
+	lvl_no_str += this->level_number;
+	std::string nr;
+	std::stringstream ss;
+	ss << this->level_number;
+	nr = ss.str();
+	ss.str("");
+	lvl_no_str += nr;
+	
+	sf::Text lvl_no(lvl_no_str, font[0], 48);
+	lvl_no.setOrigin(lvl_no.getGlobalBounds().width / 2, lvl_no.getGlobalBounds().height / 2);
+	lvl_no.setPosition(view.getCenter().x, 32);
+
+	win.draw(lvl_no);
 }
 
 unsigned int cMap::getWidth()
@@ -676,17 +843,35 @@ unsigned int cMap::getHeight()
 	return this->height;
 }
 
-sf::Vector2f cMap::randomPosition()
+sf::Vector2f cMap::randomPosition(unsigned int min_x, unsigned int max_x)
 {
-	return sf::Vector2f(this->width - (rand() % (this->width / 32) * 32 + 16), this->height - (rand() % (this->height / 32) * 32 + 16));
+
+	return sf::Vector2f(min_x + (rand() % ((max_x - min_x) / 32) * 32 + 16), this->height - (rand() % (this->height / 32) * 32 + 16));
 }
 
-void cMap::destroy()
+void cMap::destroy(bool destroy_players)
 {
-	for (int i = 0; i < this->physics_world.GetBodyCount(); i++)
-		this->physics_world.DestroyBody(this->physics_world.GetBodyList());
-	for (int i = 0; i < this->physics_world.GetJointCount(); i++)
-		this->physics_world.DestroyBody(this->physics_world.GetBodyList());
+	if (this->ground.size() > 0)
+		this->physics_world.DestroyBody(this->ground[0].getBody());		//Ca³a ziemia posiada jedno cia³o
+	if (this->fluid.size() > 0)
+		this->physics_world.DestroyBody(this->fluid[0].getBody());		//Ca³y p³yn posiada jedno cia³o
+	
+	for (unsigned int i = 0; i < this->block.size(); i++)
+		this->physics_world.DestroyBody(this->block[i].getBody());
+	for (unsigned int i = 0; i < this->bonus_block.size(); i++)
+		this->physics_world.DestroyBody(this->bonus_block[i].getBody());
+	for (unsigned int i = 0; i < this->npc.size(); i++)
+		this->physics_world.DestroyBody(this->npc[i].getBody());
+	for (unsigned int i = 0; i < this->treasure.size(); i++)
+		if (this->treasure[i].isPhysical())
+			this->physics_world.DestroyBody(this->treasure[i].getBody());
+	for (unsigned int i = 0; i < this->trampoline.size(); i++)
+		this->physics_world.DestroyBody(this->trampoline[i].getBody());
+	if (destroy_players)
+		for (unsigned short i = 0; i < this->player.size(); i++)
+			this->physics_world.DestroyBody(this->player[i].getBody());
+	for (unsigned int i = 0; i < this->physics_world.GetJointCount(); i++)
+		this->physics_world.DestroyJoint(this->physics_world.GetJointList());
 
 	delete[] this->fluid_tab;
 
@@ -698,4 +883,8 @@ void cMap::destroy()
 	this->treasure.clear();
 	this->background_obj.clear();
 	this->trampoline.clear();
+	this->power_up.clear();
+	this->ladder.clear();
+	if (destroy_players)
+		this->player.clear();
 }

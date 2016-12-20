@@ -15,6 +15,8 @@ protected:
 
 public:
 	cBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos);
+
+	b2Body *getBody();
 };
 
 #endif //!block_h
