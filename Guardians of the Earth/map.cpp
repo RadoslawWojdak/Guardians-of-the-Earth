@@ -12,6 +12,8 @@ cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10
 void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
 {
 	system("CLS");
+	this->player_number = number_of_players;
+	
 	if (refresh || next_level)
 		this->destroy(false);
 	if (next_level)
@@ -33,7 +35,10 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
+	{
+		background[i].setTextureRect(sf::IntRect(0, 0, t_background[this->world_type].getSize().x, t_background[this->world_type].getSize().y));
 		background[i].setTexture(t_background[this->world_type]);
+	}
 
 	//Stworzenie tablicy opisuj¹cej, jak wiele w poziomie jest sektorów o danym ID (w celach debugowania)
 	std::cout << "Ilosc sektorow w tym typie swiata: " << how_many_sectors[this->world_type] << "\n\n\n";
@@ -605,7 +610,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192));
+			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i);
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -723,7 +728,7 @@ void cMap::movements(sf::View &view)
 			this->player[i].control();
 			this->player[i].specjalCollisions(&(this->physics_world), this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-			this->player[i].move(sf::Vector2f(this->width, this->height));
+			this->player[i].move(view, sf::Vector2f(this->width, this->height));
 
 			//Rozpoczêcie nastêpnego poziomu
 			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
@@ -762,7 +767,21 @@ void cMap::movements(sf::View &view)
 void cMap::draw(sf::RenderWindow &win, sf::View &view)
 {
 	//Przesuwanie kamery na postaæ gracza
-	view.setCenter(this->player[0].getPosition());
+	sf::Vector2f view_center_point(0.0f, 0.0f);
+	short how_many_player_alive = 0;
+	for (int i = 0; i < this->player_number; i++)
+	{
+		if (!this->player[i].isDead())
+		{
+			view_center_point.x += this->player[i].getPosition().x;
+			view_center_point.y += this->player[i].getPosition().y;
+			how_many_player_alive++;
+		}
+	}
+	view_center_point.x /= how_many_player_alive;
+	view_center_point.y /= how_many_player_alive;
+
+	view.setCenter(view_center_point);
 	if (view.getCenter().x > this->getWidth() - 400)
 		view.setCenter(this->getWidth() - 400, view.getCenter().y);
 	else if (view.getCenter().x < 400)
@@ -812,8 +831,18 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
-	for (unsigned short i = 0; i < this->player.size(); i++)
-		this->player[i].drawStats(win, sf::Vector2f(16, 16));
+
+	this->player[0].drawStats(win, sf::Vector2f(16, 16));
+	if (this->player_number >= 2)
+	{
+		this->player[1].drawStats(win, sf::Vector2f(148, 16));
+		if (this->player_number >= 3)
+		{
+			this->player[2].drawStats(win, sf::Vector2f(536, 16));
+			if (this->player_number == 4)
+				this->player[3].drawStats(win, sf::Vector2f(668, 16));
+		}
+	}
 
 	//Numer poziomu
 	sf::String lvl_no_str(L"Level:");
@@ -828,7 +857,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	
 	sf::Text lvl_no(lvl_no_str, font[0], 48);
 	lvl_no.setOrigin(lvl_no.getGlobalBounds().width / 2, lvl_no.getGlobalBounds().height / 2);
-	lvl_no.setPosition(view.getCenter().x, 32);
+	lvl_no.setPosition(view.getCenter().x, 48);
 
 	win.draw(lvl_no);
 }
@@ -869,7 +898,8 @@ void cMap::destroy(bool destroy_players)
 		this->physics_world.DestroyBody(this->trampoline[i].getBody());
 	if (destroy_players)
 		for (unsigned short i = 0; i < this->player.size(); i++)
-			this->physics_world.DestroyBody(this->player[i].getBody());
+			if (!player[i].isDead())
+				this->physics_world.DestroyBody(this->player[i].getBody());
 	for (unsigned int i = 0; i < this->physics_world.GetJointCount(); i++)
 		this->physics_world.DestroyJoint(this->physics_world.GetJointList());
 

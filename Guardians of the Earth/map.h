@@ -27,6 +27,7 @@ class cMap
 	unsigned int x_generate = 0;		//aktualne miejsce w ktorym ma sie wygenerowac nastepny sektor (aktualizuje sie po stworzeniu sektora)
 	cSector prev_sector;
 	unsigned int level_number;
+	short player_number;
 
 	sf::Sprite background[2];			//Tlo mapy (dziêki dwóm takim samym t³om, t³o mo¿e siê przesuwaæ)
 

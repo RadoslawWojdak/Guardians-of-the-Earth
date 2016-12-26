@@ -12,6 +12,11 @@
 
 int main()
 {
+	//Tymczasowy sposób wyboru iloœci graczy
+	short player_number;
+	std::cout << "Wybierz ilosc graczy: ";
+	std::cin >> player_number;
+
 	//Tymczasowy sposób wyboru typu poziomu
 	int option;
 	do
@@ -53,13 +58,14 @@ int main()
 
 	sf::Event ev;
 
-	cMap map((eWorld)option, 1);
-	
+	cMap map((eWorld)option, player_number);
+
 	sf::View p1;
 	p1.setCenter(400, 300);
 	p1.setSize(sf::Vector2f(800, 600));
 	win.setView(p1);
 
+	//Pêtla gry
 	while (win.isOpen())
 	{
 		//WYDARZENIA
@@ -70,32 +76,6 @@ int main()
 		}
 
 		//DZIALANIA W GRZE
-		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x + 7, p1.getCenter().y));
-			if (p1.getCenter().x > map.getWidth() - 400)
-				p1.setCenter(map.getWidth() - 400, p1.getCenter().y);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x - 7, p1.getCenter().y));
-			if (p1.getCenter().x < 400)
-				p1.setCenter(sf::Vector2f(400, p1.getCenter().y));
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x, p1.getCenter().y - 7));
-			if (p1.getCenter().y < 300)
-				p1.setCenter(sf::Vector2f(p1.getCenter().x, 300));
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x, p1.getCenter().y + 7));
-			if (p1.getCenter().y > map.getHeight() - 300)
-				p1.setCenter(sf::Vector2f(p1.getCenter().x, map.getHeight() - 300));
-		}
-		win.setView(p1);*/
-
 		//Poruszanie siê obiektów w poziomie
 		map.movements(p1);
 

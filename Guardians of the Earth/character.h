@@ -15,21 +15,33 @@
 #include "ladder.h"
 #include "bonusblock.h"
 #include "pet.h"
+#include "global_variables.h"
 
-struct sControlKey
+union uButton
 {
-	sf::Keyboard::Key up;
-	sf::Keyboard::Key down;
-	sf::Keyboard::Key left;
-	sf::Keyboard::Key right;
-	sf::Keyboard::Key jump;
-	sf::Keyboard::Key fire;
+	sf::Keyboard::Key key;
+	unsigned int button;
+};
+
+struct sControlKeys
+{
+	bool is_pad;
+	unsigned int pad;
+
+	uButton up;
+	uButton down;
+	uButton left;
+	uButton right;
+	uButton jump;
+	uButton fire;
 };
 
 class cCharacter :public cCharacterAnimation
 {
 	b2BodyDef body_def;
 	b2Body *body;
+
+	short player_no;
 
 	cPet pet;
 	sf::Vector2f pet_point;	//Punkt do którego bêdzie lata³ pet (wskaŸnik ze wzglêdu na to, ¿e gdy wstawia siê postaæ z temp_character do tablicy wektorowej character, to za ka¿dym razem zmienia³ siê adres)
@@ -38,7 +50,7 @@ class cCharacter :public cCharacterAnimation
 	bool can_jump = false;
 	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
 
-	sControlKey key;
+	sControlKeys key;
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
@@ -55,6 +67,7 @@ class cCharacter :public cCharacterAnimation
 	bool is_on_ladder;
 	bool dead;
 
+	void initControlKeys(short player_no);
 	void addStatsForTreasure(cTreasure &treasure);
 	void addStatsForNPC(cNPC &npc);
 	void addStatsForBonusBlock();
@@ -63,7 +76,7 @@ class cCharacter :public cCharacterAnimation
 	void immunityCountdown();
 
 public:
-	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos);
+	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no);
 
 	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
 
@@ -74,7 +87,7 @@ public:
 	void control();
 	void specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
-	void move(sf::Vector2f level_size);
+	void move(sf::View &view, sf::Vector2f level_size);
 	void rebirth();
 
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);

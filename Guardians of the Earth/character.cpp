@@ -1,9 +1,94 @@
 #include "character.h"
 
-cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos)
+sControlKeys g_player_control_keys[4];
+
+void cCharacter::initControlKeys(short player_no)
+{
+	switch (player_no)
+	{
+	case 0:
+	{
+		this->key.is_pad = false;
+		this->key.pad = -1;
+
+		this->key.up.key = sf::Keyboard::Key::Up;
+		this->key.down.key = sf::Keyboard::Key::Down;
+		this->key.left.key = sf::Keyboard::Key::Left;
+		this->key.right.key = sf::Keyboard::Key::Right;
+		this->key.jump.key = sf::Keyboard::Key::Space;
+		this->key.fire.key = sf::Keyboard::Key::LControl;
+		break;
+	}
+	case 1:
+	{
+		this->key.is_pad = false;
+		this->key.pad = -1;
+
+		this->key.up.key = sf::Keyboard::Key::W;
+		this->key.down.key = sf::Keyboard::Key::S;
+		this->key.left.key = sf::Keyboard::Key::A;
+		this->key.right.key = sf::Keyboard::Key::D;
+		this->key.jump.key = sf::Keyboard::Key::E;
+		this->key.fire.key = sf::Keyboard::Key::Q;
+		break;
+	}
+	case 2:
+	{
+		if (sf::Joystick::isConnected(0))
+		{
+			this->key.is_pad = true;
+			this->key.pad = 0;
+
+			this->key.jump.button = 2;
+			this->key.fire.button = 3;
+		}
+		else
+		{
+			this->key.is_pad = false;
+			this->key.pad = -1;
+
+			this->key.up.key = sf::Keyboard::Key::U;
+			this->key.down.key = sf::Keyboard::Key::J;
+			this->key.left.key = sf::Keyboard::Key::H;
+			this->key.right.key = sf::Keyboard::Key::K;
+			this->key.jump.key = sf::Keyboard::Key::I;
+			this->key.fire.key = sf::Keyboard::Key::Y;
+		}
+		break;
+	}
+	case 3:
+	{
+		if (sf::Joystick::isConnected(1))
+		{
+			this->key.is_pad = true;
+			this->key.pad = 1;
+
+			this->key.jump.button = 2;
+			this->key.fire.button = 3;
+		}
+		else
+		{
+			this->key.is_pad = false;
+			this->key.pad = -1;
+
+			this->key.up.key = sf::Keyboard::Key::Numpad8;
+			this->key.down.key = sf::Keyboard::Key::Numpad2;
+			this->key.left.key = sf::Keyboard::Key::Numpad4;
+			this->key.right.key = sf::Keyboard::Key::Numpad6;
+			this->key.jump.key = sf::Keyboard::Key::Numpad9;
+			this->key.fire.key = sf::Keyboard::Key::Numpad7;
+		}
+		break;
+	}
+	}
+}
+
+cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no)
 	:cCharacterAnimation(t_character[0][0], pos)
 {
 	this->animationStanding();
+
+	this->player_no = player_no;
 
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
@@ -20,12 +105,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->max_speed_x = 4.5f;
 	this->last_position = this->getPosition();
 
-	this->key.up = sf::Keyboard::Key::Up;
-	this->key.down = sf::Keyboard::Key::Down;
-	this->key.left = sf::Keyboard::Key::Left;
-	this->key.right = sf::Keyboard::Key::Right;
-	this->key.jump = sf::Keyboard::Key::Space;
-	this->key.fire = sf::Keyboard::Key::LControl;
+	this->initControlKeys(player_no);
 
 	this->is_immersed_in = FLUID_NONE;
 	this->is_on_ice = false;
@@ -167,7 +247,7 @@ void cCharacter::control()
 				this->animationSwimming();
 		}
 
-		if (sf::Keyboard::isKeyPressed(this->key.right))
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
 		{
 			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
 				this->animationWalking();
@@ -180,7 +260,7 @@ void cCharacter::control()
 			else if (this->body->GetLinearVelocity().x < 0)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
-		if (sf::Keyboard::isKeyPressed(this->key.left))
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
 		{
 			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
 				this->animationWalking();
@@ -194,7 +274,7 @@ void cCharacter::control()
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
 		//Gdy nie jest naciœniêty ¿aden z klawiszy (lewo, prawo), to postaæ zaczyna siê zatrzymywaæ
-		if (!sf::Keyboard::isKeyPressed(this->key.right) && !sf::Keyboard::isKeyPressed(this->key.left))
+		if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.right.key) && !sf::Keyboard::isKeyPressed(this->key.left.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > -1.0f)))
 		{
 			if (this->can_jump && !this->is_on_ladder)
 				this->animationStanding();
@@ -212,7 +292,7 @@ void cCharacter::control()
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 			}
 		}
-		if (sf::Keyboard::isKeyPressed(this->key.jump))
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 		{
 			if (!stop_jump)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
@@ -260,7 +340,7 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 					npc[i].kill();
 					npc.erase(npc.begin() + i);
 
-					if (sf::Keyboard::isKeyPressed(this->key.jump))
+					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
 						this->jump(-5.0f);
 						this->stop_jump = false;
@@ -309,7 +389,7 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 		{
 			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
 			{
-				if (sf::Keyboard::isKeyPressed(this->key.jump))
+				if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 				{
 					this->jump(-6.0f);
 					this->stop_jump = false;
@@ -329,21 +409,21 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 			{
 				ladder_collision = true;
 				
-				if (sf::Keyboard::isKeyPressed(this->key.up) || sf::Keyboard::isKeyPressed(this->key.down))
+				if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) || sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
 				{
 					this->body->SetGravityScale(0.0f);
 					this->is_on_ladder = true;
 					this->stop_jump = true;
 					this->can_jump = true;
 
-					if (sf::Keyboard::isKeyPressed(this->key.up) && sf::Keyboard::isKeyPressed(this->key.down))
+					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-					else if (sf::Keyboard::isKeyPressed(this->key.up))
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
 					{
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -1.75f));
 						this->animationClimbing(true);
 					}
-					else if (sf::Keyboard::isKeyPressed(this->key.down))
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
 					{
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 1.75f));
 						this->animationClimbing(false);
@@ -354,17 +434,17 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 				{
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
 
-					if (!sf::Keyboard::isKeyPressed(this->key.up) && !sf::Keyboard::isKeyPressed(this->key.down))
+					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
 					
-					if (sf::Keyboard::isKeyPressed(this->key.up) && sf::Keyboard::isKeyPressed(this->key.down))
+					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-					else if (sf::Keyboard::isKeyPressed(this->key.left))
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
 						this->body->SetLinearVelocity(b2Vec2(-1.0f, this->body->GetLinearVelocity().y));
-					else if (sf::Keyboard::isKeyPressed(this->key.right))
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
 						this->body->SetLinearVelocity(b2Vec2(1.0f, this->body->GetLinearVelocity().y));
 					
-					if (sf::Keyboard::isKeyPressed(this->key.jump))
+					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
 						this->jump(-5.0f);
 						this->stop_jump = false;
@@ -421,7 +501,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 		}
 		else
 		{
-			if (this->is_immersed_in != FLUID_NONE && sf::Keyboard::isKeyPressed(this->key.jump))	//Je¿eli wyskoczy³ z wody
+			if (this->is_immersed_in != FLUID_NONE && ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button))))	//Je¿eli wyskoczy³ z wody
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -5.0f));
 
 			this->body->SetGravityScale(1.0f);
@@ -430,7 +510,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 	}
 }
 
-void cCharacter::move(sf::Vector2f level_size)
+void cCharacter::move(sf::View &view, sf::Vector2f level_size)
 {
 	if (!this->isDead())
 	{
@@ -442,10 +522,15 @@ void cCharacter::move(sf::Vector2f level_size)
 		this->pet_point = sf::Vector2f(this->getPosition().x, this->getPosition().y + 24);
 
 		//Czy gracz wylecia³ poza ramkê poziomu
-		if (this->getGlobalBounds().left < 0)
+		if (this->getGlobalBounds().left < view.getCenter().x - view.getSize().x / 2)
 		{
 			this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-			this->setAllPositions(sf::Vector2f(this->getOrigin().x, this->getPosition().y));
+			this->setAllPositions(sf::Vector2f(view.getCenter().x - view.getSize().x / 2 + this->getOrigin().x, this->getPosition().y));
+		}
+		else if (this->getGlobalBounds().left + this->getGlobalBounds().width > view.getCenter().x + view.getSize().x / 2 && view.getCenter().x + view.getSize().x / 2 < level_size.x)
+		{
+			this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
+			this->setAllPositions(sf::Vector2f(view.getCenter().x + view.getSize().x / 2 - this->getOrigin().x, this->getPosition().y));
 		}
 		if (this->getPosition().y - this->getOrigin().y > level_size.y)
 			this->kill();
