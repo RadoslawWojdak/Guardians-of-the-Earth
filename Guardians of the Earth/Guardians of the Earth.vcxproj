@@ -115,6 +115,7 @@
     <ClCompile Include="backgroundobject.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bonusblock.cpp" />
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="button.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="characterAnimation.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="backgroundobject.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="bonusblock.h" />
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="button.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="characterAnimation.h" />

@@ -13,7 +13,9 @@ extern sf::Texture t_background[5];
 extern sf::Texture *t_background_obj[5];
 extern sf::Texture t_npc[5];
 extern sf::Texture t_object[8];
-extern sf::Texture t_character[2][2];
+extern sf::Texture t_character[2];
+extern sf::Texture t_characters_bonus[2][2];
+extern sf::Texture t_characters_bonus_icon[2][2];
 extern sf::Texture t_pet[2];
 
 extern sf::Texture t_stats_window;

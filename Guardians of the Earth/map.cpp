@@ -610,7 +610,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i);
+			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1);
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -691,6 +691,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 void cMap::movements(sf::View &view)
 {
+	//SKARBY
 	for (int i = this->treasure.size() - 1; i >= 0; i--)
 	{
 		this->treasure[i].step(this->world_type, sf::Vector2i(this->width, this->height), this->fluid_tab);
@@ -700,6 +701,20 @@ void cMap::movements(sf::View &view)
 			this->treasure.erase(this->treasure.begin() + i);
 	}
 
+	//POCISKI
+	for (int i = this->bullet.size() - 1; i >= 0; i--)
+	{
+		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
+		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, this->player, this->npc, this->treasure, this->bonus_block);
+		
+		if (this->bullet[i].isDestroyed())
+		{
+			this->physics_world.DestroyBody(bullet[i].getBody());
+			this->bullet.erase(bullet.begin() + i);
+		}
+	}
+
+	//NPC-Y
 	sf::FloatRect view_rect;	//view_rect to prostok¹t, który zape³nia aktualny widok kamery. Dziêki temu mo¿na sprawdziæ, czy NPC-y znajduj¹ siê w polu widoku i maj¹ zacz¹æ siê poruszaæ.
 	view_rect.left = view.getCenter().x - view.getSize().x / 2;
 	view_rect.top = view.getCenter().y - view.getSize().y / 2;
@@ -718,6 +733,7 @@ void cMap::movements(sf::View &view)
 		}
 	}
 
+	//POSTACIE GRACZY
 	bool are_all_players_dead = true;
 	for (unsigned int i = 0; i < this->player.size(); i++)
 	{
@@ -725,8 +741,8 @@ void cMap::movements(sf::View &view)
 		{
 			are_all_players_dead = false;
 
-			this->player[i].control();
-			this->player[i].specjalCollisions(&(this->physics_world), this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
+			this->player[i].specialCollisions(&(this->physics_world), this->world_type, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
 			this->player[i].move(view, sf::Vector2f(this->width, this->height));
 
@@ -819,6 +835,8 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 		win.draw(this->treasure[i]);
 	for (unsigned int i = 0; i < this->power_up.size(); i++)
 		win.draw(this->power_up[i]);
+	for (unsigned short i = 0; i < this->bullet.size(); i++)
+		win.draw(bullet[i]);
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
 	for (unsigned short i = 0; i < this->player.size(); i++)
@@ -831,7 +849,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
-
+	//Statystyki graczy
 	this->player[0].drawStats(win, sf::Vector2f(16, 16));
 	if (this->player_number >= 2)
 	{
@@ -896,10 +914,14 @@ void cMap::destroy(bool destroy_players)
 			this->physics_world.DestroyBody(this->treasure[i].getBody());
 	for (unsigned int i = 0; i < this->trampoline.size(); i++)
 		this->physics_world.DestroyBody(this->trampoline[i].getBody());
+	for (unsigned int i = 0; i < this->bullet.size(); i++)
+		this->physics_world.DestroyBody(this->bullet[i].getBody());
+
 	if (destroy_players)
 		for (unsigned short i = 0; i < this->player.size(); i++)
 			if (!player[i].isDead())
 				this->physics_world.DestroyBody(this->player[i].getBody());
+
 	for (unsigned int i = 0; i < this->physics_world.GetJointCount(); i++)
 		this->physics_world.DestroyJoint(this->physics_world.GetJointList());
 
@@ -915,6 +937,7 @@ void cMap::destroy(bool destroy_players)
 	this->trampoline.clear();
 	this->power_up.clear();
 	this->ladder.clear();
+	this->bullet.clear();
 	if (destroy_players)
 		this->player.clear();
 }

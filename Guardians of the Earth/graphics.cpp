@@ -9,7 +9,9 @@ sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
 sf::Texture t_npc[5];
 sf::Texture t_object[8];
-sf::Texture t_character[2][2];
+sf::Texture t_character[2];
+sf::Texture t_characters_bonus[2][2];
+sf::Texture t_characters_bonus_icon[2][2];
 sf::Texture t_pet[2];
 
 sf::Texture t_stats_window;
@@ -198,15 +200,39 @@ bool initGraph()
 	//Rycerz
 	for (unsigned int i = 0; i < 1; i++)
 	{
-		std::string nr;
-		std::stringstream ss;
-		ss << i + 1;
-		nr = ss.str();
-		ss.clear();
+		std::string character = "";
+		switch (i)
+		{
+		case 0: {character = "knight"; break;}
+		}
 
-		std::string path = "graphics\\characters\\knight\\knight-" + nr + ".png";
-		if (!t_character[0][i].loadFromFile(path))
+		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
+		if (!t_character[i].loadFromFile(path))
 			return false;
+		for (int i = 0; i < 1; i++)
+		{
+			std::string nr;
+			std::stringstream ss;
+			ss << i + 1;
+			nr = ss.str();
+			ss.clear();
+
+			std::string path = "graphics\\characters\\knight\\bonus-" + nr + ".png";
+			if (!t_characters_bonus[0][i].loadFromFile(path))
+				return false;
+		}
+		for (int i = 0; i < 1; i++)
+		{
+			std::string nr;
+			std::stringstream ss;
+			ss << i + 1;
+			nr = ss.str();
+			ss.clear();
+
+			std::string path = "graphics\\characters\\knight\\bonus_icon-" + nr + ".png";
+			if (!t_characters_bonus_icon[0][i].loadFromFile(path))
+				return false;
+		}
 	}
 
 	//PET-Y

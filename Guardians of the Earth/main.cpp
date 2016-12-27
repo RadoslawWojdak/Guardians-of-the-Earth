@@ -43,6 +43,8 @@ int main()
 		short number_of_players;
 		if (!mainMenu(win, number_of_players))
 			return 0;
+		win.clear();
+		win.display();
 
 		cMap map(WORLD_OVERWORLD, number_of_players);
 

@@ -114,6 +114,9 @@
     <ClCompile Include="button.cpp">
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
+    <ClCompile Include="bullet.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="button.h">
       <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="bullet.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

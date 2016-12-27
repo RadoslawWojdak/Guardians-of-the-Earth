@@ -17,6 +17,7 @@
 #include "ladder.h"
 #include "character.h"
 #include "fonts.h"
+#include "bullet.h"
 
 class cMap
 {
@@ -43,6 +44,7 @@ class cMap
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
 	std::vector <cCharacter> player;
+	std::vector <cBullet> bullet;
 	//!Obiekty na mapie
 
 	//Zapasowe obiekty mapy (obiekty u¿ywane po œmierci wszystkich graczy do cofniêcia mapy do stanu sprzed jej rozpoczêcia)

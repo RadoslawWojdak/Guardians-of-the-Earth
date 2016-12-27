@@ -12,7 +12,8 @@ enum eCategory
 	CAT_NPC = 4,
 	CAT_TRAMPOLINE = 5,
 	CAT_FLUID = 6,
-	CAT_CHARACTER = 7
+	CAT_CHARACTER = 7,
+	CAT_BULLET = 8
 };
 
 enum eBackgroundType

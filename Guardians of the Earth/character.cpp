@@ -6,7 +6,7 @@ void cCharacter::initControlKeys(short player_no)
 {
 	switch (player_no)
 	{
-	case 0:
+	case 1:
 	{
 		this->key.is_pad = false;
 		this->key.pad = -1;
@@ -19,7 +19,7 @@ void cCharacter::initControlKeys(short player_no)
 		this->key.fire.key = sf::Keyboard::Key::LControl;
 		break;
 	}
-	case 1:
+	case 2:
 	{
 		this->key.is_pad = false;
 		this->key.pad = -1;
@@ -32,7 +32,7 @@ void cCharacter::initControlKeys(short player_no)
 		this->key.fire.key = sf::Keyboard::Key::Q;
 		break;
 	}
-	case 2:
+	case 3:
 	{
 		if (sf::Joystick::isConnected(0))
 		{
@@ -56,7 +56,7 @@ void cCharacter::initControlKeys(short player_no)
 		}
 		break;
 	}
-	case 3:
+	case 4:
 	{
 		if (sf::Joystick::isConnected(1))
 		{
@@ -84,7 +84,7 @@ void cCharacter::initControlKeys(short player_no)
 }
 
 cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no)
-	:cCharacterAnimation(t_character[0][0], pos)
+	:cCharacterAnimation(t_character[0], pos)
 {
 	this->animationStanding();
 
@@ -97,6 +97,8 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->stats_window.setColor(sf::Color(this->stats_window.getColor().g, this->stats_window.getColor().b, this->stats_window.getColor().a, 192));
 	this->heart.setTexture(t_heart);
 	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
+	this->bonus_sprite.setTexture(t_characters_bonus_icon[0][0]);
+	this->bonus_sprite.setColor(sf::Color(this->bonus_sprite.getColor().g, this->bonus_sprite.getColor().b, this->bonus_sprite.getColor().a, 192));
 	this->immunity_time = 0;
 	this->life = 3;
 	this->score = 0;
@@ -111,6 +113,8 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->is_on_ice = false;
 	this->is_on_ladder = false;
 	this->dead = false;
+
+	this->bonus = 5;
 
 	//BOX2D
 	float32 a = this->getTextureRect().width * 0.02f;
@@ -180,6 +184,23 @@ void cCharacter::jump(float force)
 	this->can_jump = false;
 }
 
+void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+{
+	if (bonus > 0)
+	{
+		bonus--;
+
+		if (this->dir == DIR_UP)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, -4.5f), this->getPosition(), this->player_no));
+		else if (this->dir == DIR_DOWN)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, 4.5f), this->getPosition(), this->player_no));
+		else if (this->dir == DIR_LEFT)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(-4.5f, 0.0f), this->getPosition(), this->player_no));
+		else if (this->dir == DIR_RIGHT)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(4.5f, 0.0f), this->getPosition(), this->player_no));
+	}
+}
+
 void cCharacter::startInviolability()
 {
 	this->immunity_time = 120;
@@ -223,7 +244,7 @@ void cCharacter::kill()
 	}
 }
 
-void cCharacter::control()
+void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (!this->isDead())
 	{
@@ -249,6 +270,8 @@ void cCharacter::control()
 
 		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
 		{
+			this->dir = DIR_RIGHT;
+
 			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
 				this->animationWalking();
 			
@@ -260,8 +283,11 @@ void cCharacter::control()
 			else if (this->body->GetLinearVelocity().x < 0)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
+
 		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
 		{
+			this->dir = DIR_LEFT;
+
 			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
 				this->animationWalking();
 
@@ -273,6 +299,12 @@ void cCharacter::control()
 			else if (this->body->GetLinearVelocity().x > 0)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
+
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.up.button)))
+			this->dir = DIR_UP;
+		else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.down.button)))
+			this->dir = DIR_DOWN;
+
 		//Gdy nie jest naciœniêty ¿aden z klawiszy (lewo, prawo), to postaæ zaczyna siê zatrzymywaæ
 		if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.right.key) && !sf::Keyboard::isKeyPressed(this->key.left.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > -1.0f)))
 		{
@@ -305,10 +337,21 @@ void cCharacter::control()
 		}
 		else
 			this->stop_jump = true;
+
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.fire.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.fire.button)))
+		{
+			if (!this->fire)
+			{
+				this->fire = true;
+				this->shot(physics_world, world_type, bullet);
+			}
+		}
+		else
+			this->fire = false;
 	}
 }
 
-void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	this->immunityCountdown();
 
@@ -358,6 +401,16 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 
 		if (this->isDead())
 			return;
+
+		//Kolizje z power-up'ami
+		for (int i = power_up.size() - 1; i >= 0; i--)
+		{
+			if (this->getGlobalBounds().intersects(power_up[i].getGlobalBounds()))
+			{
+				this->addStatsForPowerUp(power_up[i]);
+				power_up.erase(power_up.begin() + i);
+			}
+		}
 
 		//Kolizje ze skarbami
 		for (int i = treasure.size() - 1; i >= 0; i--)
@@ -411,6 +464,8 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 				
 				if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) || sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
 				{
+					this->dir = DIR_UP;
+
 					this->body->SetGravityScale(0.0f);
 					this->is_on_ladder = true;
 					this->stop_jump = true;
@@ -420,11 +475,13 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
 					{
+						this->dir = DIR_UP;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -1.75f));
 						this->animationClimbing(true);
 					}
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
 					{
+						this->dir = DIR_DOWN;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 1.75f));
 						this->animationClimbing(false);
 					}
@@ -436,14 +493,20 @@ void cCharacter::specjalCollisions(b2World *physics_world, eWorld world_type, st
 
 					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
-					
+
 					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+					{
+						this->dir = DIR_LEFT;
 						this->body->SetLinearVelocity(b2Vec2(-1.0f, this->body->GetLinearVelocity().y));
+					}
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+					{
+						this->dir = DIR_RIGHT;
 						this->body->SetLinearVelocity(b2Vec2(1.0f, this->body->GetLinearVelocity().y));
-					
+					}
+
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
 						this->jump(-5.0f);
@@ -556,6 +619,14 @@ void cCharacter::rebirth()
 		this->dead = false;
 }
 
+void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
+{
+	switch (power_up.getPower())
+	{
+	case 1: {this->bonus += 5; this->score += 100; break;}	//+10 pocisków
+	}
+}
+
 void cCharacter::addStatsForTreasure(cTreasure &treasure)
 {
 	switch (treasure.getValue())
@@ -650,6 +721,23 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 		text.setPosition(left_top_corner.x + 10 + this->heart.getTextureRect().width, left_top_corner.y + 30 - text.getGlobalBounds().height / 2);
 		win.draw(text);
 	}
+
+	//Bonusy (pod statystykami)
+	//Bonus 1
+	this->bonus_sprite.setPosition(left_top_corner.x, left_top_corner.y + t_stats_window.getSize().y + 4);
+	win.draw(this->bonus_sprite);
+
+	text_str.clear();
+	text_str = L" x ";
+	ss << this->bonus;
+	number = ss.str();
+	ss.str("");
+
+	text_str += number;
+	text.setCharacterSize(18);
+	text.setString(text_str);
+	text.setPosition(left_top_corner.x + this->bonus_sprite.getTextureRect().width, left_top_corner.y + t_stats_window.getSize().y + 6 - text.getGlobalBounds().height / 2);
+	win.draw(text);
 }
 
 void cCharacter::setAllPositions(sf::Vector2f pos)

@@ -16,6 +16,10 @@
 #include "bonusblock.h"
 #include "pet.h"
 #include "global_variables.h"
+#include "powerup.h"
+#include "bullet.h"
+
+class cBullet;
 
 union uButton
 {
@@ -42,11 +46,13 @@ class cCharacter :public cCharacterAnimation
 	b2Body *body;
 
 	short player_no;
+	eDirection dir = DIR_RIGHT;
 
 	cPet pet;
 	sf::Vector2f pet_point;	//Punkt do którego bêdzie lata³ pet (wskaŸnik ze wzglêdu na to, ¿e gdy wstawia siê postaæ z temp_character do tablicy wektorowej character, to za ka¿dym razem zmienia³ siê adres)
 
 	b2Vec2 last_speed;
+	bool fire = true;		//Czy gracz ca³y czas trzyma klawisz strza³u?
 	bool can_jump = false;
 	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
 
@@ -54,6 +60,7 @@ class cCharacter :public cCharacterAnimation
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
+	sf::Sprite bonus_sprite;
 	unsigned int immunity_time;
 	unsigned short life;
 	unsigned int score;
@@ -67,11 +74,12 @@ class cCharacter :public cCharacterAnimation
 	bool is_on_ladder;
 	bool dead;
 
+	//Bonusy
+	unsigned int bonus;	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
+
 	void initControlKeys(short player_no);
-	void addStatsForTreasure(cTreasure &treasure);
-	void addStatsForNPC(cNPC &npc);
-	void addStatsForBonusBlock();
 	void jump(float force);
+	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 	void startInviolability();
 	void immunityCountdown();
 
@@ -84,12 +92,16 @@ public:
 	
 	void beenHit();
 	void kill();
-	void control();
-	void specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
+	void specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::View &view, sf::Vector2f level_size);
 	void rebirth();
 
+	void addStatsForPowerUp(cPowerUp &power_up);
+	void addStatsForTreasure(cTreasure &treasure);
+	void addStatsForNPC(cNPC &npc);
+	void addStatsForBonusBlock();
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 
 	void setAllPositions(sf::Vector2f pos);
