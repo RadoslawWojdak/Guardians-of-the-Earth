@@ -14,6 +14,7 @@ sf::Texture t_pet[2];
 
 sf::Texture t_stats_window;
 sf::Texture t_heart;
+sf::Texture t_button;
 
 bool initGraph()
 {
@@ -226,6 +227,8 @@ bool initGraph()
 	if (!t_stats_window.loadFromFile("graphics\\others\\stats_window.png"))
 		return false;
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+		return false;
+	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
 		return false;
 
 	return true;
