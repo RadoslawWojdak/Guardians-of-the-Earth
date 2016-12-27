@@ -13,8 +13,8 @@
 
 int main()
 {
-	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", sf::Style::Close);
-	win.setFramerateLimit(60);
+	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", (g_fullscreen ? sf::Style::Fullscreen : sf::Style::Close));
+	win.setFramerateLimit(g_framerate_limit);
 
 	if (!initGraph())
 	{
