@@ -35,9 +35,9 @@ int main()
 		return 2;
 	}
 
+	sf::View p1;
 	sf::Event ev;
-	bool game_over = false;
-
+	
 	while (win.isOpen())
 	{
 		short number_of_players;
@@ -48,12 +48,12 @@ int main()
 
 		cMap map(WORLD_OVERWORLD, number_of_players);
 
-		sf::View p1;
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
 		win.setView(p1);
 
 		//Pêtla gry
+		bool game_over = false;
 		while (win.isOpen() && !game_over)
 		{
 			//WYDARZENIA
@@ -65,7 +65,8 @@ int main()
 
 			//DZIALANIA W GRZE
 			//Poruszanie siê obiektów w poziomie
-			map.movements(p1);
+			if (!map.movements(win, p1))
+				game_over = true;
 
 			//WYSWIETLANIE OBRAZU NA EKRAN
 			win.clear(sf::Color(0, 0, 0));

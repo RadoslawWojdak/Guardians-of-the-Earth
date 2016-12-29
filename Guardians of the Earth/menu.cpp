@@ -2,6 +2,8 @@
 
 bool mainMenu(sf::RenderWindow &win, short &players)
 {
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
 	bool click = true;
 	bool end_loop = false;
 	short option = -1;
@@ -80,6 +82,8 @@ bool mainMenu(sf::RenderWindow &win, short &players)
 
 bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 {
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
 	bool click = true;
 	bool end_loop = false;
 
@@ -141,6 +145,8 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 
 bool menuOptions(sf::RenderWindow &win)
 {
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
 	bool click = true;
 	bool end_loop = false;
 

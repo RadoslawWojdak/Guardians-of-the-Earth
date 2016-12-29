@@ -17,6 +17,9 @@ sf::Texture t_pet[2];
 sf::Texture t_stats_window;
 sf::Texture t_heart;
 sf::Texture t_button;
+sf::Texture t_button_rebirth;
+sf::Texture t_button_extra_life;
+sf::Texture t_button_extra_hp;
 
 bool initGraph()
 {
@@ -255,6 +258,12 @@ bool initGraph()
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
 		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
+		return false;
+	if (!t_button_rebirth.loadFromFile("graphics\\others\\button_rebirth.png"))
+		return false;
+	if (!t_button_extra_life.loadFromFile("graphics\\others\\button_extra_life.png"))
+		return false;
+	if (!t_button_extra_hp.loadFromFile("graphics\\others\\button_extra_hp.png"))
 		return false;
 
 	return true;

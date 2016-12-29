@@ -18,6 +18,7 @@
 #include "character.h"
 #include "fonts.h"
 #include "bullet.h"
+#include "shop.h"
 
 class cMap
 {
@@ -58,7 +59,7 @@ public:
 	
 	void levelGenerator(short number_of_players, bool refresh, bool next_level);	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
 	
-	void movements(sf::View &view);	//Ruch œwiata (Box2D + ewentualne dodatkowe)
+	bool movements(sf::RenderWindow &win, sf::View &view);	//Ruch œwiata (Box2D + ewentualne dodatkowe) (w przypdaku œmierci wsyzstkich graczy zwraca FALSE)
 	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran
 
 	unsigned int getWidth();

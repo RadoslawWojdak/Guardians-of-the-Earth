@@ -21,6 +21,9 @@ extern sf::Texture t_pet[2];
 extern sf::Texture t_stats_window;
 extern sf::Texture t_heart;
 extern sf::Texture t_button;
+extern sf::Texture t_button_rebirth;
+extern sf::Texture t_button_extra_life;
+extern sf::Texture t_button_extra_hp;
 
 bool initGraph();
 bool shutdownGraph();

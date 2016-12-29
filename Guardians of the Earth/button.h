@@ -7,11 +7,12 @@
 
 class cButton :public sf::Sprite
 {
+protected:
 	sf::Text text;
 
 public:
 	cButton();
-	cButton(sf::Vector2f center_pos, sf::String str);
+	cButton(sf::Vector2f center_pos, sf::String str, sf::Texture &texture = t_button);
 	
 	void draw(sf::RenderWindow &win);
 

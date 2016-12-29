@@ -5,9 +5,9 @@ cButton::cButton()
 	;
 }
 
-cButton::cButton(sf::Vector2f pos, sf::String str)
+cButton::cButton(sf::Vector2f pos, sf::String str, sf::Texture &texture)
 {
-	this->setTexture(t_button);
+	this->setTexture(texture);
 	this->setOrigin(this->getGlobalBounds().width / 2, this->getGlobalBounds().height / 2);
 	this->setPosition(pos);
 

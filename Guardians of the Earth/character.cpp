@@ -102,7 +102,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->immunity_time = 0;
 	this->life = 3;
 	this->score = 0;
-	this->cash = 0;
+	this->cash = 100000;
 
 	this->max_speed_x = 4.5f;
 	this->last_position = this->getPosition();
@@ -191,13 +191,13 @@ void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &
 		bonus--;
 
 		if (this->dir == DIR_UP)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, -4.5f), this->getPosition(), this->player_no));
+			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), this->player_no));
 		else if (this->dir == DIR_DOWN)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, 4.5f), this->getPosition(), this->player_no));
+			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), this->player_no));
 		else if (this->dir == DIR_LEFT)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(-4.5f, 0.0f), this->getPosition(), this->player_no));
+			bullet.push_back(cBullet(world, world_type, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), this->player_no));
 		else if (this->dir == DIR_RIGHT)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(4.5f, 0.0f), this->getPosition(), this->player_no));
+			bullet.push_back(cBullet(world, world_type, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4 , this->getPosition().y), this->player_no));
 	}
 }
 
@@ -573,7 +573,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 	}
 }
 
-void cCharacter::move(sf::View &view, sf::Vector2f level_size)
+void cCharacter::move(sf::RenderWindow &win, sf::Vector2f level_size)
 {
 	if (!this->isDead())
 	{
@@ -583,17 +583,17 @@ void cCharacter::move(sf::View &view, sf::Vector2f level_size)
 		this->last_position = this->getPosition();
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
 		this->pet_point = sf::Vector2f(this->getPosition().x, this->getPosition().y + 24);
-
+		
 		//Czy gracz wylecia³ poza ramkê poziomu
-		if (this->getGlobalBounds().left < view.getCenter().x - view.getSize().x / 2)
+		if (this->getGlobalBounds().left < win.getView().getCenter().x - win.getView().getSize().x / 2)
 		{
 			this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-			this->setAllPositions(sf::Vector2f(view.getCenter().x - view.getSize().x / 2 + this->getOrigin().x, this->getPosition().y));
+			this->setAllPositions(sf::Vector2f(win.getView().getCenter().x - win.getView().getSize().x / 2 + this->getOrigin().x, this->getPosition().y));
 		}
-		else if (this->getGlobalBounds().left + this->getGlobalBounds().width > view.getCenter().x + view.getSize().x / 2 && view.getCenter().x + view.getSize().x / 2 < level_size.x)
+		else if (this->getGlobalBounds().left + this->getGlobalBounds().width > win.getView().getCenter().x + win.getView().getSize().x / 2 && win.getView().getCenter().x + win.getView().getSize().x / 2 < level_size.x)
 		{
 			this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-			this->setAllPositions(sf::Vector2f(view.getCenter().x + view.getSize().x / 2 - this->getOrigin().x, this->getPosition().y));
+			this->setAllPositions(sf::Vector2f(win.getView().getCenter().x + win.getView().getSize().x / 2 - this->getOrigin().x, this->getPosition().y));
 		}
 		if (this->getPosition().y - this->getOrigin().y > level_size.y)
 			this->kill();
@@ -602,8 +602,11 @@ void cCharacter::move(sf::View &view, sf::Vector2f level_size)
 
 void cCharacter::rebirth()
 {
+	this->dir = DIR_RIGHT;
+
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
+	this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 
 	this->immunity_time = 0;
 	this->setColor(sf::Color(255, 255, 255, 255));
@@ -617,6 +620,16 @@ void cCharacter::rebirth()
 
 	if (this->life > 0)
 		this->dead = false;
+}
+
+void cCharacter::addHP()
+{
+	this->pet.increaseHP();
+}
+
+void cCharacter::addLife()
+{
+	this->life++;
 }
 
 void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
@@ -633,12 +646,12 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 	{
 	case -1:
 	{
-		this->life++;
+		this->addLife();
 		break;
 	}
 	case -2:
 	{
-		this->pet.increaseHP();
+		this->addHP();
 		break;
 	}
 	default:
@@ -658,6 +671,11 @@ void cCharacter::addStatsForNPC(cNPC &npc)
 void cCharacter::addStatsForBonusBlock()
 {
 	this->score += 25;
+}
+
+void cCharacter::subtractCash(unsigned int how_many_to_subtract)
+{
+	this->cash -= how_many_to_subtract;
 }
 
 void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
@@ -758,6 +776,11 @@ b2Body *cCharacter::getBody()
 	return this->body;
 }
 
+sControlKeys cCharacter::getControlKeys()
+{
+	return this->key;
+}
+
 bool cCharacter::hasLife()
 {
 	if (this->life == 0)
@@ -782,4 +805,9 @@ bool cCharacter::isInviolability()
 	if (this->immunity_time > 0)
 		return true;
 	return false;
+}
+
+unsigned int cCharacter::getCash()
+{
+	return this->cash;
 }
