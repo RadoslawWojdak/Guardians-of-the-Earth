@@ -21,6 +21,8 @@ public:
 	
 	void setText(sf::String str);
 	sf::String getString();
+	void setPosition(sf::Vector2f &position);
+	void setPosition(float x, float y);
 };
 
 #endif //!button_h

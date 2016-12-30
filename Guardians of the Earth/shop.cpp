@@ -31,6 +31,18 @@ unsigned int cItemShop::getValue()
 	return this->value;
 }
 
+void cItemShop::setPosition(sf::Vector2f &position)
+{
+	this->sf::Sprite::setPosition(position);
+	this->text.setPosition(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y + this->getOrigin().y - 4);
+}
+
+void cItemShop::setPosition(float x, float y)
+{
+	this->sf::Sprite::setPosition(x, y);
+	this->text.setPosition(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y + this->getOrigin().y - 4);
+}
+
 
 cShop::cShop(std::vector <cCharacter> &player)
 {
@@ -49,6 +61,13 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 
 	bool click = true;
 	bool end_loop = false;
+	bool *key_pressed = new bool[this->player.size()];
+	short *option = new short[this->player.size()];	//Aktualnie wybrany przycisk przez danego gracza
+	for (short i = 0; i < this->player.size(); i++)
+	{
+		key_pressed[i] = true;
+		option[i] = 0;
+	}
 
 	sf::Event ev;
 	do
@@ -61,71 +80,166 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 		}
 
 		//DZIA£ANIA NA MENU
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < this->player.size(); i++)
 		{
-			cItemShop *item = NULL;
-			switch (i)
+			sControlKeys key = this->player[i]->getControlKeys();
+
+			if (!key_pressed[i])
 			{
-			case 0: {item = &this->rebirth; break;}
-			case 1: {item = &this->extra_life; break;}
-			case 2: {item = &this->pet_hp; break;}
+				if (!key.is_pad)
+				{
+					if (sf::Keyboard::isKeyPressed(key.up.key))
+					{
+						key_pressed[i] = true;
+						if (option[i] == 3)
+							option[i] = 0;
+					}
+					if (sf::Keyboard::isKeyPressed(key.down.key))
+					{
+						key_pressed[i] = true;
+						if (option[i] < 3)
+							option[i] = 3;
+					}
+					if (sf::Keyboard::isKeyPressed(key.left.key))
+					{
+						key_pressed[i] = true;
+						if (option[i] > 0 && option[i] < 3)
+							option[i]--;
+					}
+					if (sf::Keyboard::isKeyPressed(key.right.key))
+					{
+						key_pressed[i] = true;
+						if (option[i] < 2)
+							option[i]++;
+					}
+				}
+				else
+				{
+					if (sf::Joystick::isButtonPressed(key.pad, key.up.button))
+					{
+						key_pressed[i] = true;
+						if (option[i] == 3)
+							option[i] = 0;
+					}
+					if (sf::Joystick::isButtonPressed(key.pad, key.down.button))
+					{
+						key_pressed[i] = true;
+						if (option[i] < 3)
+							option[i] = 3;
+					}
+					if (sf::Joystick::isButtonPressed(key.pad, key.left.button))
+					{
+						key_pressed[i] = true;
+						if (option[i] > 0)
+							option[i]--;
+					}
+					if (sf::Joystick::isButtonPressed(key.pad, key.right.button))
+					{
+						key_pressed[i] = true;
+						if (option[i] < 3)
+							option[i]++;
+					}
+				}
+			}
+			else //Je¿eli key_pressed[i] == true, ale nie jest wciœniêty ¿aden klawisz
+			{
+				if (!key.is_pad)
+				{
+					if (!(sf::Keyboard::isKeyPressed(key.up.key)) && !(sf::Keyboard::isKeyPressed(key.down.key)) && !(sf::Keyboard::isKeyPressed(key.left.key)) && !(sf::Keyboard::isKeyPressed(key.right.key)) && !(sf::Keyboard::isKeyPressed(key.jump.key)) && !(sf::Keyboard::isKeyPressed(key.fire.key)))
+						key_pressed[i] = false;
+				}
+				else
+				{
+					if (!(sf::Joystick::isButtonPressed(key.is_pad, key.up.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.down.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.left.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.right.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.jump.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.fire.button)))
+						key_pressed[i] = false;
+				}
 			}
 
-			bool is_mouse_over = item->isMouseOver(win);
-			item->changeGraphics(is_mouse_over);
-			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over && this->player[0]->getCash() >= item->getValue())
+			for (int j = 0; j < 3; j++)
 			{
-				
-				if (item == &this->rebirth)
+				cItemShop *item = NULL;
+				switch (j)
 				{
-					for (int i = 0; i < this->player.size(); i++)
-					{
-						if (!this->player[i]->hasLife())
-						{
-							this->player[0]->subtractCash(item->getValue());
-							this->player[i]->addLife();
-							break;
-						}
-					}
-				}
-				else if (item == &this->extra_life)
-				{
-					this->player[0]->subtractCash(item->getValue());
-					this->player[0]->addLife();
-				}
-				else if (item == &this->pet_hp)
-				{
-					if (this->player[0]->getPet().getHP() < 3)
-					{
-						this->player[0]->subtractCash(item->getValue());
-						this->player[0]->addHP();
-					}
+				case 0: {item = &this->rebirth; break;}
+				case 1: {item = &this->extra_life; break;}
+				case 2: {item = &this->pet_hp; break;}
 				}
 
-				break;
+				if (!key_pressed[i])
+				{
+					if (((!key.is_pad && (sf::Keyboard::isKeyPressed(key.fire.key) || (sf::Keyboard::isKeyPressed(key.jump.key)))) || (key.is_pad && (sf::Joystick::isButtonPressed(key.pad, key.fire.button) || sf::Joystick::isButtonPressed(key.pad, key.jump.button)))) && option[i] == j && this->player[i]->getCash() >= item->getValue())
+					{
+						key_pressed[i] = true;
+						if (item == &this->rebirth)
+						{
+							for (int k = 0; k < this->player.size(); k++)
+							{
+								if (!this->player[k]->hasLife())
+								{
+									this->player[i]->subtractCash(item->getValue());
+									this->player[k]->addLife();
+									break;
+								}
+							}
+						}
+						else if (item == &this->extra_life)
+						{
+							this->player[i]->subtractCash(item->getValue());
+							this->player[i]->addLife();
+						}
+						else if (item == &this->pet_hp)
+						{
+							if (this->player[i]->getPet().getHP() < 3)
+							{
+								this->player[i]->subtractCash(item->getValue());
+								this->player[i]->addHP();
+							}
+						}
+
+						break;
+					}
+				}
+			}
+
+			this->exit_button.changeGraphics(option[i] == 3);
+			if (!key_pressed[i])
+			{
+				if (((!key.is_pad && (sf::Keyboard::isKeyPressed(key.fire.key) || sf::Keyboard::isKeyPressed(key.jump.key))) || (key.is_pad && (sf::Joystick::isButtonPressed(key.pad, key.fire.button) || sf::Joystick::isButtonPressed(key.pad, key.jump.button)))) && option[i] == 3)
+				{
+					key_pressed[i] = true;
+					end_loop = true;
+				}
 			}
 		}
-		bool is_mouse_over = this->exit_button.isMouseOver(win);
-		this->exit_button.changeGraphics(is_mouse_over);
-		if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
-			end_loop = true;
-
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-			click = true;
-		else
-			click = false;
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
 		
 		for (int i = 0; i < this->player.size(); i++)
-			this->player[i]->drawStats(win, sf::Vector2f(16 + i * (t_stats_window.getSize().y + 32), 16));
+		{
+			sf::Vector2f start;
+			start.x = g_width / 2 - (float)(this->player.size() / 2) * (t_stats_window.getSize().y + 32) - 32;
+			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y) / 2 + 32;
 
-		this->rebirth.draw(win);
-		this->extra_life.draw(win);
-		this->pet_hp.draw(win);
-		this->exit_button.draw(win);
-		
+			this->player[i]->drawStats(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y));
+
+			this->rebirth.setPosition(start.x + 32 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
+			this->rebirth.changeGraphics(option[i] == 0);
+			this->rebirth.draw(win);
+
+			this->extra_life.setPosition(start.x + 72 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
+			this->extra_life.changeGraphics(option[i] == 1);
+			this->extra_life.draw(win);
+
+			this->pet_hp.setPosition(start.x + 112 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
+			this->pet_hp.changeGraphics(option[i] == 2);
+			this->pet_hp.draw(win);
+
+			this->exit_button.setPosition(start.x + 8 + t_button.getSize().x / 2 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_button_extra_hp.getSize().y + 64);
+			this->exit_button.changeGraphics(option[i] == 3);
+			this->exit_button.draw(win);
+		}
+
 		win.display();
 	} while (win.isOpen() && !end_loop);
 	

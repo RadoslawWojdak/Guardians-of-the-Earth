@@ -102,7 +102,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->immunity_time = 0;
 	this->life = 3;
 	this->score = 0;
-	this->cash = 100000;
+	this->cash = 0;
 
 	this->max_speed_x = 4.5f;
 	this->last_position = this->getPosition();

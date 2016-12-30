@@ -49,3 +49,15 @@ sf::String cButton::getString()
 {
 	return this->text.getString();
 }
+
+void cButton::setPosition(sf::Vector2f &position)
+{
+	this->sf::Sprite::setPosition(position);
+	this->text.setPosition(this->getPosition().x, this->getPosition().y);
+}
+
+void cButton::setPosition(float x, float y)
+{
+	this->sf::Sprite::setPosition(x, y);
+	this->text.setPosition(this->getPosition().x, this->getPosition().y);
+}

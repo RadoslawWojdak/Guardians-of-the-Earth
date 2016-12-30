@@ -19,6 +19,8 @@ public:
 
 	void setValue(unsigned int value);
 	unsigned int getValue();
+	void setPosition(sf::Vector2f &position);
+	void setPosition(float x, float y);
 };
 
 class cShop
