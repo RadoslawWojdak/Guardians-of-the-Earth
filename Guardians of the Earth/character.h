@@ -104,6 +104,7 @@ public:
 
 	void addHP();
 	void addLife();
+	void addPower(short power_id);
 
 	void addStatsForPowerUp(cPowerUp &power_up);
 	void addStatsForTreasure(cTreasure &treasure);

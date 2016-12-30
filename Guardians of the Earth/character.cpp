@@ -680,12 +680,21 @@ void cCharacter::addLife()
 	this->life++;
 }
 
+void cCharacter::addPower(short power_id)
+{
+	switch (power_id)
+	{
+	case 1: {this->bonus[0] += 5; break;}
+	case 2: {this->bonus[1]++; break;}
+	}
+}
+
 void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
 {
 	switch (power_up.getPower())
 	{
-	case 1: {this->bonus[0] += 5; this->score += 100; break;}	//+10 pocisków
-	case 2: {this->bonus[1]++; this->score += 100; break;}	//+1 special1
+	case 1: {this->addPower(1); this->score += 100; break;}	//+10 pocisków
+	case 2: {this->addPower(2); this->score += 100; break;}	//+1 special1
 	}
 }
 

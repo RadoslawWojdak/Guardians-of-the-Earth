@@ -28,6 +28,7 @@ class cShop
 	std::vector <cCharacter*> player;
 	
 	std::vector <cItemShop> item;
+	cItemShop bonus[2];
 	cItemShop rebirth;
 	cItemShop extra_life;
 	cItemShop pet_hp;

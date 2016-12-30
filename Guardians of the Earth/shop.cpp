@@ -49,6 +49,8 @@ cShop::cShop(std::vector <cCharacter> &player)
 	for (unsigned int i = 0; i < player.size(); i++)
 		this->player.push_back(&player[i]);
 
+	this->bonus[0] = cItemShop(sf::Vector2f(g_width / 2 - 48, g_height / 2 - 48), rand() % 76 + 250, t_power_up[0]);
+	this->bonus[1] = cItemShop(sf::Vector2f(g_width / 2, g_height / 2 - 48), rand() % 86 + 350, t_power_up[1]);
 	this->rebirth = cItemShop(sf::Vector2f(g_width / 2 - 48, g_height / 2), rand() % 251 + 1000, t_button_rebirth);
 	this->extra_life = cItemShop(sf::Vector2f(g_width / 2, g_height / 2), rand() % 101 + 500, t_button_extra_life);
 	this->pet_hp = cItemShop(sf::Vector2f(g_width / 2 + 48, g_height / 2), rand() % 51 + 150, t_button_extra_hp);
@@ -94,25 +96,29 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 						if (sf::Keyboard::isKeyPressed(key.up.key))
 						{
 							key_pressed[i] = true;
-							if (option[i] == 3)
-								option[i] = 0;
+							if (option[i] > 2)
+								option[i] -= 3;
 						}
 						if (sf::Keyboard::isKeyPressed(key.down.key))
 						{
 							key_pressed[i] = true;
-							if (option[i] < 3)
-								option[i] = 3;
+							if (option[i] < 6)
+							{
+								option[i] += 3;
+								if (option[i] > 6)
+									option[i] = 6;
+							}
 						}
 						if (sf::Keyboard::isKeyPressed(key.left.key))
 						{
 							key_pressed[i] = true;
-							if (option[i] > 0 && option[i] < 3)
+							if ((option[i] > 0 && option[i] < 3) || (option[i] > 3 && option[i] < 6))
 								option[i]--;
 						}
 						if (sf::Keyboard::isKeyPressed(key.right.key))
 						{
 							key_pressed[i] = true;
-							if (option[i] < 2)
+							if ((option[i] < 1) || (option[i] > 2 && option[i] < 6))
 								option[i]++;
 						}
 					}
@@ -121,38 +127,44 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 						if (sf::Joystick::isButtonPressed(key.pad, key.up.button))
 						{
 							key_pressed[i] = true;
-							if (option[i] == 3)
-								option[i] = 0;
+							if (option[i] > 2)
+								option[i] -= 3;
 						}
 						if (sf::Joystick::isButtonPressed(key.pad, key.down.button))
 						{
 							key_pressed[i] = true;
-							if (option[i] < 3)
-								option[i] = 3;
+							if (option[i] < 6)
+								option[i] += 3;
 						}
 						if (sf::Joystick::isButtonPressed(key.pad, key.left.button))
 						{
 							key_pressed[i] = true;
-							if (option[i] > 0)
+							if ((option[i] > 0 && option[i] < 3) || (option[i] > 3 && option[i] < 6))
 								option[i]--;
 						}
 						if (sf::Joystick::isButtonPressed(key.pad, key.right.button))
 						{
 							key_pressed[i] = true;
-							if (option[i] < 3)
+							if ((option[i] < 2) || (option[i] > 2 && option[i] < 6))
 								option[i]++;
 						}
 					}
 				}
 
-				for (int j = 0; j < 3; j++)
+				for (int j = 0; j < 6; j++)
 				{
 					cItemShop *item = NULL;
 					switch (j)
 					{
-					case 0: {item = &this->rebirth; break;}
-					case 1: {item = &this->extra_life; break;}
-					case 2: {item = &this->pet_hp; break;}
+					case 0:
+					case 1:
+					{
+						item = &this->bonus[j];
+						break;
+					}
+					case 3: {item = &this->rebirth; break;}
+					case 4: {item = &this->extra_life; break;}
+					case 5: {item = &this->pet_hp; break;}
 					}
 
 					if (!key_pressed[i])
@@ -160,7 +172,13 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 						if (((!key.is_pad && (sf::Keyboard::isKeyPressed(key.fire.key) || (sf::Keyboard::isKeyPressed(key.jump.key)))) || (key.is_pad && (sf::Joystick::isButtonPressed(key.pad, key.fire.button) || sf::Joystick::isButtonPressed(key.pad, key.jump.button)))) && option[i] == j && this->player[i]->getCash() >= item->getValue())
 						{
 							key_pressed[i] = true;
-							if (item == &this->rebirth)
+							
+							if (j == 0 || j == 1)
+							{
+								this->player[i]->subtractCash(item->getValue());
+								this->player[i]->addPower(j + 1);
+							}
+							else if (item == &this->rebirth)
 							{
 								for (int k = 0; k < this->player.size(); k++)
 								{
@@ -194,7 +212,7 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 
 			if (!key_pressed[i])
 			{
-				if (((!key.is_pad && (sf::Keyboard::isKeyPressed(key.fire.key) || sf::Keyboard::isKeyPressed(key.jump.key))) || (key.is_pad && (sf::Joystick::isButtonPressed(key.pad, key.fire.button) || sf::Joystick::isButtonPressed(key.pad, key.jump.button)))) && option[i] == 3)
+				if (((!key.is_pad && (sf::Keyboard::isKeyPressed(key.fire.key) || sf::Keyboard::isKeyPressed(key.jump.key))) || (key.is_pad && (sf::Joystick::isButtonPressed(key.pad, key.fire.button) || sf::Joystick::isButtonPressed(key.pad, key.jump.button)))) && option[i] == 6)
 				{
 					key_pressed[i] = true;
 					if (close_shop[i])
@@ -235,25 +253,32 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 		for (int i = 0; i < this->player.size(); i++)
 		{
 			sf::Vector2f start;
-			start.x = g_width / 2 - (float)(this->player.size() / 2) * (t_stats_window.getSize().y + 32) - 32;
-			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y) / 2 + 32;
+			start.x = g_width / 2 - (float)(this->player.size() / 2) * (t_stats_window.getSize().x + 32) - 32;
+			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y) / 2 + 32;
 
 			this->player[i]->drawStats(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y));
 
-			this->rebirth.setPosition(start.x + 32 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
-			this->rebirth.changeGraphics(option[i] == 0, sf::Color(255, 192, 0));
+			for (short j = 0; j < 2; j++)
+			{
+				this->bonus[j].setPosition(start.x + 32 + j * (t_power_up[0].getSize().x + 8) + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
+				this->bonus[j].changeGraphics(option[i] == j, sf::Color(255, 192, 0));
+				this->bonus[j].draw(win);
+			}
+
+			this->rebirth.setPosition(start.x + 32 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y + 64);
+			this->rebirth.changeGraphics(option[i] == 3, sf::Color(255, 192, 0));
 			this->rebirth.draw(win);
 
-			this->extra_life.setPosition(start.x + 72 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
-			this->extra_life.changeGraphics(option[i] == 1, sf::Color(255, 192, 0));
+			this->extra_life.setPosition(start.x + 72 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y + 64);
+			this->extra_life.changeGraphics(option[i] == 4, sf::Color(255, 192, 0));
 			this->extra_life.draw(win);
 
-			this->pet_hp.setPosition(start.x + 112 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
-			this->pet_hp.changeGraphics(option[i] == 2, sf::Color(255, 192, 0));
+			this->pet_hp.setPosition(start.x + 112 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y + 64);
+			this->pet_hp.changeGraphics(option[i] == 5, sf::Color(255, 192, 0));
 			this->pet_hp.draw(win);
 
-			this->exit_button.setPosition(start.x + 8 + t_button.getSize().x / 2 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_button_extra_hp.getSize().y + 64);
-			this->exit_button.changeGraphics(option[i] == 3, (close_shop[i] ? sf::Color(64, 255, 64) : sf::Color(255, 192, 0)));
+			this->exit_button.setPosition(start.x + 8 + t_button.getSize().x / 2 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_button_extra_hp.getSize().y + t_power_up[0].getSize().y + 72);
+			this->exit_button.changeGraphics(option[i] == 6, (close_shop[i] ? sf::Color(64, 255, 64) : sf::Color(255, 192, 0)));
 			this->exit_button.draw(win);
 		}
 
