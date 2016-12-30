@@ -128,7 +128,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->bonus[1] = 0;
 
 	//BOX2D
-	float32 a = this->getTextureRect().width * 0.02f - 0.04f;
+	float32 a = this->getTextureRect().width * 0.02f;
 	float32 b = this->getTextureRect().height * 0.02f;
 
 	body_def.position.Set(pos.x * 0.02f, pos.y * 0.02f);
@@ -413,7 +413,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 		{
 			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
 			{
-				if ((this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && !npc[i].getFeatures().top_hurts))	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
+				if ((this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && (!npc[i].getFeatures().top_hurts || this->isSpecial1())))	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
 				{
 					this->addStatsForNPC(npc[i]);
 					npc[i].kill();

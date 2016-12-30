@@ -13,10 +13,10 @@ cBonusBlock::cBonusBlock(b2World *physics_world, sf::Texture &texture, sf::Vecto
 	const float32 y = pos.y * 0.02f;
 
 	b2Vec2 vs[4];
-	vs[0].Set(x + 0.0f - 16 * 0.02f, y + 0.0f - 16 * 0.02f);
-	vs[1].Set(x + 32 * 0.02f - 16 * 0.02f, y + 0.0f - 16 * 0.02f);
-	vs[2].Set(x + 32 * 0.02f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
-	vs[3].Set(x + 0.0f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
+	vs[0].Set(0.02f + x + 0.0f - 16 * 0.02f, y + 0.0f - 16 * 0.02f);
+	vs[1].Set(x + 32 * 0.02f - 16 * 0.02f - 0.02f, y + 0.0f - 16 * 0.02f);
+	vs[2].Set(x + 32 * 0.02f - 16 * 0.02f - 0.02f, y + 32 * 0.02f - 16 * 0.02f);
+	vs[3].Set(0.02f + x + 0.0f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
 
 	shape.CreateLoop(vs, 4);
 

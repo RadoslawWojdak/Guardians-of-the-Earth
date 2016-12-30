@@ -29,7 +29,7 @@ bool mainMenu(sf::RenderWindow &win, short &players)
 		for (int i = 0; i < 4; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
-			button[i].changeGraphics(is_mouse_over);
+			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
 			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
 			{
 				option = i;
@@ -109,7 +109,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 		for (int i = 0; i < 5; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
-			button[i].changeGraphics(is_mouse_over);
+			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
 			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
 			{
 				if (i < 4)
@@ -172,7 +172,7 @@ bool menuOptions(sf::RenderWindow &win)
 		for (int i = 0; i < 2; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
-			button[i].changeGraphics(is_mouse_over);
+			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
 			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
 			{
 				if (i == 0)

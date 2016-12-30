@@ -27,10 +27,10 @@ bool cButton::isMouseOver(sf::RenderWindow &win)
 	return false;
 }
 
-void cButton::changeGraphics(bool is_mouse_over)
+void cButton::changeGraphics(bool is_mouse_over, sf::Color &color)
 {
 	if (is_mouse_over)
-		this->text.setFillColor(sf::Color(255, 192, 0));
+		this->text.setFillColor(color);
 	else
 		this->text.setFillColor(sf::Color(64, 64, 64));
 }

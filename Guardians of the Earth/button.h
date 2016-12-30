@@ -17,7 +17,7 @@ public:
 	void draw(sf::RenderWindow &win);
 
 	bool cButton::isMouseOver(sf::RenderWindow &win);
-	void changeGraphics(bool is_mouse_over);
+	void changeGraphics(bool is_mouse_over, sf::Color &color);
 	
 	void setText(sf::String str);
 	sf::String getString();
