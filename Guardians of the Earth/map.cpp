@@ -54,7 +54,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 	//Pêtla tworzenia terenu
 	clock_t time_map = clock();
-	for (int i = 0; i < 5; i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
+	for (int i = 0; i < 50; i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
 	{
 		if (!refresh)	//Tworzenie poziomu od podstaw
 		{

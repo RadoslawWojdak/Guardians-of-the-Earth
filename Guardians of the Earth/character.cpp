@@ -17,6 +17,7 @@ void cCharacter::initControlKeys(short player_no)
 		this->key.right.key = sf::Keyboard::Key::Right;
 		this->key.jump.key = sf::Keyboard::Key::Space;
 		this->key.fire.key = sf::Keyboard::Key::LControl;
+		this->key.special1.key = sf::Keyboard::Key::RShift;
 		break;
 	}
 	case 2:
@@ -30,6 +31,7 @@ void cCharacter::initControlKeys(short player_no)
 		this->key.right.key = sf::Keyboard::Key::D;
 		this->key.jump.key = sf::Keyboard::Key::E;
 		this->key.fire.key = sf::Keyboard::Key::Q;
+		this->key.special1.key = sf::Keyboard::Key::F;
 		break;
 	}
 	case 3:
@@ -41,6 +43,7 @@ void cCharacter::initControlKeys(short player_no)
 
 			this->key.jump.button = 2;
 			this->key.fire.button = 3;
+			this->key.special1.button = 5;
 		}
 		else
 		{
@@ -53,6 +56,7 @@ void cCharacter::initControlKeys(short player_no)
 			this->key.right.key = sf::Keyboard::Key::K;
 			this->key.jump.key = sf::Keyboard::Key::I;
 			this->key.fire.key = sf::Keyboard::Key::Y;
+			this->key.special1.key = sf::Keyboard::Key::L;
 		}
 		break;
 	}
@@ -65,6 +69,7 @@ void cCharacter::initControlKeys(short player_no)
 
 			this->key.jump.button = 2;
 			this->key.fire.button = 3;
+			this->key.special1.button = 5;
 		}
 		else
 		{
@@ -77,6 +82,7 @@ void cCharacter::initControlKeys(short player_no)
 			this->key.right.key = sf::Keyboard::Key::Numpad6;
 			this->key.jump.key = sf::Keyboard::Key::Numpad9;
 			this->key.fire.key = sf::Keyboard::Key::Numpad7;
+			this->key.special1.key = sf::Keyboard::Key::Numpad1;
 		}
 		break;
 	}
@@ -87,7 +93,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	:cCharacterAnimation(t_character[0], pos)
 {
 	this->animationStanding();
-
+	
 	this->player_no = player_no;
 
 	this->last_speed.x = 0;
@@ -97,9 +103,13 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->stats_window.setColor(sf::Color(this->stats_window.getColor().g, this->stats_window.getColor().b, this->stats_window.getColor().a, 192));
 	this->heart.setTexture(t_heart);
 	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
-	this->bonus_sprite.setTexture(t_characters_bonus_icon[0][0]);
-	this->bonus_sprite.setColor(sf::Color(this->bonus_sprite.getColor().g, this->bonus_sprite.getColor().b, this->bonus_sprite.getColor().a, 192));
+	for (short i = 0; i < 2; i++)
+	{
+		this->bonus_sprite[i].setTexture(t_characters_bonus_icon[0][i]);
+		this->bonus_sprite[i].setColor(sf::Color(this->bonus_sprite[i].getColor().g, this->bonus_sprite[i].getColor().b, this->bonus_sprite[i].getColor().a, 192));
+	}
 	this->immunity_time = 0;
+	this->special1_time = 0;
 	this->life = 3;
 	this->score = 0;
 	this->cash = 0;
@@ -114,10 +124,11 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->is_on_ladder = false;
 	this->dead = false;
 
-	this->bonus = 5;
+	this->bonus[0] = 5;
+	this->bonus[1] = 0;
 
 	//BOX2D
-	float32 a = this->getTextureRect().width * 0.02f;
+	float32 a = this->getTextureRect().width * 0.02f - 0.04f;
 	float32 b = this->getTextureRect().height * 0.02f;
 
 	body_def.position.Set(pos.x * 0.02f, pos.y * 0.02f);
@@ -188,7 +199,7 @@ void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &
 {
 	if (bonus > 0)
 	{
-		bonus--;
+		bonus[0]--;
 
 		if (this->dir == DIR_UP)
 			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), this->player_no));
@@ -221,6 +232,21 @@ void cCharacter::immunityCountdown()
 	}
 }
 
+void cCharacter::startSpecial1()
+{
+	if (this->bonus[1] > 0)
+	{
+		bonus[1]--;
+		this->special1_time = 600;
+	}
+}
+
+void cCharacter::special1Countdown()
+{
+	if (this->isSpecial1())
+		this->special1_time--;
+}
+
 void cCharacter::beenHit()
 {
 	if (this->isPetAlive())
@@ -246,6 +272,9 @@ void cCharacter::kill()
 
 void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
+	if (this->isSpecial1())
+		this->animationSpecial1();
+
 	if (!this->isDead())
 	{
 		float speed_multipler = 1;
@@ -258,7 +287,7 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		if (this->last_speed.y >= 0 && this->body->GetLinearVelocity().y <= 0)
 			this->can_jump = true;
 
-		if (!this->is_on_ladder)
+		if (!this->is_on_ladder && !this->isSpecial1())
 		{
 			if (!this->can_jump && this->is_immersed_in == FLUID_NONE)
 				this->animationJumping();
@@ -272,7 +301,7 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		{
 			this->dir = DIR_RIGHT;
 
-			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
+			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f && !this->isSpecial1())
 				this->animationWalking();
 			
 			this->setScale(1.0f, 1.0f);
@@ -288,7 +317,7 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		{
 			this->dir = DIR_LEFT;
 
-			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f)
+			if (this->can_jump && !this->is_on_ladder && this->body->GetLinearVelocity().y == 0.0f && !this->isSpecial1())
 				this->animationWalking();
 
 			this->setScale(-1.0f, 1.0f);
@@ -308,7 +337,7 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		//Gdy nie jest naciœniêty ¿aden z klawiszy (lewo, prawo), to postaæ zaczyna siê zatrzymywaæ
 		if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.right.key) && !sf::Keyboard::isKeyPressed(this->key.left.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > -1.0f)))
 		{
-			if (this->can_jump && !this->is_on_ladder)
+			if (this->can_jump && !this->is_on_ladder && !this->isSpecial1())
 				this->animationStanding();
 
 			if (this->body->GetLinearVelocity().x > 0)
@@ -348,12 +377,19 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		}
 		else
 			this->fire = false;
+
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.special1.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.special1.button)))
+		{
+			if (!this->isSpecial1())
+				this->startSpecial1();
+		}
 	}
 }
 
 void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	this->immunityCountdown();
+	this->special1Countdown();
 
 	if (!this->isDead())
 	{
@@ -362,7 +398,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 		{
 			if (this->getGlobalBounds().intersects(bonus_block[i].getGlobalBounds()))
 			{
-				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y)
+				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y || this->isSpecial1())
 				{
 					this->addStatsForBonusBlock();
 					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f));
@@ -377,7 +413,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 		{
 			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
 			{
-				if (this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && !npc[i].getFeatures().top_hurts)	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
+				if ((this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && !npc[i].getFeatures().top_hurts))	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
 				{
 					this->addStatsForNPC(npc[i]);
 					npc[i].kill();
@@ -393,8 +429,17 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				}
 				else	//Je¿eli dotkniêto NPC-a w inny sposób
 				{
-					if (!this->isInviolability())
-						this->beenHit();
+					if (!this->isSpecial1())
+					{
+						if (!this->isInviolability())
+							this->beenHit();
+					}
+					else
+					{
+						this->addStatsForNPC(npc[i]);
+						npc[i].kill();
+						npc.erase(npc.begin() + i);
+					}
 				}
 			}
 		}
@@ -477,13 +522,15 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 					{
 						this->dir = DIR_UP;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -1.75f));
-						this->animationClimbing(true);
+						if (!this->isSpecial1())
+							this->animationClimbing(true);
 					}
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
 					{
 						this->dir = DIR_DOWN;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 1.75f));
-						this->animationClimbing(false);
+						if (!this->isSpecial1())
+							this->animationClimbing(false);
 					}
 				}
 				
@@ -609,6 +656,7 @@ void cCharacter::rebirth()
 	this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 
 	this->immunity_time = 0;
+	this->special1_time = 0;
 	this->setColor(sf::Color(255, 255, 255, 255));
 
 	this->is_immersed_in = FLUID_NONE;
@@ -636,7 +684,8 @@ void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
 {
 	switch (power_up.getPower())
 	{
-	case 1: {this->bonus += 5; this->score += 100; break;}	//+10 pocisków
+	case 1: {this->bonus[0] += 5; this->score += 100; break;}	//+10 pocisków
+	case 2: {this->bonus[1]++; this->score += 100; break;}	//+1 special1
 	}
 }
 
@@ -742,20 +791,23 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 
 	//Bonusy (pod statystykami)
 	//Bonus 1
-	this->bonus_sprite.setPosition(left_top_corner.x, left_top_corner.y + t_stats_window.getSize().y + 4);
-	win.draw(this->bonus_sprite);
+	for (short i = 0; i < 2; i++)
+	{
+		this->bonus_sprite[i].setPosition(left_top_corner.x + i * 64, left_top_corner.y + t_stats_window.getSize().y + 4);
+		win.draw(this->bonus_sprite[i]);
 
-	text_str.clear();
-	text_str = L" x ";
-	ss << this->bonus;
-	number = ss.str();
-	ss.str("");
+		text_str.clear();
+		text_str = L" x ";
+		ss << this->bonus[i];
+		number = ss.str();
+		ss.str("");
 
-	text_str += number;
-	text.setCharacterSize(18);
-	text.setString(text_str);
-	text.setPosition(left_top_corner.x + this->bonus_sprite.getTextureRect().width, left_top_corner.y + t_stats_window.getSize().y + 6 - text.getGlobalBounds().height / 2);
-	win.draw(text);
+		text_str += number;
+		text.setCharacterSize(18);
+		text.setString(text_str);
+		text.setPosition(left_top_corner.x + this->bonus_sprite[i].getTextureRect().width + i * 64, left_top_corner.y + t_stats_window.getSize().y + 6 - text.getGlobalBounds().height / 2);
+		win.draw(text);
+	}
 }
 
 void cCharacter::setAllPositions(sf::Vector2f pos)
@@ -803,6 +855,13 @@ bool cCharacter::isDead()
 bool cCharacter::isInviolability()
 {
 	if (this->immunity_time > 0)
+		return true;
+	return false;
+}
+
+bool cCharacter::isSpecial1()
+{
+	if (this->special1_time > 0)
 		return true;
 	return false;
 }

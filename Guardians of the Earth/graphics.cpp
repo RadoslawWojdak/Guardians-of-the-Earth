@@ -97,7 +97,7 @@ bool initGraph()
 	}
 
 	//power upy
-	for (unsigned int i = 0; i < 1; i++)
+	for (unsigned int i = 0; i < 2; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
@@ -224,7 +224,7 @@ bool initGraph()
 			if (!t_characters_bonus[0][i].loadFromFile(path))
 				return false;
 		}
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			std::string nr;
 			std::stringstream ss;

@@ -38,6 +38,7 @@ struct sControlKeys
 	uButton right;
 	uButton jump;
 	uButton fire;
+	uButton special1;
 };
 
 class cCharacter :public cCharacterAnimation
@@ -60,8 +61,9 @@ class cCharacter :public cCharacterAnimation
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
-	sf::Sprite bonus_sprite;
+	sf::Sprite bonus_sprite[2];
 	unsigned int immunity_time;
+	unsigned int special1_time;
 	unsigned short life;
 	unsigned int score;
 	unsigned int cash;
@@ -75,13 +77,15 @@ class cCharacter :public cCharacterAnimation
 	bool dead;
 
 	//Bonusy
-	unsigned int bonus;	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
+	unsigned int bonus[2];	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
 
 	void initControlKeys(short player_no);
 	void jump(float force);
 	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 	void startInviolability();
 	void immunityCountdown();
+	void startSpecial1();
+	void special1Countdown();
 
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no);
@@ -117,6 +121,7 @@ public:
 	bool isPetAlive();
 	bool isDead();
 	bool isInviolability();
+	bool isSpecial1();
 	unsigned int getCash();
 };
 

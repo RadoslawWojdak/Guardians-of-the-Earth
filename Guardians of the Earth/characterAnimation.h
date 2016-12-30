@@ -13,6 +13,7 @@ protected:
 	void animationJumping();
 	void animationClimbing(bool climbs_up);
 	void animationSwimming();
+	void animationSpecial1();
 };
 
 #endif //!characterAnimation_h
