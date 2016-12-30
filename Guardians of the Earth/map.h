@@ -17,6 +17,8 @@
 #include "ladder.h"
 #include "character.h"
 #include "fonts.h"
+#include "bullet.h"
+#include "shop.h"
 
 class cMap
 {
@@ -27,6 +29,7 @@ class cMap
 	unsigned int x_generate = 0;		//aktualne miejsce w ktorym ma sie wygenerowac nastepny sektor (aktualizuje sie po stworzeniu sektora)
 	cSector prev_sector;
 	unsigned int level_number;
+	short player_number;
 
 	sf::Sprite background[2];			//Tlo mapy (dziêki dwóm takim samym t³om, t³o mo¿e siê przesuwaæ)
 
@@ -42,6 +45,7 @@ class cMap
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
 	std::vector <cCharacter> player;
+	std::vector <cBullet> bullet;
 	//!Obiekty na mapie
 
 	//Zapasowe obiekty mapy (obiekty u¿ywane po œmierci wszystkich graczy do cofniêcia mapy do stanu sprzed jej rozpoczêcia)
@@ -55,7 +59,7 @@ public:
 	
 	void levelGenerator(short number_of_players, bool refresh, bool next_level);	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
 	
-	void movements(sf::View &view);	//Ruch œwiata (Box2D + ewentualne dodatkowe)
+	bool movements(sf::RenderWindow &win, sf::View &view);	//Ruch œwiata (Box2D + ewentualne dodatkowe) (w przypdaku œmierci wsyzstkich graczy zwraca FALSE)
 	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran
 
 	unsigned int getWidth();

@@ -12,6 +12,8 @@ class cPowerUp :public cObjectLevel
 
 public:
 	cPowerUp(sf::Vector2f pos);
+
+	unsigned short getPower();
 };
 
 #endif //!powerup_h

@@ -12,6 +12,8 @@ cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10
 void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
 {
 	system("CLS");
+	this->player_number = number_of_players;
+	
 	if (refresh || next_level)
 		this->destroy(false);
 	if (next_level)
@@ -33,7 +35,10 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
+	{
+		background[i].setTextureRect(sf::IntRect(0, 0, t_background[this->world_type].getSize().x, t_background[this->world_type].getSize().y));
 		background[i].setTexture(t_background[this->world_type]);
+	}
 
 	//Stworzenie tablicy opisuj¹cej, jak wiele w poziomie jest sektorów o danym ID (w celach debugowania)
 	std::cout << "Ilosc sektorow w tym typie swiata: " << how_many_sectors[this->world_type] << "\n\n\n";
@@ -80,7 +85,6 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 			for (unsigned int i = 0; i < ceil((float)this->height / 32) - sector.getHeight(); i++)
 				for (unsigned int j = 0; j < sector.getWidth(); j++)
 				{
-					//std::cout << j << ":" << i << "\n";
 					this->ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 - (32 - this->height % 32)), this->world_type));
 				}
 		}
@@ -605,7 +609,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192));
+			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1);
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -636,9 +640,10 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	}
 	else
 	{
-		for (unsigned short i = 0; i < number_of_players; i++)
+		for (unsigned short i = 0; i < this->player.size(); i++)
 		{
-			player[i].bodyRecreate(this->physics_world, this->world_type);
+			if (this->player[i].isDead())
+				this->player[i].bodyRecreate(this->physics_world, this->world_type);
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -660,7 +665,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 					}
 				}
 			}
-
+			
 			this->player[i].rebirth();
 		}
 	}
@@ -684,8 +689,9 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	delete[] is_npc;
 }
 
-void cMap::movements(sf::View &view)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 {
+	//SKARBY
 	for (int i = this->treasure.size() - 1; i >= 0; i--)
 	{
 		this->treasure[i].step(this->world_type, sf::Vector2i(this->width, this->height), this->fluid_tab);
@@ -695,6 +701,20 @@ void cMap::movements(sf::View &view)
 			this->treasure.erase(this->treasure.begin() + i);
 	}
 
+	//POCISKI
+	for (int i = this->bullet.size() - 1; i >= 0; i--)
+	{
+		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
+		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, this->player, this->npc, this->treasure, this->bonus_block);
+		
+		if (this->bullet[i].isDestroyed())
+		{
+			this->physics_world.DestroyBody(bullet[i].getBody());
+			this->bullet.erase(bullet.begin() + i);
+		}
+	}
+
+	//NPC-Y
 	sf::FloatRect view_rect;	//view_rect to prostok¹t, który zape³nia aktualny widok kamery. Dziêki temu mo¿na sprawdziæ, czy NPC-y znajduj¹ siê w polu widoku i maj¹ zacz¹æ siê poruszaæ.
 	view_rect.left = view.getCenter().x - view.getSize().x / 2;
 	view_rect.top = view.getCenter().y - view.getSize().y / 2;
@@ -713,21 +733,27 @@ void cMap::movements(sf::View &view)
 		}
 	}
 
+	//POSTACIE GRACZY
 	bool are_all_players_dead = true;
 	for (unsigned int i = 0; i < this->player.size(); i++)
 	{
 		if (!this->player[i].isDead())
 		{
 			are_all_players_dead = false;
-
-			this->player[i].control();
-			this->player[i].specjalCollisions(&(this->physics_world), this->world_type, this->npc, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			
+			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
+			this->player[i].specialCollisions(&(this->physics_world), this->world_type, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-			this->player[i].move(sf::Vector2f(this->width, this->height));
-
+			this->player[i].move(win, sf::Vector2f(this->width, this->height));
+			
 			//Rozpoczêcie nastêpnego poziomu
 			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
+			{
+				cShop shop(this->player);
+				shop.shopMenu(win);
+
 				this->levelGenerator(player.size(), false, true);
+			}
 		}
 	}
 
@@ -746,23 +772,38 @@ void cMap::movements(sf::View &view)
 		}
 
 		if (no_more_life)
-			exit(0);
+			return false;
 
 		this->levelGenerator(player.size(), true, false);
-		return;
+		return true;
 	}
 
 	for (int i = npc.size() - 1; i >= 0; i--)
 		if (npc[i].isDead())
 			this->npc.erase(this->npc.begin() + i);
-
+	
 	this->physics_world.Step((float)1 / 60, 8, 3);
+	return true;
 }
 
 void cMap::draw(sf::RenderWindow &win, sf::View &view)
 {
 	//Przesuwanie kamery na postaæ gracza
-	view.setCenter(this->player[0].getPosition());
+	sf::Vector2f view_center_point(0.0f, 0.0f);
+	short how_many_player_alive = 0;
+	for (int i = 0; i < this->player_number; i++)
+	{
+		if (!this->player[i].isDead())
+		{
+			view_center_point.x += this->player[i].getPosition().x;
+			view_center_point.y += this->player[i].getPosition().y;
+			how_many_player_alive++;
+		}
+	}
+	view_center_point.x /= how_many_player_alive;
+	view_center_point.y /= how_many_player_alive;
+
+	view.setCenter(view_center_point);
 	if (view.getCenter().x > this->getWidth() - 400)
 		view.setCenter(this->getWidth() - 400, view.getCenter().y);
 	else if (view.getCenter().x < 400)
@@ -800,6 +841,8 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 		win.draw(this->treasure[i]);
 	for (unsigned int i = 0; i < this->power_up.size(); i++)
 		win.draw(this->power_up[i]);
+	for (unsigned short i = 0; i < this->bullet.size(); i++)
+		win.draw(bullet[i]);
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
 	for (unsigned short i = 0; i < this->player.size(); i++)
@@ -812,8 +855,18 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
-	for (unsigned short i = 0; i < this->player.size(); i++)
-		this->player[i].drawStats(win, sf::Vector2f(16, 16));
+	//Statystyki graczy
+	this->player[0].drawStats(win, sf::Vector2f(16, 16));
+	if (this->player_number >= 2)
+	{
+		this->player[1].drawStats(win, sf::Vector2f(148, 16));
+		if (this->player_number >= 3)
+		{
+			this->player[2].drawStats(win, sf::Vector2f(536, 16));
+			if (this->player_number == 4)
+				this->player[3].drawStats(win, sf::Vector2f(668, 16));
+		}
+	}
 
 	//Numer poziomu
 	sf::String lvl_no_str(L"Level:");
@@ -828,7 +881,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	
 	sf::Text lvl_no(lvl_no_str, font[0], 48);
 	lvl_no.setOrigin(lvl_no.getGlobalBounds().width / 2, lvl_no.getGlobalBounds().height / 2);
-	lvl_no.setPosition(view.getCenter().x, 32);
+	lvl_no.setPosition(view.getCenter().x, 48);
 
 	win.draw(lvl_no);
 }
@@ -845,7 +898,6 @@ unsigned int cMap::getHeight()
 
 sf::Vector2f cMap::randomPosition(unsigned int min_x, unsigned int max_x)
 {
-
 	return sf::Vector2f(min_x + (rand() % ((max_x - min_x) / 32) * 32 + 16), this->height - (rand() % (this->height / 32) * 32 + 16));
 }
 
@@ -867,9 +919,14 @@ void cMap::destroy(bool destroy_players)
 			this->physics_world.DestroyBody(this->treasure[i].getBody());
 	for (unsigned int i = 0; i < this->trampoline.size(); i++)
 		this->physics_world.DestroyBody(this->trampoline[i].getBody());
+	for (unsigned int i = 0; i < this->bullet.size(); i++)
+		this->physics_world.DestroyBody(this->bullet[i].getBody());
+
 	if (destroy_players)
 		for (unsigned short i = 0; i < this->player.size(); i++)
-			this->physics_world.DestroyBody(this->player[i].getBody());
+			if (!player[i].isDead())
+				this->physics_world.DestroyBody(this->player[i].getBody());
+
 	for (unsigned int i = 0; i < this->physics_world.GetJointCount(); i++)
 		this->physics_world.DestroyJoint(this->physics_world.GetJointList());
 
@@ -885,6 +942,7 @@ void cMap::destroy(bool destroy_players)
 	this->trampoline.clear();
 	this->power_up.clear();
 	this->ladder.clear();
+	this->bullet.clear();
 	if (destroy_players)
 		this->player.clear();
 }

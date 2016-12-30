@@ -15,15 +15,30 @@
 #include "ladder.h"
 #include "bonusblock.h"
 #include "pet.h"
+#include "global_variables.h"
+#include "powerup.h"
+#include "bullet.h"
 
-struct sControlKey
+class cBullet;
+
+union uButton
 {
-	sf::Keyboard::Key up;
-	sf::Keyboard::Key down;
-	sf::Keyboard::Key left;
-	sf::Keyboard::Key right;
-	sf::Keyboard::Key jump;
-	sf::Keyboard::Key fire;
+	sf::Keyboard::Key key;
+	unsigned int button;
+};
+
+struct sControlKeys
+{
+	bool is_pad;
+	unsigned int pad;
+
+	uButton up;
+	uButton down;
+	uButton left;
+	uButton right;
+	uButton jump;
+	uButton fire;
+	uButton special1;
 };
 
 class cCharacter :public cCharacterAnimation
@@ -31,18 +46,24 @@ class cCharacter :public cCharacterAnimation
 	b2BodyDef body_def;
 	b2Body *body;
 
+	short player_no;
+	eDirection dir = DIR_RIGHT;
+
 	cPet pet;
 	sf::Vector2f pet_point;	//Punkt do którego bêdzie lata³ pet (wskaŸnik ze wzglêdu na to, ¿e gdy wstawia siê postaæ z temp_character do tablicy wektorowej character, to za ka¿dym razem zmienia³ siê adres)
 
 	b2Vec2 last_speed;
+	bool fire = true;		//Czy gracz ca³y czas trzyma klawisz strza³u?
 	bool can_jump = false;
 	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
 
-	sControlKey key;
+	sControlKeys key;
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
+	sf::Sprite bonus_sprite[2];
 	unsigned int immunity_time;
+	unsigned int special1_time;
 	unsigned short life;
 	unsigned int score;
 	unsigned int cash;
@@ -55,15 +76,19 @@ class cCharacter :public cCharacterAnimation
 	bool is_on_ladder;
 	bool dead;
 
-	void addStatsForTreasure(cTreasure &treasure);
-	void addStatsForNPC(cNPC &npc);
-	void addStatsForBonusBlock();
+	//Bonusy
+	unsigned int bonus[2];	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
+
+	void initControlKeys(short player_no);
 	void jump(float force);
+	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 	void startInviolability();
 	void immunityCountdown();
+	void startSpecial1();
+	void special1Countdown();
 
 public:
-	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos);
+	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no);
 
 	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
 
@@ -71,22 +96,34 @@ public:
 	
 	void beenHit();
 	void kill();
-	void control();
-	void specjalCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
+	void specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
-	void move(sf::Vector2f level_size);
+	void move(sf::RenderWindow &win, sf::Vector2f level_size);
 	void rebirth();
 
+	void addHP();
+	void addLife();
+	void addPower(short power_id);
+
+	void addStatsForPowerUp(cPowerUp &power_up);
+	void addStatsForTreasure(cTreasure &treasure);
+	void addStatsForNPC(cNPC &npc);
+	void addStatsForBonusBlock();
+	void subtractCash(unsigned int how_many_to_subtract);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 
 	void setAllPositions(sf::Vector2f pos);
 	
 	cPet getPet();
 	b2Body *getBody();
+	sControlKeys getControlKeys();
 	bool hasLife();
 	bool isPetAlive();
 	bool isDead();
 	bool isInviolability();
+	bool isSpecial1();
+	unsigned int getCash();
 };
 
 #endif character_h

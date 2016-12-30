@@ -22,7 +22,7 @@ cBlock::cBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos)
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.filter.categoryBits = CATEGORY(CAT_BLOCK);
-	fd.filter.maskBits = CATEGORY(CAT_TREASURE) | CATEGORY(CAT_NPC) | CATEGORY(CAT_TRAMPOLINE) | CATEGORY(CAT_CHARACTER);
+	fd.filter.maskBits = CATEGORY(CAT_TREASURE) | CATEGORY(CAT_NPC) | CATEGORY(CAT_TRAMPOLINE) | CATEGORY(CAT_CHARACTER) | CATEGORY(CAT_BULLET);
 	fd.friction = 0.0f;
 	this->body->CreateFixture(&fd);
 }

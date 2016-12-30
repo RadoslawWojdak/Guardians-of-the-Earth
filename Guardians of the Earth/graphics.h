@@ -13,11 +13,17 @@ extern sf::Texture t_background[5];
 extern sf::Texture *t_background_obj[5];
 extern sf::Texture t_npc[5];
 extern sf::Texture t_object[8];
-extern sf::Texture t_character[2][2];
+extern sf::Texture t_character[2];
+extern sf::Texture t_characters_bonus[2][2];
+extern sf::Texture t_characters_bonus_icon[2][2];
 extern sf::Texture t_pet[2];
 
 extern sf::Texture t_stats_window;
 extern sf::Texture t_heart;
+extern sf::Texture t_button;
+extern sf::Texture t_button_rebirth;
+extern sf::Texture t_button_extra_life;
+extern sf::Texture t_button_extra_hp;
 
 bool initGraph();
 bool shutdownGraph();

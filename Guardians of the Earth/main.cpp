@@ -6,31 +6,15 @@
 #include "sector.h"
 #include "global_variables.h"
 #include "fonts.h"
+#include "menu.h"
 
 #include <iostream>
 #include <cstdlib>
 
 int main()
 {
-	//Tymczasowy sposób wyboru typu poziomu
-	int option;
-	do
-	{
-		system("CLS");
-		std::cout << "Wybierz typ poziomu:\n"
-			<< "1. Overworld\n"
-			<< "2. Underground\n"
-			<< "3. Underwater\n"
-			<< "4. Ice land\n"
-			<< "5. Desert\n"
-			<< "Twoj wybor: ";
-		std::cin >> option;
-	} while (option < 1 || option > 5);
-	option--;
-	//!Tymczasowy sposób wyboru typu poziomu
-
-	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", sf::Style::Close);
-	win.setFramerateLimit(60);
+	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", (g_fullscreen ? sf::Style::Fullscreen : sf::Style::Close));
+	win.setFramerateLimit(g_framerate_limit);
 
 	if (!initGraph())
 	{
@@ -51,62 +35,48 @@ int main()
 		return 2;
 	}
 
-	sf::Event ev;
-
-	cMap map((eWorld)option, 1);
-	
 	sf::View p1;
-	p1.setCenter(400, 300);
-	p1.setSize(sf::Vector2f(800, 600));
-	win.setView(p1);
-
+	sf::Event ev;
+	
 	while (win.isOpen())
 	{
-		//WYDARZENIA
-		while (win.pollEvent(ev))
-		{
-			if (ev.type == sf::Event::Closed)
-				win.close();
-		}
-
-		//DZIALANIA W GRZE
-		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x + 7, p1.getCenter().y));
-			if (p1.getCenter().x > map.getWidth() - 400)
-				p1.setCenter(map.getWidth() - 400, p1.getCenter().y);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x - 7, p1.getCenter().y));
-			if (p1.getCenter().x < 400)
-				p1.setCenter(sf::Vector2f(400, p1.getCenter().y));
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x, p1.getCenter().y - 7));
-			if (p1.getCenter().y < 300)
-				p1.setCenter(sf::Vector2f(p1.getCenter().x, 300));
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			p1.setCenter(sf::Vector2f(p1.getCenter().x, p1.getCenter().y + 7));
-			if (p1.getCenter().y > map.getHeight() - 300)
-				p1.setCenter(sf::Vector2f(p1.getCenter().x, map.getHeight() - 300));
-		}
-		win.setView(p1);*/
-
-		//Poruszanie siê obiektów w poziomie
-		map.movements(p1);
-
-		//WYSWIETLANIE OBRAZU NA EKRAN
-		win.clear(sf::Color(0, 0, 0));
-
-		map.draw(win, p1);
+		short number_of_players;
+		if (!mainMenu(win, number_of_players))
+			return 0;
+		win.clear();
 		win.display();
-	}
 
-	map.destroy(true);
+		cMap map(WORLD_OVERWORLD, number_of_players);
+
+		p1.setCenter(400, 300);
+		p1.setSize(sf::Vector2f(800, 600));
+		win.setView(p1);
+
+		//Pêtla gry
+		bool game_over = false;
+		while (win.isOpen() && !game_over)
+		{
+			//WYDARZENIA
+			while (win.pollEvent(ev))
+			{
+				if (ev.type == sf::Event::Closed)
+					win.close();
+			}
+
+			//DZIALANIA W GRZE
+			//Poruszanie siê obiektów w poziomie
+			if (!map.movements(win, p1))
+				game_over = true;
+
+			//WYSWIETLANIE OBRAZU NA EKRAN
+			win.clear(sf::Color(0, 0, 0));
+
+			map.draw(win, p1);
+			win.display();
+		}
+
+		map.destroy(true);
+	}
 	shutdownGraph();
 
 	return 0;
