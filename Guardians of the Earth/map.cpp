@@ -642,8 +642,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (unsigned short i = 0; i < this->player.size(); i++)
 		{
-			if (this->player[i].isDead())
-				this->player[i].bodyRecreate(this->physics_world, this->world_type);
+			this->player[i].bodyRecreate(this->physics_world, this->world_type);	//Cia³a zawsze musz¹ siê odnowiaæ (powód: m.in. oddzia³ywanie na lód)
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -744,6 +743,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
 			this->player[i].specialCollisions(&(this->physics_world), this->world_type, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
+			this->player[i].checkIndicators();
 			this->player[i].move(win, sf::Vector2f(this->width, this->height));
 			
 			//Rozpoczêcie nastêpnego poziomu

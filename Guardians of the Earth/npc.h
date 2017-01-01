@@ -55,6 +55,7 @@ public:
 
 	b2Body* getBody();
 	sFeatures getFeatures();
+	unsigned short getExperience();
 	sf::Vector2f getLastPosition();
 	bool isDead();
 };

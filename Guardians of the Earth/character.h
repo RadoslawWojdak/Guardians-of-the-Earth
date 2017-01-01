@@ -49,6 +49,10 @@ class cCharacter :public cCharacterAnimation
 	short player_no;
 	eDirection dir = DIR_RIGHT;
 
+	sf::Sprite exp_bar;
+	unsigned short lvl = 1;
+	unsigned int exp = 0;
+
 	cPet pet;
 	sf::Vector2f pet_point;	//Punkt do którego bêdzie lata³ pet (wskaŸnik ze wzglêdu na to, ¿e gdy wstawia siê postaæ z temp_character do tablicy wektorowej character, to za ka¿dym razem zmienia³ siê adres)
 
@@ -82,6 +86,7 @@ class cCharacter :public cCharacterAnimation
 	void initControlKeys(short player_no);
 	void jump(float force);
 	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
+	void levelUp();
 	void startInviolability();
 	void immunityCountdown();
 	void startSpecial1();
@@ -100,6 +105,7 @@ public:
 	void specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
+	void checkIndicators();	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
 	void rebirth();
 
 	void addHP();
@@ -124,6 +130,7 @@ public:
 	bool isInviolability();
 	bool isSpecial1();
 	unsigned int getCash();
+	unsigned int requiredExpToLevelUp();
 };
 
 #endif character_h

@@ -96,6 +96,10 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	
 	this->player_no = player_no;
 
+	this->exp_bar.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
+	this->exp_bar.setTexture(t_experience_bar);
+	this->exp_bar.setTextureRect(sf::IntRect(0, 0, 0, 0));
+
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
 
@@ -197,7 +201,7 @@ void cCharacter::jump(float force)
 
 void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
 {
-	if (bonus > 0)
+	if (bonus[0] > 0)
 	{
 		bonus[0]--;
 
@@ -210,6 +214,12 @@ void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &
 		else if (this->dir == DIR_RIGHT)
 			bullet.push_back(cBullet(world, world_type, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4 , this->getPosition().y), this->player_no));
 	}
+}
+
+void cCharacter::levelUp()
+{
+	this->exp -= this->requiredExpToLevelUp();
+	this->lvl++;
 }
 
 void cCharacter::startInviolability()
@@ -388,9 +398,6 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 
 void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
-	this->immunityCountdown();
-	this->special1Countdown();
-
 	if (!this->isDead())
 	{
 		//Kolizje z Bonusowymi blokami
@@ -647,6 +654,15 @@ void cCharacter::move(sf::RenderWindow &win, sf::Vector2f level_size)
 	}
 }
 
+void cCharacter::checkIndicators()
+{
+	this->immunityCountdown();
+	this->special1Countdown();
+
+	if (this->exp >= this->requiredExpToLevelUp())
+		this->levelUp();
+}
+
 void cCharacter::rebirth()
 {
 	this->dir = DIR_RIGHT;
@@ -724,6 +740,7 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 void cCharacter::addStatsForNPC(cNPC &npc)
 {
 	this->score += 50;
+	this->exp += npc.getExperience();
 }
 
 void cCharacter::addStatsForBonusBlock()
@@ -798,8 +815,29 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 		win.draw(text);
 	}
 
+	//Poziom postaci
+	text_str.clear();
+	text_str = "";
+	ss << this->lvl;
+	number = ss.str();
+	ss.str("");
+
+	text_str += number;
+	text.setString(text_str);
+	text.setFillColor(sf::Color(0, 128, 0, 192));
+	text.setCharacterSize(8);
+	text.setPosition(sf::Vector2f(left_top_corner.x + 8, left_top_corner.y + 95 - text.getGlobalBounds().height / 2));
+	win.draw(text);
+
+	//Doœwiadczenie
+	this->exp_bar.setPosition(sf::Vector2f(left_top_corner.x + 26, left_top_corner.y + 94));
+	this->exp_bar.setTextureRect(sf::IntRect(0, 0, this->exp * t_experience_bar.getSize().x / this->requiredExpToLevelUp(), this->exp_bar.getTexture()->getSize().y));
+	win.draw(exp_bar);
+
 	//Bonusy (pod statystykami)
-	//Bonus 1
+	text.setFillColor(sf::Color(255, 255, 255, 192));
+	text.setCharacterSize(20);
+
 	for (short i = 0; i < 2; i++)
 	{
 		this->bonus_sprite[i].setPosition(left_top_corner.x + i * 64, left_top_corner.y + t_stats_window.getSize().y + 4);
@@ -878,4 +916,9 @@ bool cCharacter::isSpecial1()
 unsigned int cCharacter::getCash()
 {
 	return this->cash;
+}
+
+unsigned int cCharacter::requiredExpToLevelUp()
+{
+	return pow(100.0, 1.0 + (this->lvl - 1) * 0.1);
 }
