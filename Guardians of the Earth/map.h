@@ -19,6 +19,7 @@
 #include "fonts.h"
 #include "bullet.h"
 #include "shop.h"
+#include "menu.h"
 
 class cMap
 {

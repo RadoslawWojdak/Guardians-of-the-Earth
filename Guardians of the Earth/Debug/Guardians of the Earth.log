@@ -2,7 +2,7 @@
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.cpp(194): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.cpp(195): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.cpp(864): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.cpp(923): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.cpp(1017): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.cpp(1086): warning C4244: 'return': conversion from 'double' to 'unsigned int', possible loss of data
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)

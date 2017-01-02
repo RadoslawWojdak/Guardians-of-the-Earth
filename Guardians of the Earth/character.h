@@ -18,6 +18,7 @@
 #include "global_variables.h"
 #include "powerup.h"
 #include "bullet.h"
+#include "button.h"
 
 class cBullet;
 
@@ -52,6 +53,8 @@ class cCharacter :public cCharacterAnimation
 	sf::Sprite exp_bar;
 	unsigned short lvl = 1;
 	unsigned int exp = 0;
+	unsigned short skill_points = 0;
+	unsigned short number_of_skill[4] = {};
 
 	cPet pet;
 	sf::Vector2f pet_point;	//Punkt do którego bêdzie lata³ pet (wskaŸnik ze wzglêdu na to, ¿e gdy wstawia siê postaæ z temp_character do tablicy wektorowej character, to za ka¿dym razem zmienia³ siê adres)
@@ -82,15 +85,20 @@ class cCharacter :public cCharacterAnimation
 
 	//Bonusy
 	unsigned int bonus[2];	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
+	short b1_in_b2_timer;
+	unsigned short bonus1_in_bonus2;	//Jak wiele pocisków ma jeszcze wystrzeliæ gracz, gdy jest w trakcie dzia³ania bonusu2
+	eDirection shot_dir;
 
 	void initControlKeys(short player_no);
 	void jump(float force);
-	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
+	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	void levelUp();
 	void startInviolability();
 	void immunityCountdown();
 	void startSpecial1();
 	void special1Countdown();
+	void startB1InB2();
+	void b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no);
@@ -105,7 +113,7 @@ public:
 	void specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
-	void checkIndicators();	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
+	void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
 	void rebirth();
 
 	void addHP();
@@ -116,8 +124,10 @@ public:
 	void addStatsForTreasure(cTreasure &treasure);
 	void addStatsForNPC(cNPC &npc);
 	void addStatsForBonusBlock();
+	void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
+	void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
 
 	void setAllPositions(sf::Vector2f pos);
 	
@@ -130,6 +140,8 @@ public:
 	bool isInviolability();
 	bool isSpecial1();
 	unsigned int getCash();
+	unsigned short getLevel();
+	unsigned short getSkillPoints();
 	unsigned int requiredExpToLevelUp();
 };
 

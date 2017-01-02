@@ -12,6 +12,8 @@ sf::Texture t_object[8];
 sf::Texture t_character[2];
 sf::Texture t_characters_bonus[2][2];
 sf::Texture t_characters_bonus_icon[2][2];
+sf::Texture t_characters_skill[2][4];
+sf::Sprite s_characters_skill[2][4];
 sf::Texture t_pet[2];
 
 sf::Texture t_stats_window;
@@ -213,29 +215,42 @@ bool initGraph()
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
 		if (!t_character[i].loadFromFile(path))
 			return false;
-		for (int i = 0; i < 1; i++)
+		for (int j = 0; j < 1; j++)
 		{
 			std::string nr;
 			std::stringstream ss;
-			ss << i + 1;
+			ss << j + 1;
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\knight\\bonus-" + nr + ".png";
-			if (!t_characters_bonus[0][i].loadFromFile(path))
+			std::string path = "graphics\\characters\\" + character + "\\bonus-" + nr + ".png";
+			if (!t_characters_bonus[i][j].loadFromFile(path))
 				return false;
 		}
-		for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
 		{
 			std::string nr;
 			std::stringstream ss;
-			ss << i + 1;
+			ss << j + 1;
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\knight\\bonus_icon-" + nr + ".png";
-			if (!t_characters_bonus_icon[0][i].loadFromFile(path))
+			std::string path = "graphics\\characters\\" + character + "\\bonus_icon-" + nr + ".png";
+			if (!t_characters_bonus_icon[i][j].loadFromFile(path))
 				return false;
+		}
+		for (int j = 0; j < 4; j++)
+		{
+			std::string nr;
+			std::stringstream ss;
+			ss << j + 1;
+			nr = ss.str();
+			ss.clear();
+
+			std::string path = "graphics\\characters\\" + character + "\\skill-" + nr + ".png";
+			if (!t_characters_skill[i][j].loadFromFile(path))
+				return false;
+			s_characters_skill[i][j].setTexture(t_characters_skill[i][j]);
 		}
 	}
 

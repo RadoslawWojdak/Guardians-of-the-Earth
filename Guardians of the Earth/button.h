@@ -9,10 +9,11 @@ class cButton :public sf::Sprite
 {
 protected:
 	sf::Text text;
+	sf::Color text_color;
 
 public:
 	cButton();
-	cButton(sf::Vector2f center_pos, sf::String str, sf::Texture &texture = t_button);
+	cButton(sf::Vector2f center_pos, sf::String str, sf::Texture &texture = t_button, sf::Color &text_color = sf::Color(64, 64, 64));
 	
 	void draw(sf::RenderWindow &win);
 

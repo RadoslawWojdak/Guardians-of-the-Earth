@@ -214,3 +214,250 @@ bool menuOptions(sf::RenderWindow &win)
 		return true;
 	return false;
 }
+
+
+bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter> &player)
+{
+	return true;
+}
+
+bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
+	unsigned short *option = new unsigned short[player.size()];
+	bool *key_pressed = new bool[player.size()];
+	bool *close_menu = new bool[player.size()];
+	for (short i = 0; i < player.size(); i++)
+	{
+		option[i] = 0;
+		key_pressed[i] = true;
+		close_menu[i] = false;
+	}
+
+	bool end_loop = false;
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (unsigned short i = 0; i < player.size(); i++)
+		{
+			sControlKeys key = player[i].getControlKeys();
+			if (!key_pressed[i])
+			{
+				if (!key.is_pad)
+				{
+					if (!close_menu[i])
+					{
+						if (sf::Keyboard::isKeyPressed(key.up.key))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 0: {option[i] = 4; break;}
+							case 2:
+							case 4: {option[i]--; break;}
+							}
+						}
+						if (sf::Keyboard::isKeyPressed(key.down.key))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 1:
+							case 3: {option[i]++; break;}
+							case 2:
+							case 4: {option[i] = 0; break;}
+							}
+						}
+						if (sf::Keyboard::isKeyPressed(key.left.key))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 3:
+							case 4: {option[i] -= 2; break;}
+							}
+						}
+						if (sf::Keyboard::isKeyPressed(key.right.key))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 1:
+							case 2: {option[i] += 2; break;}
+							}
+						}
+					} //!if (!close_menu[i])
+					
+					if (sf::Keyboard::isKeyPressed(key.jump.key) || sf::Keyboard::isKeyPressed(key.fire.key))
+					{
+						if (player[i].getSkillPoints() > 0)
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 1:
+							case 3:
+							{
+								player[i].addSkill(option[i]);
+								break;
+							}
+							case 2:
+							{
+								if (player[i].getLevel() >= 5)
+									player[i].addSkill(option[i]);
+								break;
+							}
+							case 4:
+							{
+								if (player[i].getLevel() >= 10)
+									player[i].addSkill(option[i]);
+								break;
+							}
+							}
+						}
+
+						if (option[i] == 0)
+						{
+							if (!close_menu[i])
+								close_menu[i] = true;
+							else
+								close_menu[i] = false;
+						}
+					}
+				}
+				else
+				{
+					if (!close_menu[i])
+					{
+						if (sf::Joystick::isButtonPressed(key.pad, key.up.button))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 0: {option[i] = 4; break;}
+							case 2:
+							case 4: {option[i]--; break;}
+							}
+						}
+						if (sf::Joystick::isButtonPressed(key.pad, key.down.button))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 1:
+							case 3: {option[i]++; break;}
+							case 2:
+							case 4: {option[i] = 0; break;}
+							}
+						}
+						if (sf::Joystick::isButtonPressed(key.pad, key.left.button))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 3:
+							case 4: {option[i] -= 2; break;}
+							}
+						}
+						if (sf::Joystick::isButtonPressed(key.pad, key.right.button))
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 1:
+							case 2: {option[i] += 2; break;}
+							}
+						}
+					} //!if (close_menu[i])
+
+					if (sf::Joystick::isButtonPressed(key.pad, key.jump.button) || sf::Joystick::isButtonPressed(key.pad, key.fire.button))
+					{
+						if (player[i].getSkillPoints() > 0)
+						{
+							key_pressed[i] = true;
+							switch (option[i])
+							{
+							case 0:
+							{
+								if (!close_menu[i])
+									close_menu[i] = true;
+								else
+									close_menu[i] = false;
+								break;
+							}
+							case 1:
+							case 2:
+							{
+								player[i].addSkill(option[i]);
+								break;
+							}
+							case 3:
+							{
+								if (player[i].getLevel() >= 5)
+									player[i].addSkill(option[i]);
+								break;
+							}
+							case 4:
+							{
+								if (player[i].getLevel() >= 10)
+									player[i].addSkill(option[i]);
+								break;
+							}
+							}
+						}
+					}
+				}
+			}
+
+			if (key_pressed[i])
+			{
+				if (!key.is_pad)
+				{
+					if (!(sf::Keyboard::isKeyPressed(key.up.key)) && !(sf::Keyboard::isKeyPressed(key.down.key)) && !(sf::Keyboard::isKeyPressed(key.left.key)) && !(sf::Keyboard::isKeyPressed(key.right.key)) && !(sf::Keyboard::isKeyPressed(key.jump.key)) && !(sf::Keyboard::isKeyPressed(key.fire.key)))
+						key_pressed[i] = false;
+				}
+				else
+				{
+					if (!(sf::Joystick::isButtonPressed(key.is_pad, key.up.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.down.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.left.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.right.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.jump.button)) && !(sf::Joystick::isButtonPressed(key.is_pad, key.fire.button)))
+						key_pressed[i] = false;
+				}
+			}
+		}
+
+		end_loop = true;
+		for (unsigned short i = 0; i < player.size(); i++)
+			if (!close_menu[i])
+				end_loop = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		
+		for (int i = 0; i < player.size(); i++)
+		{
+			sf::Vector2f start;
+			start.x = g_width / 2 - (float)(player.size() / 2) * (t_stats_window.getSize().x + 32) - 32;
+			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y) / 2 + 32;
+
+			player[i].drawSkillTree(win, start, option[i], close_menu[i]);
+		}
+
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	delete[] option;
+	delete[] key_pressed;
+	delete[] close_menu;
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
