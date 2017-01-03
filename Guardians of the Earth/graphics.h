@@ -6,6 +6,7 @@
 
 extern sf::Texture t_block[2];
 extern sf::Texture t_bonus_block[2];
+extern sf::Texture t_gold_bonus_block[2];
 extern sf::Texture t_ground[5][47];	//Pierwszy wymiar tablicy - rodzaj podloza overground; drugi - ID podloza
 extern sf::Texture t_treasure[8];
 extern sf::Texture t_power_up[2];
@@ -16,10 +17,14 @@ extern sf::Texture t_object[8];
 extern sf::Texture t_character[2];
 extern sf::Texture t_characters_bonus[2][2];
 extern sf::Texture t_characters_bonus_icon[2][2];
+extern sf::Texture t_characters_skill[2][4];
+extern sf::Sprite s_characters_skill[2][4];
 extern sf::Texture t_pet[2];
 
 extern sf::Texture t_stats_window;
+extern sf::Texture t_pause_menu_window;
 extern sf::Texture t_heart;
+extern sf::Texture t_experience_bar;
 extern sf::Texture t_button;
 extern sf::Texture t_button_rebirth;
 extern sf::Texture t_button_extra_life;

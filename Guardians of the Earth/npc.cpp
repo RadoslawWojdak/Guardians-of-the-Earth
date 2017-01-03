@@ -360,6 +360,18 @@ sFeatures cNPC::getFeatures()
 	return this->features;
 }
 
+unsigned short cNPC::getExperience()
+{
+	switch (this->id)
+	{
+	case 1: {return 8; break;}
+	case 2: {return 25; break;}
+	case 3: {return 15; break;}
+	case 4: {return 15; break;}
+	case 5: {return 40; break;}
+	}
+}
+
 sf::Vector2f cNPC::getLastPosition()
 {
 	return this->last_position;

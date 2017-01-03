@@ -2,6 +2,7 @@
 
 sf::Texture t_block[2];
 sf::Texture t_bonus_block[2];
+sf::Texture t_gold_bonus_block[2];
 sf::Texture t_ground[5][47];
 sf::Texture t_treasure[8];
 sf::Texture t_power_up[2];
@@ -12,10 +13,14 @@ sf::Texture t_object[8];
 sf::Texture t_character[2];
 sf::Texture t_characters_bonus[2][2];
 sf::Texture t_characters_bonus_icon[2][2];
+sf::Texture t_characters_skill[2][4];
+sf::Sprite s_characters_skill[2][4];
 sf::Texture t_pet[2];
 
 sf::Texture t_stats_window;
+sf::Texture t_pause_menu_window;
 sf::Texture t_heart;
+sf::Texture t_experience_bar;
 sf::Texture t_button;
 sf::Texture t_button_rebirth;
 sf::Texture t_button_extra_life;
@@ -46,6 +51,18 @@ bool initGraph()
 
 		std::string path = "graphics\\blocks\\bonus_block-" + nr + ".png";
 		if (!t_bonus_block[i].loadFromFile(path))
+			return false;
+	}
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\blocks\\gold_bonus_block-" + nr + ".png";
+		if (!t_gold_bonus_block[i].loadFromFile(path))
 			return false;
 	}
 
@@ -212,29 +229,42 @@ bool initGraph()
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
 		if (!t_character[i].loadFromFile(path))
 			return false;
-		for (int i = 0; i < 1; i++)
+		for (int j = 0; j < 1; j++)
 		{
 			std::string nr;
 			std::stringstream ss;
-			ss << i + 1;
+			ss << j + 1;
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\knight\\bonus-" + nr + ".png";
-			if (!t_characters_bonus[0][i].loadFromFile(path))
+			std::string path = "graphics\\characters\\" + character + "\\bonus-" + nr + ".png";
+			if (!t_characters_bonus[i][j].loadFromFile(path))
 				return false;
 		}
-		for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
 		{
 			std::string nr;
 			std::stringstream ss;
-			ss << i + 1;
+			ss << j + 1;
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\knight\\bonus_icon-" + nr + ".png";
-			if (!t_characters_bonus_icon[0][i].loadFromFile(path))
+			std::string path = "graphics\\characters\\" + character + "\\bonus_icon-" + nr + ".png";
+			if (!t_characters_bonus_icon[i][j].loadFromFile(path))
 				return false;
+		}
+		for (int j = 0; j < 4; j++)
+		{
+			std::string nr;
+			std::stringstream ss;
+			ss << j + 1;
+			nr = ss.str();
+			ss.clear();
+
+			std::string path = "graphics\\characters\\" + character + "\\skill-" + nr + ".png";
+			if (!t_characters_skill[i][j].loadFromFile(path))
+				return false;
+			s_characters_skill[i][j].setTexture(t_characters_skill[i][j]);
 		}
 	}
 
@@ -255,7 +285,11 @@ bool initGraph()
 	//INNE
 	if (!t_stats_window.loadFromFile("graphics\\others\\stats_window.png"))
 		return false;
+	if (!t_pause_menu_window.loadFromFile("graphics\\others\\pause_menu_window.png"))
+		return false;
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+		return false;
+	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
 		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
 		return false;

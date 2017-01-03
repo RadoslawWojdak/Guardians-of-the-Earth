@@ -96,6 +96,10 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	
 	this->player_no = player_no;
 
+	this->exp_bar.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
+	this->exp_bar.setTexture(t_experience_bar);
+	this->exp_bar.setTextureRect(sf::IntRect(0, 0, 0, 0));
+
 	this->last_speed.x = 0;
 	this->last_speed.y = 1;
 
@@ -195,21 +199,28 @@ void cCharacter::jump(float force)
 	this->can_jump = false;
 }
 
-void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
-	if (bonus > 0)
+	if (bonus[0] > 0)
 	{
 		bonus[0]--;
 
-		if (this->dir == DIR_UP)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), this->player_no));
-		else if (this->dir == DIR_DOWN)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), this->player_no));
-		else if (this->dir == DIR_LEFT)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), this->player_no));
-		else if (this->dir == DIR_RIGHT)
-			bullet.push_back(cBullet(world, world_type, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4 , this->getPosition().y), this->player_no));
+		if (shot_direction == DIR_UP)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1 + this->number_of_skill[1], this->player_no));
+		else if (shot_direction == DIR_DOWN)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1 + this->number_of_skill[1], this->player_no));
+		else if (shot_direction == DIR_LEFT)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1 + this->number_of_skill[1], this->player_no));
+		else if (shot_direction == DIR_RIGHT)
+			bullet.push_back(cBullet(world, world_type, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1 + this->number_of_skill[1], this->player_no));
 	}
+}
+
+void cCharacter::levelUp()
+{
+	this->exp -= this->requiredExpToLevelUp();
+	this->lvl++;
+	this->skill_points++;
 }
 
 void cCharacter::startInviolability()
@@ -237,7 +248,7 @@ void cCharacter::startSpecial1()
 	if (this->bonus[1] > 0)
 	{
 		bonus[1]--;
-		this->special1_time = 600;
+		this->special1_time = 600 + this->number_of_skill[2] * 100;
 	}
 }
 
@@ -245,6 +256,41 @@ void cCharacter::special1Countdown()
 {
 	if (this->isSpecial1())
 		this->special1_time--;
+}
+
+void cCharacter::startB1InB2()
+{
+	this->b1_in_b2_timer = 30;
+	this->bonus1_in_bonus2 = this->number_of_skill[3];
+	this->shot_dir = this->dir;
+}
+
+void cCharacter::b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+{
+	if (this->bonus1_in_bonus2 > 0)
+	{
+		if (!this->isSpecial1())
+		{
+			this->bonus1_in_bonus2 = 0;
+			b1_in_b2_timer = 0;
+			return;
+		}
+
+		b1_in_b2_timer--;
+		if (this->b1_in_b2_timer == 0)
+		{
+			if (this->shot_dir == DIR_RIGHT)
+				this->shot_dir = DIR_LEFT;
+			else
+				this->shot_dir = DIR_RIGHT;
+
+			this->bonus[0]++;	//Przywracanie z powrotem bonusu 1
+			this->shot(world, world_type, bullet, this->shot_dir);
+			this->bonus1_in_bonus2--;
+			if (bonus1_in_bonus2 > 0)
+				this->b1_in_b2_timer = 30;
+		}
+	}
 }
 
 void cCharacter::beenHit()
@@ -372,7 +418,16 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 			if (!this->fire)
 			{
 				this->fire = true;
-				this->shot(physics_world, world_type, bullet);
+				if (this->bonus[0] > 0)
+				{
+					this->shot(physics_world, world_type, bullet, this->dir);
+					//Je¿eli gracz u¿ywa bonusu 2 (krêcenie siê), to zaczyna strzelaæ pociskami
+					if (this->isSpecial1())
+					{
+						this->startB1InB2();
+						this->shot_dir = this->dir;
+					}
+				}
 			}
 		}
 		else
@@ -388,9 +443,6 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 
 void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
-	this->immunityCountdown();
-	this->special1Countdown();
-
 	if (!this->isDead())
 	{
 		//Kolizje z Bonusowymi blokami
@@ -647,6 +699,16 @@ void cCharacter::move(sf::RenderWindow &win, sf::Vector2f level_size)
 	}
 }
 
+void cCharacter::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+{
+	this->immunityCountdown();
+	this->special1Countdown();
+	this->b1InB2Countdown(world, world_type, bullet);
+
+	if (this->exp >= this->requiredExpToLevelUp())
+		this->levelUp();
+}
+
 void cCharacter::rebirth()
 {
 	this->dir = DIR_RIGHT;
@@ -684,7 +746,7 @@ void cCharacter::addPower(short power_id)
 {
 	switch (power_id)
 	{
-	case 1: {this->bonus[0] += 5; break;}
+	case 1: {this->bonus[0] += 5 + this->number_of_skill[0]; break;}
 	case 2: {this->bonus[1]++; break;}
 	}
 }
@@ -724,11 +786,25 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 void cCharacter::addStatsForNPC(cNPC &npc)
 {
 	this->score += 50;
+	this->exp += npc.getExperience();
 }
 
 void cCharacter::addStatsForBonusBlock()
 {
 	this->score += 25;
+}
+
+void cCharacter::addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown)
+{
+	this->exp += experience_countdown * 0.075f;
+	while (this->exp > this->requiredExpToLevelUp())
+		this->levelUp();
+}
+
+void cCharacter::addSkill(unsigned short skill_id)
+{
+	this->number_of_skill[skill_id - 1]++;
+	this->skill_points--;
 }
 
 void cCharacter::subtractCash(unsigned int how_many_to_subtract)
@@ -798,8 +874,29 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 		win.draw(text);
 	}
 
+	//Poziom postaci
+	text_str.clear();
+	text_str = "";
+	ss << this->lvl;
+	number = ss.str();
+	ss.str("");
+
+	text_str += number;
+	text.setString(text_str);
+	text.setFillColor(sf::Color(0, 128, 0, 192));
+	text.setCharacterSize(8);
+	text.setPosition(sf::Vector2f(left_top_corner.x + 8, left_top_corner.y + 95 - text.getGlobalBounds().height / 2));
+	win.draw(text);
+
+	//Doœwiadczenie
+	this->exp_bar.setPosition(sf::Vector2f(left_top_corner.x + 26, left_top_corner.y + 94));
+	this->exp_bar.setTextureRect(sf::IntRect(0, 0, this->exp * t_experience_bar.getSize().x / this->requiredExpToLevelUp(), this->exp_bar.getTexture()->getSize().y));
+	win.draw(exp_bar);
+
 	//Bonusy (pod statystykami)
-	//Bonus 1
+	text.setFillColor(sf::Color(255, 255, 255, 192));
+	text.setCharacterSize(20);
+
 	for (short i = 0; i < 2; i++)
 	{
 		this->bonus_sprite[i].setPosition(left_top_corner.x + i * 64, left_top_corner.y + t_stats_window.getSize().y + 4);
@@ -817,6 +914,107 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 		text.setPosition(left_top_corner.x + this->bonus_sprite[i].getTextureRect().width + i * 64, left_top_corner.y + t_stats_window.getSize().y + 6 - text.getGlobalBounds().height / 2);
 		win.draw(text);
 	}
+}
+
+void cCharacter::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed)
+{
+	//Napisy dotycz¹ce postaci gracza
+	//Poziom postaci
+	sf::String text_str;
+	std::string number;
+	std::stringstream ss;
+	ss << this->lvl;
+	number = ss.str();
+	ss.str("");
+
+	text_str = number;
+	sf::Text text(text_str, font[1], 32);
+	text.setFillColor(sf::Color(48, 128, 0));
+	text.setPosition(sf::Vector2f(left_top_corner.x, left_top_corner.y - text.getGlobalBounds().height / 2));
+	win.draw(text);
+
+	//Punkty umiejêtnoœci
+	text_str.clear();
+	ss << this->skill_points;
+	number = ss.str();
+	ss.str("");
+
+	text_str = number;
+	text.setString(text_str);
+	text.setFillColor(sf::Color(255, 215, 0));
+	text.setPosition(sf::Vector2f(left_top_corner.x + 96, left_top_corner.y - text.getGlobalBounds().height / 2));
+	win.draw(text);
+
+	//Obrazki nad umiejêtnoœciami
+	this->bonus_sprite[0].setPosition(sf::Vector2f(left_top_corner.x + 32 + t_characters_skill[0][0].getSize().x / 2 - this->bonus_sprite[0].getTextureRect().width / 2, left_top_corner.y + 100));
+	win.draw(this->bonus_sprite[0]);
+
+	this->bonus_sprite[1].setPosition(sf::Vector2f(left_top_corner.x + 80 + t_characters_skill[0][2].getSize().x / 2 - this->bonus_sprite[1].getTextureRect().width / 2, left_top_corner.y + 100));
+	win.draw(this->bonus_sprite[1]);
+
+	//Umiejêtnoœci
+	text.setCharacterSize(12);
+	
+	for (unsigned short i = 0; i < 4; i++)
+	{
+		sf::Vector2f pos;
+		unsigned short required_level;
+
+		switch (i)
+		{
+		case 0: {pos.x = left_top_corner.x + 32; pos.y = left_top_corner.y + 132; required_level = 1; break;}
+		case 1: {pos.x = left_top_corner.x + 32; pos.y = left_top_corner.y + 180; required_level = 5; break;}
+		case 2: {pos.x = left_top_corner.x + 80; pos.y = left_top_corner.y + 132; required_level = 1; break;}
+		case 3: {pos.x = left_top_corner.x + 80; pos.y = left_top_corner.y + 228; required_level = 10; break;}
+		}
+
+		//Umiejêtnoœæ
+		s_characters_skill[0][i].setPosition(pos);
+		if (selected_skill == i + 1)
+			s_characters_skill[0][i].setColor(sf::Color(255, 255, 255));
+		else if (this->lvl >= required_level)
+			s_characters_skill[0][i].setColor(sf::Color(128, 128, 128));
+		else
+			s_characters_skill[0][i].setColor(sf::Color(16, 16, 16));
+		win.draw(s_characters_skill[0][i]);
+
+		//Napis
+		if (this->lvl >= required_level)
+		{
+			ss << this->number_of_skill[i];
+			number = ss.str();
+			ss.str("");
+
+			text.setString(number);
+			text.setFillColor(sf::Color(255, 215, 0));
+			text.setPosition(sf::Vector2f(pos.x + s_characters_skill[0][i].getTextureRect().width - 4, pos.y + s_characters_skill[0][i].getTextureRect().height - 4));
+			win.draw(text);
+		}
+	}
+
+	//Przycisk wyjœcia z Menu Drzewka Umiejêtnoœci
+	cButton exit_button(sf::Vector2f(left_top_corner.x + 56, left_top_corner.y + 320), "Ready");
+	exit_button.changeGraphics(selected_skill == 0, (close_pressed ? sf::Color(64, 255, 64) : sf::Color(255, 192, 0)));
+	exit_button.draw(win);
+	
+	//Wymagane poziomy
+	text.setFont(font[1]);
+	text.setCharacterSize(20);
+	if (this->lvl >= 5)
+		text.setFillColor(sf::Color(255, 255, 255));
+	else
+		text.setFillColor(sf::Color(32, 32, 32));
+	text.setString("5");
+	text.setPosition(sf::Vector2f(left_top_corner.x, left_top_corner.y + 190 - text.getGlobalBounds().height / 2));
+	win.draw(text);
+
+	text.setString("10");
+	if (this->lvl >= 10)
+		text.setFillColor(sf::Color(255, 255, 255));
+	else
+		text.setFillColor(sf::Color(32, 32, 32));
+	text.setPosition(sf::Vector2f(left_top_corner.x, left_top_corner.y + 238 - text.getGlobalBounds().height / 2));
+	win.draw(text);
 }
 
 void cCharacter::setAllPositions(sf::Vector2f pos)
@@ -878,4 +1076,19 @@ bool cCharacter::isSpecial1()
 unsigned int cCharacter::getCash()
 {
 	return this->cash;
+}
+
+unsigned short cCharacter::getLevel()
+{
+	return this->lvl;
+}
+
+unsigned short cCharacter::getSkillPoints()
+{
+	return this->skill_points;
+}
+
+unsigned int cCharacter::requiredExpToLevelUp()
+{
+	return pow(75.0, 1.0 + (this->lvl - 1) * 0.05);
 }

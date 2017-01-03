@@ -1,6 +1,6 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Vector2f pos, short player_id)
+cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id)
 {
 	this->adjustGraphicsParameters(t_characters_bonus[0][0], pos);
 
@@ -16,6 +16,7 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Ve
 	this->gravity = false;
 	this->last_pos = pos;
 	this->speed = speed;
+	this->piercing = piercing;
 	this->player_id = player_id;
 	
 	//BOX2D
@@ -100,7 +101,9 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, std::
 		{
 			if (this->getGlobalBounds().intersects(bonus_block[i].getGlobalBounds()))
 			{
-				this->destroyed = true;
+				this->piercing--;
+				if (this->piercing == 0)
+					this->destroyed = true;
 
 				if (this->player_id != 0)
 					character[this->player_id - 1].addStatsForBonusBlock();
@@ -118,7 +121,9 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, std::
 		{
 			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
 			{
-				this->destroyed = true;
+				this->piercing--;
+				if (this->piercing == 0)
+					this->destroyed = true;
 
 				if (this->player_id != 0)
 					character[this->player_id - 1].addStatsForNPC(npc[i]);

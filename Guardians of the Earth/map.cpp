@@ -12,7 +12,9 @@ cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10
 void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
 {
 	system("CLS");
+	this->experience_countdown = 180 * g_framerate_limit;
 	this->player_number = number_of_players;
+	this->golden_bb_created = false;
 	
 	if (refresh || next_level)
 		this->destroy(false);
@@ -121,6 +123,12 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 		x_generate += sector.getWidth() * 32;
 		this->width = x_generate;
 	}
+
+	for (unsigned short i = 0; i < 16; i++)
+		ground.push_back(cGround(sf::Vector2f(x_generate + i * 32 + 16, this->height - 16), this->world_type));
+
+	x_generate += 512;
+	this->width = x_generate;
 	time_map = clock() - time_map;
 
 
@@ -216,6 +224,9 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 		to_fluid[pos.y * grid_size.x + pos.x] = true;
 		is_fluid[pos.y * grid_size.x + pos.x] = true;
 
+		//W "Ice land" p³yn jest traktowany jako solidny obiekt
+		if (this->world_type == WORLD_ICE_LAND)
+			is_solid[pos.y * grid_size.x + pos.x] = true;
 		//Dodatkowo je¿eli ostatnim elementem na osi X jest p³yn, to nastêpnym te¿ jest p³yn (naprawa b³êdów dotycz¹cych ostatnich p³ynów w przypadku gdy szerokoœæ poziomu nie jest podzielna przez 32)
 		if (pos.x == grid_size.x - 1)
 			this->fluid_tab[pos.y * grid_size.x + pos.x + 1] = true;
@@ -642,8 +653,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (unsigned short i = 0; i < this->player.size(); i++)
 		{
-			if (this->player[i].isDead())
-				this->player[i].bodyRecreate(this->physics_world, this->world_type);
+			this->player[i].bodyRecreate(this->physics_world, this->world_type);	//Cia³a zawsze musz¹ siê odnowiaæ (powód: m.in. oddzia³ywanie na lód)
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -681,6 +691,9 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	std::cout << "Czas rozstawiania NPC na mapie: " << time_npc << "\n";
 	std::cout << "Czas rozstawiania obiektow w tle na mapie: " << time_background << "\n";
 
+	//Tworzenie zmiennych startowych
+	this->initial_bbs_size = this->bonus_block.size();
+
 	//Usuwanie zbêdnych tablic dynamicznych
 	delete[] is_solid;
 	delete[] is_ground;
@@ -691,6 +704,28 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 {
+	//MENU PAUZY
+	static bool key_pressed = true;
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+		key_pressed = false;
+	else if (!key_pressed)
+	{
+		key_pressed = true;
+		if (!menuPause(win))
+			return false;
+	}
+
+	//LICZNIKI/TIMERY
+	if (this->experience_countdown > 0)
+		this->experience_countdown--;
+
+	//TWORZENIE Z£OTEGO BONUSOWEGO BLOKU
+	if (this->bonus_block.size() == 0 && !this->golden_bb_created)
+	{
+		this->golden_bb_created = true;
+		this->bonus_block.push_back(cBonusBlock(&(this->physics_world), t_gold_bonus_block[0], sf::Vector2f(this->width - 160 - 16, this->height - 128 - 16), 40, 55));
+	}
+
 	//SKARBY
 	for (int i = this->treasure.size() - 1; i >= 0; i--)
 	{
@@ -744,15 +779,26 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
 			this->player[i].specialCollisions(&(this->physics_world), this->world_type, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
+			this->player[i].checkIndicators(&(this->physics_world), this->world_type, this->bullet);
 			this->player[i].move(win, sf::Vector2f(this->width, this->height));
 			
 			//Rozpoczêcie nastêpnego poziomu
 			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
 			{
+				for (unsigned short j = 0; j < this->player.size(); j++)
+					if (!this->player[j].isDead())
+						this->player[j].addStatsForEndOfLevel(this->level_number, this->experience_countdown);
+
 				cShop shop(this->player);
-				shop.shopMenu(win);
+				if (!shop.shopMenu(win) || !menuSkillTree(win, this->player))
+				{
+					win.close();
+					return true;
+				}
 
 				this->levelGenerator(player.size(), false, true);
+				
+				return true;
 			}
 		}
 	}
@@ -869,21 +915,71 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	}
 
 	//Numer poziomu
-	sf::String lvl_no_str(L"Level:");
+	sf::String str(L"Level: ");
 	
-	lvl_no_str += this->level_number;
-	std::string nr;
+	std::string no;
 	std::stringstream ss;
 	ss << this->level_number;
-	nr = ss.str();
+	no = ss.str();
 	ss.str("");
-	lvl_no_str += nr;
+	str += no;
 	
-	sf::Text lvl_no(lvl_no_str, font[0], 48);
-	lvl_no.setOrigin(lvl_no.getGlobalBounds().width / 2, lvl_no.getGlobalBounds().height / 2);
-	lvl_no.setPosition(view.getCenter().x, 48);
+	sf::Text text(str, font[0], 48);
+	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+	text.setPosition(view.getCenter().x, 32);
 
-	win.draw(lvl_no);
+	win.draw(text);
+
+	//Odliczanie doœwiadczenia
+	str = L"Extra experience: ";
+
+	ss << (this->experience_countdown + g_framerate_limit - 1) / g_framerate_limit;
+	no = ss.str();
+	ss.str("");
+	str += no;
+
+	text.setString(str);
+	text.setCharacterSize(20);
+	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+	text.setPosition(view.getCenter().x, 80);
+
+	win.draw(text);
+
+	//Iloœæ zniszczonych / ca³kowita iloœæ bonusowych bloków
+	str = L" ";
+
+	if (!this->golden_bb_created)
+		ss << this->initial_bbs_size - this->bonus_block.size();
+	else
+		ss << this->initial_bbs_size;
+	no = ss.str();
+	ss.str("");
+	str += no;
+
+	str += "/";
+
+	ss << this->initial_bbs_size;
+	no = ss.str();
+	ss.str("");
+	str += no;
+
+	text.setString(str);
+	text.setCharacterSize(20);
+	text.setFillColor(this->golden_bb_created ? sf::Color(255, 215, 0) : sf::Color(255, 255, 255));
+	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+	text.setPosition(view.getCenter().x, 100);
+
+	//Grafika bonusowego bloku
+	sf::Sprite s_bonus_block(t_bonus_block[0]);
+	s_bonus_block.setScale(0.5f, 0.5f);
+	s_bonus_block.setOrigin(s_bonus_block.getGlobalBounds().width, s_bonus_block.getGlobalBounds().height / 2);
+	s_bonus_block.setColor(sf::Color(255, 255, 255, 224));
+	s_bonus_block.setPosition(view.getCenter().x - 32, 100);
+
+	s_bonus_block.setPosition(view.getCenter().x - (s_bonus_block.getGlobalBounds().width + text.getGlobalBounds().width) / 2, 100);
+
+	win.draw(text);
+	win.draw(s_bonus_block);
 }
 
 unsigned int cMap::getWidth()
