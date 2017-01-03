@@ -21,6 +21,7 @@ extern sf::Sprite s_characters_skill[2][4];
 extern sf::Texture t_pet[2];
 
 extern sf::Texture t_stats_window;
+extern sf::Texture t_pause_menu_window;
 extern sf::Texture t_heart;
 extern sf::Texture t_experience_bar;
 extern sf::Texture t_button;

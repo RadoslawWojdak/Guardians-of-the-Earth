@@ -17,6 +17,7 @@ sf::Sprite s_characters_skill[2][4];
 sf::Texture t_pet[2];
 
 sf::Texture t_stats_window;
+sf::Texture t_pause_menu_window;
 sf::Texture t_heart;
 sf::Texture t_experience_bar;
 sf::Texture t_button;
@@ -270,6 +271,8 @@ bool initGraph()
 
 	//INNE
 	if (!t_stats_window.loadFromFile("graphics\\others\\stats_window.png"))
+		return false;
+	if (!t_pause_menu_window.loadFromFile("graphics\\others\\pause_menu_window.png"))
 		return false;
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
 		return false;

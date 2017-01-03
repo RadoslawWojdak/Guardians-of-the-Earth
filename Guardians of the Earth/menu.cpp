@@ -461,3 +461,88 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 		return true;
 	return false;
 }
+
+
+bool menuPause(sf::RenderWindow &win)
+{
+	//Przechwycenie obrazu z rozgrywki (bêdzie robi³o za t³o wokó³ Menu Pauzy)
+	sf::Texture texture_background;
+	texture_background.create(g_width, g_height);
+	texture_background.update(win);
+	sf::Sprite background(texture_background);
+
+	//Ustawienie widoku na punkt od (0; 0) (dziêki temu mo¿na dzia³aæ na pozycjach od punktu (0; 0) przy rysowaniu menu
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
+	//Tworzenie t³a Menu Pauzy
+	sf::Sprite window(t_pause_menu_window);
+	window.setOrigin(sf::Vector2f(window.getTextureRect().width / 2, window.getTextureRect().height / 2));
+	window.setPosition(sf::Vector2f(g_width / 2, g_height / 2));
+
+	//Tworzenie przycisków
+	class cButton button[3];
+	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Back to game");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Options");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Exit game");
+
+	//Pêtla menu
+	bool click = true;
+	bool key_pressed = true;
+	bool end_loop = false;
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (unsigned short i = 0; i < 3; i++)
+		{
+			button[i].changeGraphics(button[i].isMouseOver(win), sf::Color(255, 215, 0));
+			if (button[i].isMouseOver(win) && !click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			{
+				switch (i)
+				{
+				case 0: {end_loop = true; break;}
+				case 1:
+				{
+					if (menuOptions(win))
+						return false;
+					break;
+				}
+				case 2: {return false; break;}
+				}
+				break;
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//Za pomoc¹ przycisku Escape, gracz mo¿e wyjœæ z menu i wróciæ do rozgrywki
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+			key_pressed = false;
+		else if (!key_pressed)
+			end_loop = true;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+
+		win.draw(background);
+		win.draw(window);
+		for (unsigned short i = 0; i < 3; i++)
+			button[i].draw(win);
+
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}

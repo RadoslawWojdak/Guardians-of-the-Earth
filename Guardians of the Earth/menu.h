@@ -15,4 +15,7 @@ bool menuOptions(sf::RenderWindow &win);
 bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter> &player);
 bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player);
 
+//bool - czy gracz wyszed³ z rozgrywki
+bool menuPause(sf::RenderWindow &win);
+
 #endif //!menu_h

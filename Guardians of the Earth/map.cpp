@@ -691,6 +691,18 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 {
+	//MENU PAUZY
+	static bool key_pressed = true;
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+		key_pressed = false;
+	else if (!key_pressed)
+	{
+		key_pressed = true;
+		if (!menuPause(win))
+			return false;
+	}
+
+	//LICZNIKI/TIMERY
 	if (this->experience_countdown > 0)
 		this->experience_countdown--;
 
@@ -758,9 +770,11 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 						this->player[j].addStatsForEndOfLevel(this->level_number, this->experience_countdown);
 
 				cShop shop(this->player);
-				shop.shopMenu(win);
-
-				menuSkillTree(win, this->player);
+				if (!shop.shopMenu(win) || !menuSkillTree(win, this->player))
+				{
+					win.close();
+					return true;
+				}
 
 				this->levelGenerator(player.size(), false, true);
 				
@@ -899,7 +913,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	//Odliczanie doœwiadczenia
 	str = L"Extra experience: ";
 
-	ss << this->experience_countdown / g_framerate_limit + 1;
+	ss << (this->experience_countdown + g_framerate_limit - 1) / g_framerate_limit;
 	no = ss.str();
 	ss.str("");
 	str += no;
