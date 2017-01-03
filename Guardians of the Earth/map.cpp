@@ -14,6 +14,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	system("CLS");
 	this->experience_countdown = 180 * g_framerate_limit;
 	this->player_number = number_of_players;
+	this->golden_bb_created = false;
 	
 	if (refresh || next_level)
 		this->destroy(false);
@@ -122,6 +123,12 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 		x_generate += sector.getWidth() * 32;
 		this->width = x_generate;
 	}
+
+	for (unsigned short i = 0; i < 16; i++)
+		ground.push_back(cGround(sf::Vector2f(x_generate + i * 32 + 16, this->height - 16), this->world_type));
+
+	x_generate += 512;
+	this->width = x_generate;
 	time_map = clock() - time_map;
 
 
@@ -681,6 +688,9 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	std::cout << "Czas rozstawiania NPC na mapie: " << time_npc << "\n";
 	std::cout << "Czas rozstawiania obiektow w tle na mapie: " << time_background << "\n";
 
+	//Tworzenie zmiennych startowych
+	this->initial_bbs_size = this->bonus_block.size();
+
 	//Usuwanie zbêdnych tablic dynamicznych
 	delete[] is_solid;
 	delete[] is_ground;
@@ -705,6 +715,13 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 	//LICZNIKI/TIMERY
 	if (this->experience_countdown > 0)
 		this->experience_countdown--;
+
+	//TWORZENIE Z£OTEGO BONUSOWEGO BLOKU
+	if (this->bonus_block.size() == 0 && !this->golden_bb_created)
+	{
+		this->golden_bb_created = true;
+		this->bonus_block.push_back(cBonusBlock(&(this->physics_world), t_gold_bonus_block[0], sf::Vector2f(this->width - 160 - 16, this->height - 128 - 16), 40, 55));
+	}
 
 	//SKARBY
 	for (int i = this->treasure.size() - 1; i >= 0; i--)
@@ -906,7 +923,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	
 	sf::Text text(str, font[0], 48);
 	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
-	text.setPosition(view.getCenter().x, 48);
+	text.setPosition(view.getCenter().x, 32);
 
 	win.draw(text);
 
@@ -921,10 +938,45 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	text.setString(str);
 	text.setCharacterSize(20);
 	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
-	text.setPosition(view.getCenter().x, 96);
+	text.setPosition(view.getCenter().x, 80);
 
 	win.draw(text);
 
+	//Iloœæ zniszczonych / ca³kowita iloœæ bonusowych bloków
+	str = L" ";
+
+	if (!this->golden_bb_created)
+		ss << this->initial_bbs_size - this->bonus_block.size();
+	else
+		ss << this->initial_bbs_size;
+	no = ss.str();
+	ss.str("");
+	str += no;
+
+	str += "/";
+
+	ss << this->initial_bbs_size;
+	no = ss.str();
+	ss.str("");
+	str += no;
+
+	text.setString(str);
+	text.setCharacterSize(20);
+	text.setFillColor(this->golden_bb_created ? sf::Color(255, 215, 0) : sf::Color(255, 255, 255));
+	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+	text.setPosition(view.getCenter().x, 100);
+
+	//Grafika bonusowego bloku
+	sf::Sprite s_bonus_block(t_bonus_block[0]);
+	s_bonus_block.setScale(0.5f, 0.5f);
+	s_bonus_block.setOrigin(s_bonus_block.getGlobalBounds().width, s_bonus_block.getGlobalBounds().height / 2);
+	s_bonus_block.setColor(sf::Color(255, 255, 255, 224));
+	s_bonus_block.setPosition(view.getCenter().x - 32, 100);
+
+	s_bonus_block.setPosition(view.getCenter().x - (s_bonus_block.getGlobalBounds().width + text.getGlobalBounds().width) / 2, 100);
+
+	win.draw(text);
+	win.draw(s_bonus_block);
 }
 
 unsigned int cMap::getWidth()

@@ -2,6 +2,7 @@
 
 sf::Texture t_block[2];
 sf::Texture t_bonus_block[2];
+sf::Texture t_gold_bonus_block[2];
 sf::Texture t_ground[5][47];
 sf::Texture t_treasure[8];
 sf::Texture t_power_up[2];
@@ -50,6 +51,18 @@ bool initGraph()
 
 		std::string path = "graphics\\blocks\\bonus_block-" + nr + ".png";
 		if (!t_bonus_block[i].loadFromFile(path))
+			return false;
+	}
+	for (unsigned int i = 0; i < 1; i++)
+	{
+		std::string nr;
+		std::stringstream ss;
+		ss << i + 1;
+		nr = ss.str();
+		ss.clear();
+
+		std::string path = "graphics\\blocks\\gold_bonus_block-" + nr + ".png";
+		if (!t_gold_bonus_block[i].loadFromFile(path))
 			return false;
 	}
 

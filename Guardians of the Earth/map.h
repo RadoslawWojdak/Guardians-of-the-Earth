@@ -21,6 +21,11 @@
 #include "shop.h"
 #include "menu.h"
 
+/*
+Skróty (skrót + s = liczba mnoga):
+bb - bonusowy blok
+*/
+
 class cMap
 {
 	eWorld world_type;
@@ -54,6 +59,8 @@ class cMap
 	//!Zapasowe obiekty mapy
 
 	unsigned short experience_countdown;	//Czas na przejœcie poziomu (w zale¿noœci ile go zostanie, tyle doœwiadczenia dostan¹ postacie graczy) - w klatkach (póŸniej podzielony na sekundy)
+	unsigned int initial_bbs_size;
+	bool golden_bb_created;
 
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 
