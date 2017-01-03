@@ -794,6 +794,13 @@ void cCharacter::addStatsForBonusBlock()
 	this->score += 25;
 }
 
+void cCharacter::addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown)
+{
+	this->exp += experience_countdown * 0.075f;
+	while (this->exp > this->requiredExpToLevelUp())
+		this->levelUp();
+}
+
 void cCharacter::addSkill(unsigned short skill_id)
 {
 	this->number_of_skill[skill_id - 1]++;

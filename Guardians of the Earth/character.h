@@ -124,6 +124,7 @@ public:
 	void addStatsForTreasure(cTreasure &treasure);
 	void addStatsForNPC(cNPC &npc);
 	void addStatsForBonusBlock();
+	void addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown);
 	void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);

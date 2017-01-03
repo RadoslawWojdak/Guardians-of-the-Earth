@@ -53,6 +53,8 @@ class cMap
 	std::vector <cSector> reserve_sector;
 	//!Zapasowe obiekty mapy
 
+	unsigned short experience_countdown;	//Czas na przejœcie poziomu (w zale¿noœci ile go zostanie, tyle doœwiadczenia dostan¹ postacie graczy) - w klatkach (póŸniej podzielony na sekundy)
+
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 
 public:

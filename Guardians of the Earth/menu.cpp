@@ -447,7 +447,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 			start.x = g_width / 2 - (float)(player.size() / 2) * (t_stats_window.getSize().x + 32) - 32;
 			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y) / 2 + 32;
 
-			player[i].drawSkillTree(win, start, option[i], close_menu[i]);
+			player[i].drawSkillTree(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y), option[i], close_menu[i]);
 		}
 
 		win.display();

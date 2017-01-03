@@ -12,6 +12,7 @@ cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10
 void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
 {
 	system("CLS");
+	this->experience_countdown = 180 * g_framerate_limit;
 	this->player_number = number_of_players;
 	
 	if (refresh || next_level)
@@ -690,6 +691,9 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 {
+	if (this->experience_countdown > 0)
+		this->experience_countdown--;
+
 	//SKARBY
 	for (int i = this->treasure.size() - 1; i >= 0; i--)
 	{
@@ -749,12 +753,18 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 			//Rozpoczêcie nastêpnego poziomu
 			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
 			{
+				for (unsigned short j = 0; j < this->player.size(); j++)
+					if (!this->player[j].isDead())
+						this->player[j].addStatsForEndOfLevel(this->level_number, this->experience_countdown);
+
 				cShop shop(this->player);
 				shop.shopMenu(win);
 
 				menuSkillTree(win, this->player);
 
 				this->levelGenerator(player.size(), false, true);
+				
+				return true;
 			}
 		}
 	}
@@ -871,21 +881,36 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	}
 
 	//Numer poziomu
-	sf::String lvl_no_str(L"Level:");
+	sf::String str(L"Level: ");
 	
-	lvl_no_str += this->level_number;
-	std::string nr;
+	std::string no;
 	std::stringstream ss;
 	ss << this->level_number;
-	nr = ss.str();
+	no = ss.str();
 	ss.str("");
-	lvl_no_str += nr;
+	str += no;
 	
-	sf::Text lvl_no(lvl_no_str, font[0], 48);
-	lvl_no.setOrigin(lvl_no.getGlobalBounds().width / 2, lvl_no.getGlobalBounds().height / 2);
-	lvl_no.setPosition(view.getCenter().x, 48);
+	sf::Text text(str, font[0], 48);
+	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+	text.setPosition(view.getCenter().x, 48);
 
-	win.draw(lvl_no);
+	win.draw(text);
+
+	//Odliczanie doœwiadczenia
+	str = L"Extra experience: ";
+
+	ss << this->experience_countdown / g_framerate_limit + 1;
+	no = ss.str();
+	ss.str("");
+	str += no;
+
+	text.setString(str);
+	text.setCharacterSize(20);
+	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+	text.setPosition(view.getCenter().x, 96);
+
+	win.draw(text);
+
 }
 
 unsigned int cMap::getWidth()
