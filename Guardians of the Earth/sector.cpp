@@ -287,6 +287,9 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 				else
 					object[0][i] = OBJECT_NONE;
 			}
+			//W œwiecie "Ice Land" woda jest traktowana jak blok
+			else if (object[0][i] == OBJECT_FLUID && world_type == WORLD_ICE_LAND)
+				object[0][i] = OBJECT_GROUND;
 		}
 		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ), lub gruntem (w przypadku œwiata podziemnego)
 		else
@@ -310,10 +313,13 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 			if (object[1][i] == OBJECT_BONUS_BLOCK || object[1][i] == OBJECT_TREASURE || object[1][i] == OBJECT_TRAMPOLINE || object[1][i] == OBJECT_POWER_UP)
 			{
 				if (world_type == WORLD_UNDERWATER)
-					object[0][i] = OBJECT_FLUID;
+					object[1][i] = OBJECT_FLUID;
 				else
-					object[0][i] = OBJECT_NONE;
+					object[1][i] = OBJECT_NONE;
 			}
+			//W œwiecie "Ice Land" woda jest traktowana jak blok
+			else if (object[1][i] == OBJECT_FLUID && world_type == WORLD_ICE_LAND)
+				object[1][i] = OBJECT_GROUND;
 		}
 		//Je¿eli sektor ju¿ siê skoñczy³, to wype³nia resztê tablicy zerami (pust przestrzeñ) lub gruntem (w przypadku œwiata podziemnego)
 		else if (world_type == WORLD_UNDERGROUND)

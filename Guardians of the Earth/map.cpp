@@ -224,6 +224,9 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 		to_fluid[pos.y * grid_size.x + pos.x] = true;
 		is_fluid[pos.y * grid_size.x + pos.x] = true;
 
+		//W "Ice land" p³yn jest traktowany jako solidny obiekt
+		if (this->world_type == WORLD_ICE_LAND)
+			is_solid[pos.y * grid_size.x + pos.x] = true;
 		//Dodatkowo je¿eli ostatnim elementem na osi X jest p³yn, to nastêpnym te¿ jest p³yn (naprawa b³êdów dotycz¹cych ostatnich p³ynów w przypadku gdy szerokoœæ poziomu nie jest podzielna przez 32)
 		if (pos.x == grid_size.x - 1)
 			this->fluid_tab[pos.y * grid_size.x + pos.x + 1] = true;

@@ -46,7 +46,7 @@ int main()
 		win.clear();
 		win.display();
 
-		cMap map(WORLD_OVERWORLD, number_of_players);
+		cMap map(WORLD_ICE_LAND, number_of_players);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
