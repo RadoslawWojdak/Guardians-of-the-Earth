@@ -741,7 +741,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 	for (int i = this->bullet.size() - 1; i >= 0; i--)
 	{
 		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
-		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, this->player, this->npc, this->treasure, this->bonus_block);
+		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
 		
 		if (this->bullet[i].isDestroyed())
 		{
@@ -778,7 +778,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 			are_all_players_dead = false;
 			
 			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
-			this->player[i].specialCollisions(&(this->physics_world), this->world_type, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
 			this->player[i].checkIndicators(&(this->physics_world), this->world_type, this->bullet);
 			this->player[i].move(win, sf::Vector2f(this->width, this->height));

@@ -28,10 +28,18 @@ cBonusBlock::cBonusBlock(b2World *physics_world, sf::Texture &texture, sf::Vecto
 	this->body->CreateFixture(&fd);
 }
 
-void cBonusBlock::dropTreasures(b2World *physics_world, eWorld world_type, std::vector <cTreasure> &treasure, sf::Vector2f hit_force)
+void cBonusBlock::dropTreasures(b2World *physics_world, eWorld world_type, std::vector <cTreasure> &treasure, sf::Vector2f hit_force, bool *modulators)
 {
 	srand(time(NULL));
 
-	for (int i = 0; i <= rand () % (this->max_treasures - this->min_treasures) + this->min_treasures; i++)
+	for (int i = 0; i <= rand() % (this->max_treasures - this->min_treasures) + this->min_treasures; i++)
+	{
+		if (modulators[4])
+		{
+			hit_force.x = (float)(rand() % 200 - 100) / 10;
+			hit_force.y = (float)(rand() % 200 - 100) / 10;
+		}
+
 		treasure.push_back(cTreasure(physics_world, world_type, sf::Vector2f(this->getPosition().x + rand() % 24 - (this->getOrigin().x - 4), this->getPosition().y + rand() % 24 - (this->getOrigin().y - 4)), true, hit_force.x, hit_force.y));
+	}
 }

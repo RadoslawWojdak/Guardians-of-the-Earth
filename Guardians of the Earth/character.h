@@ -112,7 +112,7 @@ public:
 	void beenHit();
 	void kill();
 	void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
-	void specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
 	void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia

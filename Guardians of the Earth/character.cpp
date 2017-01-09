@@ -457,7 +457,7 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 	}
 }
 
-void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
@@ -469,7 +469,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y || this->isSpecial1())
 				{
 					this->addStatsForBonusBlock();
-					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f));
+					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f), modulators);
 					bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
 					bonus_block.erase(bonus_block.begin() + i);
 				}
@@ -488,8 +488,8 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 					npc[i].hurt();
 					if (npc[i].isDead())
 					{
-						npc.erase(npc.begin() + i);
 						this->addStatsForNPC(npc[i]);
+						npc.erase(npc.begin() + i);
 					}
 
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
@@ -514,8 +514,8 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 						npc[i].hurt();
 						if (npc[i].isDead())
 						{
-							npc.erase(npc.begin() + i);
 							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
 						}
 					}
 				}

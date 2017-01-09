@@ -111,7 +111,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(128, 255, 128), modulators_tab[1]);
 	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(128, 255, 128), modulators_tab[2]);
 	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 128, 128), modulators_tab[3]);
-	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.4)", sf::Color(255, 128, 128), modulators_tab[4]);
+	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 128, 128), modulators_tab[4]);
 	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 128, 128), modulators_tab[5]);
 	
 	sf::Event ev;
