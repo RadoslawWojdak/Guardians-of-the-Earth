@@ -119,6 +119,7 @@
     <ClCompile Include="button.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="characterAnimation.cpp" />
+    <ClCompile Include="checkbox.cpp" />
     <ClCompile Include="dialogs.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="ladder.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="button.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="characterAnimation.h" />
+    <ClInclude Include="checkbox.h" />
     <ClInclude Include="dialogs.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="fonts.h" />

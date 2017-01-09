@@ -23,6 +23,7 @@ sf::Texture t_dialog_window;
 sf::Texture t_heart;
 sf::Texture t_experience_bar;
 sf::Texture t_button;
+sf::Texture t_checkbox;
 sf::Texture t_profile_button;
 sf::Texture t_button_rebirth;
 sf::Texture t_button_extra_life;
@@ -297,6 +298,8 @@ bool initGraph()
 	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
 		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
+		return false;
+	if (!t_checkbox.loadFromFile("graphics\\others\\checkbox.png"))
 		return false;
 	if (!t_profile_button.loadFromFile("graphics\\others\\profile_button.png"))
 		return false;

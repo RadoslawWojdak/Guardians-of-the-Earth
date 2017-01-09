@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -50,7 +50,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players)
 		{
 		case 0:	//Nowa gra
 		{
-			if (menuChooseNumberOfPlayers(win, players))
+			if (menuChooseNumberOfPlayers(win, players, modulators_tab))
 				end_loop = true;
 			else
 				option = -1;
@@ -91,7 +91,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players)
 	return false;
 }
 
-bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
+bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -105,7 +105,14 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "4");
 	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Back");
 
-
+	cCheckbox mod_checkbox[6];	//Checkbox'y - dla modulator
+	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), "Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 128, 255));
+	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), "Extra jump (score multipler: -0.2)", sf::Color(128, 255, 128));
+	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), "Discount for a random item in the store (score multipler: -0.3)", sf::Color(128, 255, 128));
+	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), "HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 128, 128));
+	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), "Treasures from the crates drop in random direction with random speeds (score multipler: +0.4)", sf::Color(255, 128, 128));
+	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), "Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 128, 128));
+	
 	sf::Event ev;
 	do
 	{
@@ -117,6 +124,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 		}
 
 		//DZIA£ANIA NA MENU
+		//Dzia³ania na przyciskach
 		for (int i = 0; i < 5; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
@@ -137,6 +145,19 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 			}
 		}
 
+		//Dzia³ania na checkbox'ach
+		for (int i = 0; i < 6; i++)
+		{
+			if (mod_checkbox[i].isMouseOver(win))
+			{
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+				{
+					mod_checkbox[i].clicked();
+					break;
+				}
+			}
+		}
+
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			click = true;
 		else
@@ -146,8 +167,13 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players)
 		win.clear();
 		for (int i = 0; i < 5; i++)
 			button[i].draw(win);
+		for (int i = 0; i < 6; i++)
+			mod_checkbox[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
+
+	for (int i = 0; i < 6; i++)
+		modulators_tab[i] = mod_checkbox[i].isChecked();
 
 	if (win.isOpen())
 		return true;

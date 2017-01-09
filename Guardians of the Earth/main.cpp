@@ -44,13 +44,16 @@ int main()
 		profile.newProfile("default");
 	}
 
+	bool modulators[6];
+	
 	sf::View p1;
 	sf::Event ev;
 	while (win.isOpen())
 	{
 		short number_of_players;
-		if (!mainMenu(win, profile, number_of_players))
+		if (!mainMenu(win, profile, number_of_players, modulators))
 			return 0;
+
 		win.clear();
 		win.display();
 
