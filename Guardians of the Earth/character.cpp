@@ -787,8 +787,8 @@ void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
 {
 	switch (power_up.getPower())
 	{
-	case 1: {this->addPower(1); this->score += 100; break;}	//+10 pocisków
-	case 2: {this->addPower(2); this->score += 100; break;}	//+1 special1
+	case 1: {this->addPower(1); this->score += 100 * g_score_multipler; break;}	//+10 pocisków
+	case 2: {this->addPower(2); this->score += 100 * g_score_multipler; break;}	//+1 special1
 	}
 }
 
@@ -808,7 +808,7 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 	}
 	default:
 	{
-		this->score += 10;
+		this->score += 10 * g_score_multipler;
 		this->cash += treasure.getValue();
 		break;
 	}
@@ -817,13 +817,13 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 
 void cCharacter::addStatsForNPC(cNPC &npc)
 {
-	this->score += 50;
+	this->score += 50 * g_score_multipler;
 	this->exp += npc.getExperience();
 }
 
 void cCharacter::addStatsForBonusBlock()
 {
-	this->score += 25;
+	this->score += 25 * g_score_multipler;
 }
 
 void cCharacter::addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown)

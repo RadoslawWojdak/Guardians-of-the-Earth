@@ -5,6 +5,7 @@ extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
 extern bool g_fullscreen;	//Czy jest w³¹czony tryb pe³noekranowy
 extern int g_framerate_limit;	//Czêstotliwoœæ odœwie¿ania
 extern float g_g;	//Si³a grawitacji
+extern float g_score_multipler;
 //Struktura zawieraj¹ca mno¿nik prêdkoœci obiektów, które siê w niej znajduj¹
 struct sFluidSpeedMultipler
 {

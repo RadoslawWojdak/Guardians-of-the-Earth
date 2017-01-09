@@ -5,4 +5,5 @@ unsigned int g_width = 800, g_height = 600;
 bool g_fullscreen = false;
 int g_framerate_limit = 60;
 float g_g = 0.5;
+float g_score_multipler = 1.0f;
 sFluidSpeedMultipler g_fluid_speed_multipler;

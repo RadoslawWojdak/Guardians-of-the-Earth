@@ -174,8 +174,20 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
+	g_score_multipler = 1.0f;
 	for (int i = 0; i < 6; i++)
+	{
 		modulators_tab[i] = mod_checkbox[i].isChecked();
+		
+		switch (i)
+		{
+		case 1: {g_score_multipler -= modulators_tab[i] * 0.2f; break;}
+		case 2: {g_score_multipler -= modulators_tab[i] * 0.3f; break;}
+		case 3: {g_score_multipler += modulators_tab[i] * 0.5f; break;}
+		case 4: {g_score_multipler += modulators_tab[i] * 0.3f; break;}
+		case 5: {g_score_multipler += modulators_tab[i] * 0.2f; break;}
+		}
+	}
 
 	if (win.isOpen() && !back_pressed)
 		return true;
