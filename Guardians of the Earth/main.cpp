@@ -8,6 +8,7 @@
 #include "fonts.h"
 #include "menu.h"
 #include "dialogs.h"
+#include "profile.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -36,12 +37,19 @@ int main()
 		return 2;
 	}
 
+	cProfile profile;
+	if (!profile.loadProfile("default"))
+	{
+		system("CLS");
+		profile.newProfile("default");
+	}
+
 	sf::View p1;
 	sf::Event ev;
 	while (win.isOpen())
 	{
 		short number_of_players;
-		if (!mainMenu(win, number_of_players))
+		if (!mainMenu(win, profile, number_of_players))
 			return 0;
 		win.clear();
 		win.display();

@@ -6,11 +6,13 @@
 #include "button.h"
 #include "global_variables.h"
 #include "character.h"
+#include "profile.h"
 
 //bool - czy gracz wybra³ opcjê dalej (w przeciwnym razie menu cofa siê o 1 poziom (z opcji do menu g³ównego; z menu g³ównego wychodzi z gry; ...)
-bool mainMenu(sf::RenderWindow &win, short &players);
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players);
 bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players);
 bool menuOptions(sf::RenderWindow &win);
+bool menuProfiles(sf::RenderWindow &win, cProfile &profile);
 
 bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter> &player);
 bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player);

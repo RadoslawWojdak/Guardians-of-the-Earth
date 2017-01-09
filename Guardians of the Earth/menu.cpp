@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, short &players)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -8,12 +8,14 @@ bool mainMenu(sf::RenderWindow &win, short &players)
 	bool end_loop = false;
 	short option = -1;
 
-	class cButton button[4];
+	cButton button[4];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 72), "New game");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Load game");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Options");
 	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 72), "Quit");
 
+	cButton profile_button;
+	profile_button = cButton(sf::Vector2f(g_width - profile_button.getTextureRect().width - 32, 32), "", t_profile_button);
 	
 	sf::Event ev;
 	do
@@ -36,6 +38,8 @@ bool mainMenu(sf::RenderWindow &win, short &players)
 				break;
 			}
 		}
+		if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && profile_button.isMouseOver(win))
+			option = 4;
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			click = true;
@@ -66,12 +70,19 @@ bool mainMenu(sf::RenderWindow &win, short &players)
 		{
 			return false;
 		}
+		case 4:
+		{
+			menuProfiles(win, profile);
+			option = -1;
+			break;
+		}
 		}
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
 		for (int i = 0; i < 4; i++)
 			button[i].draw(win);
+		profile_button.draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
@@ -206,6 +217,80 @@ bool menuOptions(sf::RenderWindow &win)
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
 		for (int i = 0; i < 2; i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
+
+bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
+	bool click = true;
+	bool end_loop = false;
+
+	class cButton button[3];
+	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "New Profile");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Load Profile");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Back");
+
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 0; i < 3; i++)
+		{
+			bool is_mouse_over = button[i].isMouseOver(win);
+			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				switch (i)
+				{
+				case 0:
+				{
+					std::string name;
+					std::cout << "Write your new profile name: ";
+					std::cin >> name;
+					profile.newProfile(name);
+					break;
+				}
+				case 1:
+				{
+					std::string name;
+					std::cout << "Write your profile name: ";
+					std::cin >> name;
+					profile.loadProfile(name);
+					break;
+				}
+				case 2:
+				{
+					return false;
+				}
+				}
+				break;
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		for (int i = 0; i < 3; i++)
 			button[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
