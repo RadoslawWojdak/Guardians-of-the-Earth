@@ -5,10 +5,11 @@ cItemShop::cItemShop()
 	;
 }
 
-cItemShop::cItemShop(sf::Vector2f center_pos, unsigned int value, sf::Texture &texture)
+cItemShop::cItemShop(sf::Vector2f center_pos, unsigned int value, sf::Texture &texture, bool discount)
 	:cButton(center_pos, "", texture)
 {
-	this->setValue(value);
+	this->discount = discount;
+	this->setValue(value * (discount ? 0.75f : 1.0f));
 }
 
 void cItemShop::setValue(unsigned int value)
@@ -31,6 +32,11 @@ unsigned int cItemShop::getValue()
 	return this->value;
 }
 
+bool cItemShop::isDiscount()
+{
+	return this->discount;
+}
+
 void cItemShop::setPosition(sf::Vector2f &position)
 {
 	this->sf::Sprite::setPosition(position);
@@ -44,16 +50,20 @@ void cItemShop::setPosition(float x, float y)
 }
 
 
-cShop::cShop(std::vector <cCharacter> &player)
+cShop::cShop(std::vector <cCharacter> &player, bool *modulators)
 {
 	for (unsigned int i = 0; i < player.size(); i++)
 		this->player.push_back(&player[i]);
 
-	this->bonus[0] = cItemShop(sf::Vector2f(g_width / 2 - 48, g_height / 2 - 48), rand() % 76 + 250, t_power_up[0]);
-	this->bonus[1] = cItemShop(sf::Vector2f(g_width / 2, g_height / 2 - 48), rand() % 86 + 350, t_power_up[1]);
-	this->rebirth = cItemShop(sf::Vector2f(g_width / 2 - 48, g_height / 2), rand() % 251 + 1000, t_button_rebirth);
-	this->extra_life = cItemShop(sf::Vector2f(g_width / 2, g_height / 2), rand() % 101 + 500, t_button_extra_life);
-	this->pet_hp = cItemShop(sf::Vector2f(g_width / 2 + 48, g_height / 2), rand() % 51 + 150, t_button_extra_hp);
+	short discount = -1;
+	if (modulators[2])
+		discount = rand() % 5 + 1;
+
+	this->bonus[0] = cItemShop(sf::Vector2f(g_width / 2 - 48, g_height / 2 - 48), rand() % 76 + 250, t_power_up[0], (discount == 1 ? true : false));
+	this->bonus[1] = cItemShop(sf::Vector2f(g_width / 2, g_height / 2 - 48), rand() % 86 + 350, t_power_up[1], (discount == 2 ? true : false));
+	this->rebirth = cItemShop(sf::Vector2f(g_width / 2 - 48, g_height / 2), rand() % 251 + 1000, t_button_rebirth, (discount == 3 ? true : false));
+	this->extra_life = cItemShop(sf::Vector2f(g_width / 2, g_height / 2), rand() % 101 + 500, t_button_extra_life, (discount == 4 ? true : false));
+	this->pet_hp = cItemShop(sf::Vector2f(g_width / 2 + 48, g_height / 2), rand() % 51 + 150, t_button_extra_hp, (discount == 5 ? true : false));
 	this->exit_button = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Ready");
 }
 
@@ -71,6 +81,9 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 		key_pressed[i] = true;
 		option[i] = 0;
 	}
+
+	sf::Sprite discount_sprite(t_discount_sign);
+	discount_sprite.setOrigin(discount_sprite.getTextureRect().width / 2, discount_sprite.getTextureRect().height / 2);
 
 	sf::Event ev;
 	do
@@ -263,19 +276,39 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 				this->bonus[j].setPosition(start.x + 32 + j * (t_power_up[0].getSize().x + 8) + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + 56);
 				this->bonus[j].changeGraphics(option[i] == j, sf::Color(255, 192, 0));
 				this->bonus[j].draw(win);
+				if (this->bonus[j].isDiscount())
+				{
+					discount_sprite.setPosition(this->bonus[j].getPosition().x - bonus[j].getTextureRect().width / 2 + 2, this->bonus[j].getPosition().y + bonus[j].getTextureRect().height / 2 - 2);
+					win.draw(discount_sprite);
+				}
 			}
 
 			this->rebirth.setPosition(start.x + 32 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y + 64);
 			this->rebirth.changeGraphics(option[i] == 3, sf::Color(255, 192, 0));
 			this->rebirth.draw(win);
+			if (this->rebirth.isDiscount())
+			{
+				discount_sprite.setPosition(this->rebirth.getPosition().x - rebirth.getTextureRect().width / 2 + 2, this->rebirth.getPosition().y + rebirth.getTextureRect().height / 2 - 2);
+				win.draw(discount_sprite);
+			}
 
 			this->extra_life.setPosition(start.x + 72 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y + 64);
 			this->extra_life.changeGraphics(option[i] == 4, sf::Color(255, 192, 0));
 			this->extra_life.draw(win);
+			if (this->extra_life.isDiscount())
+			{
+				discount_sprite.setPosition(this->extra_life.getPosition().x - extra_life.getTextureRect().width / 2 + 2, this->extra_life.getPosition().y + extra_life.getTextureRect().height / 2 - 2);
+				win.draw(discount_sprite);
+			}
 
 			this->pet_hp.setPosition(start.x + 112 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y + 64);
 			this->pet_hp.changeGraphics(option[i] == 5, sf::Color(255, 192, 0));
 			this->pet_hp.draw(win);
+			if (this->pet_hp.isDiscount())
+			{
+				discount_sprite.setPosition(this->pet_hp.getPosition().x - pet_hp.getTextureRect().width / 2 + 2, this->pet_hp.getPosition().y + pet_hp.getTextureRect().height / 2 - 2);
+				win.draw(discount_sprite);
+			}
 
 			this->exit_button.setPosition(start.x + 8 + t_button.getSize().x / 2 + i * (t_stats_window.getSize().y + 48), start.y + t_stats_window.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_button_extra_hp.getSize().y + t_power_up[0].getSize().y + 72);
 			this->exit_button.changeGraphics(option[i] == 6, (close_shop[i] ? sf::Color(64, 255, 64) : sf::Color(255, 192, 0)));

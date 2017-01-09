@@ -26,6 +26,7 @@ extern sf::Texture t_pause_menu_window;
 extern sf::Texture t_dialog_window;
 extern sf::Texture t_heart;
 extern sf::Texture t_experience_bar;
+extern sf::Texture t_discount_sign;
 extern sf::Texture t_button;
 extern sf::Texture t_checkbox;
 extern sf::Texture t_profile_button;

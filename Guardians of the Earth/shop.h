@@ -11,14 +11,16 @@
 
 class cItemShop :public cButton
 {
+	bool discount;
 	unsigned int value;
 
 public:
 	cItemShop();
-	cItemShop(sf::Vector2f center_pos, unsigned int value, sf::Texture &texture);
+	cItemShop(sf::Vector2f center_pos, unsigned int value, sf::Texture &texture, bool discount = false);
 
 	void setValue(unsigned int value);
 	unsigned int getValue();
+	bool isDiscount();
 	void setPosition(sf::Vector2f &position);
 	void setPosition(float x, float y);
 };
@@ -35,7 +37,7 @@ class cShop
 	cButton exit_button;
 	
 public:
-	cShop(std::vector <cCharacter> &player);
+	cShop(std::vector <cCharacter> &player, bool *modulators);
 
 	bool shopMenu(sf::RenderWindow &win);	//Zwraca wartoœæ FALSE, gdy okno programu zosta³o zamkniête
 };

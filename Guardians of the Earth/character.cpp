@@ -416,9 +416,9 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		{
 			if (!stop_jump)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
-			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y > 0 && this->possible_extra_jumps > 0) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
+			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
 			{
-				if (this->body->GetLinearVelocity().y > 0 && this->possible_extra_jumps > 0)	//Dodatkowe skoki s¹ ni¿sze ni¿ g³ówne
+				if (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0)	//Dodatkowe skoki s¹ ni¿sze ni¿ g³ówne
 					this->jump(-4.0f);
 				else
 					this->jump(-5.0f);
@@ -565,6 +565,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				else
 					this->jump(-4.0f);
 
+				this->possible_extra_jumps = this->extra_jump;
 				break;	//Nawet gdyby by³o wiêcej trampolin to nie robi³oby to ró¿nicy
 			}
 		}
@@ -606,6 +607,8 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				
 				if (this->is_on_ladder)
 				{
+					this->possible_extra_jumps = this->extra_jump;
+
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
 
 					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
@@ -678,6 +681,9 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 				break;
 			}
 			}
+
+			if (world_type != WORLD_ICE_LAND)
+				this->possible_extra_jumps = this->extra_jump;
 		}
 		else
 		{

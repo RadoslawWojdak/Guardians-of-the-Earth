@@ -790,7 +790,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 					if (!this->player[j].isDead())
 						this->player[j].addStatsForEndOfLevel(this->level_number, this->experience_countdown);
 
-				cShop shop(this->player);
+				cShop shop(this->player, modulators);
 				if (!shop.shopMenu(win) || !menuSkillTree(win, this->player))
 				{
 					win.close();

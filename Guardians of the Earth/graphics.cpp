@@ -22,6 +22,7 @@ sf::Texture t_pause_menu_window;
 sf::Texture t_dialog_window;
 sf::Texture t_heart;
 sf::Texture t_experience_bar;
+sf::Texture t_discount_sign;
 sf::Texture t_button;
 sf::Texture t_checkbox;
 sf::Texture t_profile_button;
@@ -296,6 +297,8 @@ bool initGraph()
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
 		return false;
 	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
+		return false;
+	if (!t_discount_sign.loadFromFile("graphics\\others\\discount_sign.png"))
 		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
 		return false;

@@ -97,6 +97,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 
 	bool click = true;
 	bool end_loop = false;
+	bool back_pressed = false;
 
 	class cButton button[5];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 96), "1");
@@ -106,12 +107,12 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Back");
 
 	cCheckbox mod_checkbox[6];	//Checkbox'y - dla modulator
-	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), "Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 128, 255));
-	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), "Extra jump (score multipler: -0.2)", sf::Color(128, 255, 128));
-	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), "Discount for a random item in the store (score multipler: -0.3)", sf::Color(128, 255, 128));
-	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), "HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 128, 128));
-	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), "Treasures from the crates drop in random direction with random speeds (score multipler: +0.4)", sf::Color(255, 128, 128));
-	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), "Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 128, 128));
+	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 128, 255), modulators_tab[0]);
+	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(128, 255, 128), modulators_tab[1]);
+	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(128, 255, 128), modulators_tab[2]);
+	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 128, 128), modulators_tab[3]);
+	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.4)", sf::Color(255, 128, 128), modulators_tab[4]);
+	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 128, 128), modulators_tab[5]);
 	
 	sf::Event ev;
 	do
@@ -139,7 +140,8 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 				else
 				{
 					players = -1;
-					return false;
+					end_loop = true;
+					back_pressed = true;
 				}
 				break;
 			}
@@ -175,7 +177,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	for (int i = 0; i < 6; i++)
 		modulators_tab[i] = mod_checkbox[i].isChecked();
 
-	if (win.isOpen())
+	if (win.isOpen() && !back_pressed)
 		return true;
 	return false;
 }
@@ -410,6 +412,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 					
 					if (sf::Keyboard::isKeyPressed(key.jump.key) || sf::Keyboard::isKeyPressed(key.fire.key))
 					{
+						key_pressed[i] = true;
 						if (player[i].getSkillPoints() > 0)
 						{
 							key_pressed[i] = true;
@@ -492,6 +495,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 
 					if (sf::Joystick::isButtonPressed(key.pad, key.jump.button) || sf::Joystick::isButtonPressed(key.pad, key.fire.button))
 					{
+						key_pressed[i] = true;
 						if (player[i].getSkillPoints() > 0)
 						{
 							key_pressed[i] = true;

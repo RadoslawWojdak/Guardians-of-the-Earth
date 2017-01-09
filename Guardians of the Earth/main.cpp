@@ -44,7 +44,7 @@ int main()
 		profile.newProfile("default");
 	}
 
-	bool modulators[6];
+	bool modulators[6] = {};
 	
 	sf::View p1;
 	sf::Event ev;
