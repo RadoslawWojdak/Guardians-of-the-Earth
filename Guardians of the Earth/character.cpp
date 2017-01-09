@@ -89,7 +89,7 @@ void cCharacter::initControlKeys(short player_no)
 	}
 }
 
-cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no)
+cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacterAnimation(t_character[0], pos)
 {
 	this->animationStanding();
@@ -119,6 +119,9 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->cash = 0;
 
 	this->max_speed_x = 4.5f;
+	this->extra_jump = 0;
+	if (modulators[1])
+		this->extra_jump++;
 	this->last_position = this->getPosition();
 
 	this->initControlKeys(player_no);
@@ -193,7 +196,14 @@ void cCharacter::jump(float force)
 	{
 	case FLUID_WATER: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(g_fluid_speed_multipler.water, 1.5))); break;}
 	case FLUID_QUICKSAND: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(g_fluid_speed_multipler.quicksand, 1.5))); break;}
-	default: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force)); break;}
+	default: 
+	{
+		if (this->body->GetLinearVelocity().y > 0 && this->possible_extra_jumps > 0)
+			this->possible_extra_jumps--;
+
+		this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force));
+		break;
+	}
 	}
 
 	this->can_jump = false;
@@ -331,7 +341,10 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		}
 
 		if (this->last_speed.y >= 0 && this->body->GetLinearVelocity().y <= 0)
+		{
+			this->possible_extra_jumps = this->extra_jump;
 			this->can_jump = true;
+		}
 
 		if (!this->is_on_ladder && !this->isSpecial1())
 		{
@@ -403,9 +416,12 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		{
 			if (!stop_jump)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
-			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
+			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y > 0 && this->possible_extra_jumps > 0) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
 			{
-				this->jump(-5.0f);
+				if (this->body->GetLinearVelocity().y > 0 && this->possible_extra_jumps > 0)	//Dodatkowe skoki s¹ ni¿sze ni¿ g³ówne
+					this->jump(-4.0f);
+				else
+					this->jump(-5.0f);
 				if (this->is_immersed_in == FLUID_NONE)
 					this->stop_jump = false;
 			}
@@ -478,6 +494,8 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 					}
 					else
 						this->jump(-3.0f);
+
+					this->possible_extra_jumps = this->extra_jump;
 				}
 				else	//Je¿eli dotkniêto NPC-a w inny sposób
 				{

@@ -57,7 +57,7 @@ int main()
 		win.clear();
 		win.display();
 
-		cMap map(WORLD_OVERWORLD, number_of_players);
+		cMap map(WORLD_OVERWORLD, number_of_players, modulators);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
@@ -76,7 +76,7 @@ int main()
 
 			//DZIALANIA W GRZE
 			//Poruszanie siê obiektów w poziomie
-			if (!map.movements(win, p1))
+			if (!map.movements(win, p1, modulators))
 				game_over = true;
 
 			//WYSWIETLANIE OBRAZU NA EKRAN

@@ -76,6 +76,8 @@ class cCharacter :public cCharacterAnimation
 	unsigned int cash;
 
 	float max_speed_x;
+	unsigned short extra_jump;	//Iloœæ dodatkowych skoków
+	unsigned short possible_extra_jumps = 0;	//Aktualna iloœæ mo¿liwych dodatkowych skoków do wykonania
 	sf::Vector2f last_position;
 	
 	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
@@ -101,7 +103,7 @@ class cCharacter :public cCharacterAnimation
 	void b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 
 public:
-	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no);
+	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
 
 	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
 

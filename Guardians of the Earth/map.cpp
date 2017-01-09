@@ -1,15 +1,15 @@
 #include "map.h"
 #include <iostream>
 
-cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(eWorld world, short number_of_players, bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(number_of_players, false, false);
+	levelGenerator(number_of_players, modulators, false, false);
 }
 
-void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
+void cMap::levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level)
 {
 	system("CLS");
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
@@ -271,7 +271,8 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	//NPC-Y
 	//Pêtla tworzenia NPC-ów
 	clock_t time_npc = clock();
-	for (int i = 0; i < 50 + 5.5f * (this->level_number - 1); i++)
+	int number_of_npcs = (float)(50 + 5.5f * (this->level_number - 1)) * ((float)(modulators[0] ? rand() % 16 + 5 : 10) / 10);
+	for (int i = 0; i < number_of_npcs; i++)
 	{
 		//Losowanie ID NPC-a
 		int random = randomNPCID(this->world_type);
@@ -620,7 +621,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1);
+			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -702,7 +703,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	delete[] is_npc;
 }
 
-bool cMap::movements(sf::RenderWindow &win, sf::View &view)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 {
 	//MENU PAUZY
 	static bool key_pressed = true;
@@ -796,7 +797,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 					return true;
 				}
 
-				this->levelGenerator(player.size(), false, true);
+				this->levelGenerator(player.size(), modulators, false, true);
 				
 				return true;
 			}
@@ -820,7 +821,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 		if (no_more_life)
 			return false;
 
-		this->levelGenerator(player.size(), true, false);
+		this->levelGenerator(player.size(), modulators, true, false);
 		return true;
 	}
 
