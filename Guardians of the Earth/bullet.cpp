@@ -125,12 +125,14 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, std::
 				if (this->piercing == 0)
 					this->destroyed = true;
 
-				if (this->player_id != 0)
-					character[this->player_id - 1].addStatsForNPC(npc[i]);
-
-				npc[i].getBody()->GetWorld()->DestroyBody(npc[i].getBody());
-				npc.erase(npc.begin() + i);
-
+				npc[i].hurt();
+				if (npc[i].isDead())
+				{
+					if (this->player_id != 0)
+						character[this->player_id - 1].addStatsForNPC(npc[i]);
+					npc.erase(npc.begin() + i);
+				}
+				
 				return;
 			}
 		}

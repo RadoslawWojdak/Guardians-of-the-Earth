@@ -483,9 +483,14 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 			{
 				if ((this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && (!npc[i].getFeatures().top_hurts || this->isSpecial1())))	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
 				{
-					this->addStatsForNPC(npc[i]);
-					npc[i].kill();
-					npc.erase(npc.begin() + i);
+					this->setAllPositions(sf::Vector2f(this->getPosition().x, npc[i].getGlobalBounds().top - this->getTextureRect().height / 2 - 4));
+
+					npc[i].hurt();
+					if (npc[i].isDead())
+					{
+						npc.erase(npc.begin() + i);
+						this->addStatsForNPC(npc[i]);
+					}
 
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
@@ -506,9 +511,12 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 					}
 					else
 					{
-						this->addStatsForNPC(npc[i]);
-						npc[i].kill();
-						npc.erase(npc.begin() + i);
+						npc[i].hurt();
+						if (npc[i].isDead())
+						{
+							npc.erase(npc.begin() + i);
+							this->addStatsForNPC(npc[i]);
+						}
 					}
 				}
 			}

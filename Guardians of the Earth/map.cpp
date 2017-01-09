@@ -278,7 +278,7 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		int random = randomNPCID(this->world_type);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), this->world_type, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(&(this->physics_world), this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
 		bool end = false;	//Nie przydzielono pozycji
 
