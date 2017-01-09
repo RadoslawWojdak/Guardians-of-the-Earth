@@ -7,6 +7,7 @@
 #include "global_variables.h"
 #include "fonts.h"
 #include "menu.h"
+#include "dialogs.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -37,7 +38,6 @@ int main()
 
 	sf::View p1;
 	sf::Event ev;
-	
 	while (win.isOpen())
 	{
 		short number_of_players;
