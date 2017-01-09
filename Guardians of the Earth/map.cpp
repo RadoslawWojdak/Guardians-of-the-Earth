@@ -12,7 +12,7 @@ cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10
 void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
 {
 	system("CLS");
-	this->experience_countdown = 180 * g_framerate_limit;
+	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
 	this->golden_bb_created = false;
 	
@@ -56,7 +56,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 	//Pêtla tworzenia terenu
 	clock_t time_map = clock();
-	for (int i = 0; i < 50; i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
+	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
 	{
 		if (!refresh)	//Tworzenie poziomu od podstaw
 		{
@@ -271,7 +271,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	//NPC-Y
 	//Pêtla tworzenia NPC-ów
 	clock_t time_npc = clock();
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 50 + 5.5f * (this->level_number - 1); i++)
 	{
 		//Losowanie ID NPC-a
 		int random = randomNPCID(this->world_type);
