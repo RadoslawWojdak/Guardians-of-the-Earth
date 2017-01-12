@@ -36,6 +36,7 @@ class cNPC :public cObjectLevel
 	bool dead;
 
 	//CECHY NPC-ÓW
+	unsigned short hp;
 	sFeatures features;
 
 	float speed;		//Prêdkoœæ NPC
@@ -46,9 +47,10 @@ class cNPC :public cObjectLevel
 	void setFeatures(unsigned short id);
 
 public:
-	cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction);
+	cNPC(b2World *physics_world, eWorld world_type, bool *modulators, unsigned short id, sf::Vector2f pos, eDirection direction);
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf::FloatRect &view_rect);
+	void hurt();
 	void kill();
 
 	void setAllPositions(sf::Vector2f pos);

@@ -119,12 +119,15 @@
     <ClCompile Include="button.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="characterAnimation.cpp" />
+    <ClCompile Include="checkbox.cpp" />
+    <ClCompile Include="dialogs.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="ladder.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="npc.cpp" />
     <ClCompile Include="pet.cpp" />
     <ClCompile Include="powerup.cpp" />
+    <ClCompile Include="profile.cpp" />
     <ClCompile Include="shop.cpp" />
     <ClCompile Include="trampoline.cpp" />
     <ClCompile Include="treasure.cpp" />
@@ -149,6 +152,8 @@
     <ClInclude Include="button.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="characterAnimation.h" />
+    <ClInclude Include="checkbox.h" />
+    <ClInclude Include="dialogs.h" />
     <ClInclude Include="enums.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="ladder.h" />
@@ -156,6 +161,7 @@
     <ClInclude Include="npc.h" />
     <ClInclude Include="pet.h" />
     <ClInclude Include="powerup.h" />
+    <ClInclude Include="profile.h" />
     <ClInclude Include="shop.h" />
     <ClInclude Include="trampoline.h" />
     <ClInclude Include="treasure.h" />

@@ -1,18 +1,18 @@
 #include "map.h"
 #include <iostream>
 
-cMap::cMap(eWorld world, short number_of_players) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(eWorld world, short number_of_players, bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(number_of_players, false, false);
+	levelGenerator(number_of_players, modulators, false, false);
 }
 
-void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level)
+void cMap::levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level)
 {
 	system("CLS");
-	this->experience_countdown = 180 * g_framerate_limit;
+	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
 	this->golden_bb_created = false;
 	
@@ -56,7 +56,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 
 	//Pêtla tworzenia terenu
 	clock_t time_map = clock();
-	for (int i = 0; i < 50; i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
+	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
 	{
 		if (!refresh)	//Tworzenie poziomu od podstaw
 		{
@@ -271,13 +271,14 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	//NPC-Y
 	//Pêtla tworzenia NPC-ów
 	clock_t time_npc = clock();
-	for (int i = 0; i < 50; i++)
+	int number_of_npcs = (float)(50 + 5.5f * (this->level_number - 1)) * ((float)(modulators[0] ? rand() % 16 + 5 : 10) / 10);
+	for (int i = 0; i < number_of_npcs; i++)
 	{
 		//Losowanie ID NPC-a
 		int random = randomNPCID(this->world_type);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), this->world_type, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(&(this->physics_world), this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
 		bool end = false;	//Nie przydzielono pozycji
 
@@ -620,7 +621,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1);
+			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 
 			bool end = false;	//Nie przydzielono pozycji
 
@@ -702,7 +703,7 @@ void cMap::levelGenerator(short number_of_players, bool refresh, bool next_level
 	delete[] is_npc;
 }
 
-bool cMap::movements(sf::RenderWindow &win, sf::View &view)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 {
 	//MENU PAUZY
 	static bool key_pressed = true;
@@ -740,7 +741,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 	for (int i = this->bullet.size() - 1; i >= 0; i--)
 	{
 		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
-		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, this->player, this->npc, this->treasure, this->bonus_block);
+		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
 		
 		if (this->bullet[i].isDestroyed())
 		{
@@ -777,7 +778,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 			are_all_players_dead = false;
 			
 			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
-			this->player[i].specialCollisions(&(this->physics_world), this->world_type, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
 			this->player[i].checkIndicators(&(this->physics_world), this->world_type, this->bullet);
 			this->player[i].move(win, sf::Vector2f(this->width, this->height));
@@ -789,14 +790,14 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 					if (!this->player[j].isDead())
 						this->player[j].addStatsForEndOfLevel(this->level_number, this->experience_countdown);
 
-				cShop shop(this->player);
+				cShop shop(this->player, modulators);
 				if (!shop.shopMenu(win) || !menuSkillTree(win, this->player))
 				{
 					win.close();
 					return true;
 				}
 
-				this->levelGenerator(player.size(), false, true);
+				this->levelGenerator(player.size(), modulators, false, true);
 				
 				return true;
 			}
@@ -820,7 +821,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view)
 		if (no_more_life)
 			return false;
 
-		this->levelGenerator(player.size(), true, false);
+		this->levelGenerator(player.size(), modulators, true, false);
 		return true;
 	}
 

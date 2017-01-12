@@ -13,7 +13,7 @@ class cBonusBlock :public cBlock
 public:
 	cBonusBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f, short min_treasures = 1, short max_treasures = 4);
 	
-	void dropTreasures(b2World *physics_world, eWorld world_type, std::vector <cTreasure> &treasure, sf::Vector2f hit_force);
+	void dropTreasures(b2World *physics_world, eWorld world_type, std::vector <cTreasure> &treasure, sf::Vector2f hit_force, bool *modulators);
 };
 
 #endif //!bonusblock_h

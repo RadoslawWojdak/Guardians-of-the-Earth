@@ -92,7 +92,7 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 	}
 }
 
-void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cCharacter> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
+void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
 {
 	if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
 	{
@@ -108,7 +108,7 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, std::
 				if (this->player_id != 0)
 					character[this->player_id - 1].addStatsForBonusBlock();
 
-				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->speed.y * 2.25f));
+				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->speed.y * 2.25f), modulators);
 				bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
 				bonus_block.erase(bonus_block.begin() + i);
 
@@ -125,12 +125,14 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, std::
 				if (this->piercing == 0)
 					this->destroyed = true;
 
-				if (this->player_id != 0)
-					character[this->player_id - 1].addStatsForNPC(npc[i]);
-
-				npc[i].getBody()->GetWorld()->DestroyBody(npc[i].getBody());
-				npc.erase(npc.begin() + i);
-
+				npc[i].hurt();
+				if (npc[i].isDead())
+				{
+					if (this->player_id != 0)
+						character[this->player_id - 1].addStatsForNPC(npc[i]);
+					npc.erase(npc.begin() + i);
+				}
+				
 				return;
 			}
 		}

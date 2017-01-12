@@ -1,12 +1,16 @@
 #include "npc.h"
 #include <iostream>
-cNPC::cNPC(b2World *physics_world, eWorld world_type, unsigned short id, sf::Vector2f pos, eDirection direction)
+cNPC::cNPC(b2World *physics_world, eWorld world_type, bool *modulators, unsigned short id, sf::Vector2f pos, eDirection direction)
 {
 	this->adjustGraphicsParameters(t_npc[id - 1], pos);
 	
 	this->id = id;
 	this->dir = direction;
 	this->setFeatures(id);
+	if (modulators[3])
+		this->hp *= 2;
+	if (modulators[5])
+		this->features.max_speed *= 2;
 
 	if (direction == DIR_LEFT)
 		this->last_speed = b2Vec2(-this->speed, 0.5f);	//Poprzednia szybkoœæ pionowa musi byæ wiêksza od zero - wymagane do wyeliminowania bugów dotycz¹cych skakania NPC-ów, które dopiero powsta³y; prêdkoœæ pozioma - wymagana w celu sprawdzenia, czy prêdkoœæ zosta³a zmieniona
@@ -86,6 +90,8 @@ void cNPC::setFeatures(unsigned short id)
 	{
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
+		this->hp = 1;
+
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 		
@@ -103,6 +109,8 @@ void cNPC::setFeatures(unsigned short id)
 	case 2:
 	{
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+
+		this->hp = 1;
 
 		this->features.friendly = false;
 		this->features.top_hurts = false;
@@ -122,6 +130,8 @@ void cNPC::setFeatures(unsigned short id)
 	{
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
+		this->hp = 1;
+
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 
@@ -140,6 +150,8 @@ void cNPC::setFeatures(unsigned short id)
 	{
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
+		this->hp = 1;
+
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 
@@ -157,6 +169,8 @@ void cNPC::setFeatures(unsigned short id)
 	case 5:
 	{
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+
+		this->hp = 1;
 
 		this->features.friendly = false;
 		this->features.top_hurts = true;
@@ -331,6 +345,13 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 
 	//Pozycja
 	this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f));
+}
+
+void cNPC::hurt()
+{
+	this->hp--;
+	if (this->hp == 0)
+		this->kill();
 }
 
 void cNPC::kill()

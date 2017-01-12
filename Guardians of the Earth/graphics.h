@@ -23,12 +23,17 @@ extern sf::Texture t_pet[2];
 
 extern sf::Texture t_stats_window;
 extern sf::Texture t_pause_menu_window;
+extern sf::Texture t_dialog_window;
 extern sf::Texture t_heart;
 extern sf::Texture t_experience_bar;
+extern sf::Texture t_discount_sign;
 extern sf::Texture t_button;
+extern sf::Texture t_checkbox;
+extern sf::Texture t_profile_button;
 extern sf::Texture t_button_rebirth;
 extern sf::Texture t_button_extra_life;
 extern sf::Texture t_button_extra_hp;
+extern sf::Texture t_close_button;
 
 bool initGraph();
 bool shutdownGraph();

@@ -19,12 +19,17 @@ sf::Texture t_pet[2];
 
 sf::Texture t_stats_window;
 sf::Texture t_pause_menu_window;
+sf::Texture t_dialog_window;
 sf::Texture t_heart;
 sf::Texture t_experience_bar;
+sf::Texture t_discount_sign;
 sf::Texture t_button;
+sf::Texture t_checkbox;
+sf::Texture t_profile_button;
 sf::Texture t_button_rebirth;
 sf::Texture t_button_extra_life;
 sf::Texture t_button_extra_hp;
+sf::Texture t_close_button;
 
 bool initGraph()
 {
@@ -287,17 +292,27 @@ bool initGraph()
 		return false;
 	if (!t_pause_menu_window.loadFromFile("graphics\\others\\pause_menu_window.png"))
 		return false;
+	if (!t_dialog_window.loadFromFile("graphics\\others\\dialog_window.png"))
+		return false;
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
 		return false;
 	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
 		return false;
+	if (!t_discount_sign.loadFromFile("graphics\\others\\discount_sign.png"))
+		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
+		return false;
+	if (!t_checkbox.loadFromFile("graphics\\others\\checkbox.png"))
+		return false;
+	if (!t_profile_button.loadFromFile("graphics\\others\\profile_button.png"))
 		return false;
 	if (!t_button_rebirth.loadFromFile("graphics\\others\\button_rebirth.png"))
 		return false;
 	if (!t_button_extra_life.loadFromFile("graphics\\others\\button_extra_life.png"))
 		return false;
 	if (!t_button_extra_hp.loadFromFile("graphics\\others\\button_extra_hp.png"))
+		return false;
+	if (!t_close_button.loadFromFile("graphics\\others\\close_button.png"))
 		return false;
 
 	return true;

@@ -7,6 +7,8 @@
 #include "global_variables.h"
 #include "fonts.h"
 #include "menu.h"
+#include "dialogs.h"
+#include "profile.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -35,18 +37,27 @@ int main()
 		return 2;
 	}
 
+	cProfile profile;
+	if (!profile.loadProfile("default"))
+	{
+		system("CLS");
+		profile.newProfile("default");
+	}
+
+	bool modulators[6] = {};
+	
 	sf::View p1;
 	sf::Event ev;
-	
 	while (win.isOpen())
 	{
 		short number_of_players;
-		if (!mainMenu(win, number_of_players))
+		if (!mainMenu(win, profile, number_of_players, modulators))
 			return 0;
+
 		win.clear();
 		win.display();
 
-		cMap map(WORLD_OVERWORLD, number_of_players);
+		cMap map(WORLD_OVERWORLD, number_of_players, modulators);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
@@ -65,7 +76,7 @@ int main()
 
 			//DZIALANIA W GRZE
 			//Poruszanie siê obiektów w poziomie
-			if (!map.movements(win, p1))
+			if (!map.movements(win, p1, modulators))
 				game_over = true;
 
 			//WYSWIETLANIE OBRAZU NA EKRAN

@@ -89,7 +89,7 @@ void cCharacter::initControlKeys(short player_no)
 	}
 }
 
-cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no)
+cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacterAnimation(t_character[0], pos)
 {
 	this->animationStanding();
@@ -119,6 +119,9 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->cash = 0;
 
 	this->max_speed_x = 4.5f;
+	this->extra_jump = 0;
+	if (modulators[1])
+		this->extra_jump++;
 	this->last_position = this->getPosition();
 
 	this->initControlKeys(player_no);
@@ -193,7 +196,14 @@ void cCharacter::jump(float force)
 	{
 	case FLUID_WATER: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(g_fluid_speed_multipler.water, 1.5))); break;}
 	case FLUID_QUICKSAND: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force * pow(g_fluid_speed_multipler.quicksand, 1.5))); break;}
-	default: {this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force)); break;}
+	default: 
+	{
+		if (this->body->GetLinearVelocity().y > 0 && this->possible_extra_jumps > 0)
+			this->possible_extra_jumps--;
+
+		this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, force));
+		break;
+	}
 	}
 
 	this->can_jump = false;
@@ -331,7 +341,10 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		}
 
 		if (this->last_speed.y >= 0 && this->body->GetLinearVelocity().y <= 0)
+		{
+			this->possible_extra_jumps = this->extra_jump;
 			this->can_jump = true;
+		}
 
 		if (!this->is_on_ladder && !this->isSpecial1())
 		{
@@ -403,9 +416,12 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 		{
 			if (!stop_jump)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
-			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
+			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
 			{
-				this->jump(-5.0f);
+				if (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0)	//Dodatkowe skoki s¹ ni¿sze ni¿ g³ówne
+					this->jump(-4.0f);
+				else
+					this->jump(-5.0f);
 				if (this->is_immersed_in == FLUID_NONE)
 					this->stop_jump = false;
 			}
@@ -441,7 +457,7 @@ void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector 
 	}
 }
 
-void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
@@ -453,7 +469,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y || this->isSpecial1())
 				{
 					this->addStatsForBonusBlock();
-					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f));
+					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f), modulators);
 					bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
 					bonus_block.erase(bonus_block.begin() + i);
 				}
@@ -467,9 +483,14 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 			{
 				if ((this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && (!npc[i].getFeatures().top_hurts || this->isSpecial1())))	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
 				{
-					this->addStatsForNPC(npc[i]);
-					npc[i].kill();
-					npc.erase(npc.begin() + i);
+					this->setAllPositions(sf::Vector2f(this->getPosition().x, npc[i].getGlobalBounds().top - this->getTextureRect().height / 2 - 4));
+
+					npc[i].hurt();
+					if (npc[i].isDead())
+					{
+						this->addStatsForNPC(npc[i]);
+						npc.erase(npc.begin() + i);
+					}
 
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
@@ -478,6 +499,8 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 					}
 					else
 						this->jump(-3.0f);
+
+					this->possible_extra_jumps = this->extra_jump;
 				}
 				else	//Je¿eli dotkniêto NPC-a w inny sposób
 				{
@@ -488,9 +511,12 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 					}
 					else
 					{
-						this->addStatsForNPC(npc[i]);
-						npc[i].kill();
-						npc.erase(npc.begin() + i);
+						npc[i].hurt();
+						if (npc[i].isDead())
+						{
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
 					}
 				}
 			}
@@ -547,6 +573,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				else
 					this->jump(-4.0f);
 
+				this->possible_extra_jumps = this->extra_jump;
 				break;	//Nawet gdyby by³o wiêcej trampolin to nie robi³oby to ró¿nicy
 			}
 		}
@@ -588,6 +615,8 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, st
 				
 				if (this->is_on_ladder)
 				{
+					this->possible_extra_jumps = this->extra_jump;
+
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
 
 					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
@@ -660,6 +689,9 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 				break;
 			}
 			}
+
+			if (world_type != WORLD_ICE_LAND)
+				this->possible_extra_jumps = this->extra_jump;
 		}
 		else
 		{
@@ -755,8 +787,8 @@ void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
 {
 	switch (power_up.getPower())
 	{
-	case 1: {this->addPower(1); this->score += 100; break;}	//+10 pocisków
-	case 2: {this->addPower(2); this->score += 100; break;}	//+1 special1
+	case 1: {this->addPower(1); this->score += 100 * g_score_multipler; break;}	//+10 pocisków
+	case 2: {this->addPower(2); this->score += 100 * g_score_multipler; break;}	//+1 special1
 	}
 }
 
@@ -776,7 +808,7 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 	}
 	default:
 	{
-		this->score += 10;
+		this->score += 10 * g_score_multipler;
 		this->cash += treasure.getValue();
 		break;
 	}
@@ -785,13 +817,13 @@ void cCharacter::addStatsForTreasure(cTreasure &treasure)
 
 void cCharacter::addStatsForNPC(cNPC &npc)
 {
-	this->score += 50;
+	this->score += 50 * g_score_multipler;
 	this->exp += npc.getExperience();
 }
 
 void cCharacter::addStatsForBonusBlock()
 {
-	this->score += 25;
+	this->score += 25 * g_score_multipler;
 }
 
 void cCharacter::addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown)
