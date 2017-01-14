@@ -328,7 +328,7 @@ void cCharacter::kill()
 
 void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
-	;
+	;	//Funkcja wirtualna
 }
 
 void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
@@ -359,11 +359,14 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 				{
 					this->setAllPositions(sf::Vector2f(this->getPosition().x, npc[i].getGlobalBounds().top - this->getTextureRect().height / 2 - 4));
 
-					npc[i].hurt();
-					if (npc[i].isDead())
+					if (this->can_crush)
 					{
-						this->addStatsForNPC(npc[i]);
-						npc.erase(npc.begin() + i);
+						npc[i].hurt();
+						if (npc[i].isDead())
+						{
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
 					}
 
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))

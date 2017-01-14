@@ -1,47 +1,4 @@
-﻿  map.cpp
+﻿  knight.cpp
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(15): warning C4244: '=': conversion from 'float' to 'unsigned short', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(48): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(59): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(90): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(97): warning C4018: '>': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(106): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(106): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(107): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(107): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(108): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(108): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(112): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(112): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(115): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(115): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(116): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(116): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(117): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(117): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(118): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(118): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(128): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(175): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(176): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(189): warning C4018: '<=': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(190): warning C4018: '<=': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(243): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(246): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(258): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(259): warning C4267: '=': conversion from 'size_t' to 'short', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(264): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned short', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(274): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(356): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(727): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(784): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(800): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(812): warning C4018: '<': signed/unsigned mismatch
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(824): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(855): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(861): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(866): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(998): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\map.cpp(1027): warning C4018: '<': signed/unsigned mismatch
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)
