@@ -1,19 +1,10 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id)
+cBullet::cBullet(b2World *physics_world, eWorld world_type, bool gravity, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id)
 {
 	this->adjustGraphicsParameters(t_characters_bonus[0][0], pos);
 
-	if (speed.x > 0)
-		this->setRotation(180);
-	else if (speed.x < 0)
-		this->setRotation(0);
-	else if (speed.y > 0)
-		this->setRotation(270);
-	else if (speed.y < 0)
-		this->setRotation(90);
-
-	this->gravity = false;
+	this->gravity = gravity;
 	this->last_pos = pos;
 	this->speed = speed;
 	this->piercing = piercing;
@@ -28,15 +19,17 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Ve
 	body_def.allowSleep = true;
 
 	this->body = physics_world->CreateBody(&body_def);
-	this->body->SetGravityScale(0.0f);
+	if (!this->gravity)
+		this->body->SetGravityScale(0.0f);
 	this->body->SetBullet(true);
-
+	
 	b2PolygonShape shape;
 	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.02f);
 
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.density = 20.0f;
+	fd.friction = 50.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_BULLET);
 	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
@@ -50,6 +43,15 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 {
 	if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
 	{
+		if (this->body->GetLinearVelocity().x > 0)
+			this->setRotation(180);
+		else if (this->body->GetLinearVelocity().x < 0)
+			this->setRotation(0);
+		else if (this->body->GetLinearVelocity().y > 0)
+			this->setRotation(270);
+		else if (this->body->GetLinearVelocity().y < 0)
+			this->setRotation(90);
+
 		//Pozycja
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
 		this->last_pos = this->getPosition();
@@ -86,7 +88,6 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 		{
 			if (this->gravity)
 				this->body->SetGravityScale(1.0f);
-			this->body->SetLinearVelocity(this->speed);
 		}
 		//!Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
 	}

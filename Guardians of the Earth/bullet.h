@@ -30,7 +30,7 @@ private:
 	unsigned short piercing;	//Ilu przeciwników mo¿e zabiæ, zanim zniknie (W przypadku NPC-ów z wiêksz¹ iloœci¹ HP odejmuje tyle, ile NPC ma HP)
 
 public:
-	cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id = 0);
+	cBullet(b2World *physics_world, eWorld world_type, bool gravity, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id = 0);
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab);
 	void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block);

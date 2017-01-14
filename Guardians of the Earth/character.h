@@ -95,14 +95,10 @@ protected:
 
 	void initControlKeys(short player_no);
 	void jump(float force);
-	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
+	virtual void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	void levelUp();
 	void startInviolability();
 	void immunityCountdown();
-	void startSpecial1();
-	void special1Countdown();
-	void startB1InB2();
-	void b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
@@ -117,7 +113,7 @@ public:
 	void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
-	void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
+	virtual void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
 	void rebirth();
 
 	void addHP();
@@ -132,7 +128,7 @@ public:
 	void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
-	void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
+	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
 
 	void setAllPositions(sf::Vector2f pos);
 	
