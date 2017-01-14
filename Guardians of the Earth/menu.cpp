@@ -341,12 +341,12 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 }
 
 
-bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter> &player)
+bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter*>&player)
 {
 	return true;
 }
 
-bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
+bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter*> &player)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -374,7 +374,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 		//DZIA£ANIA NA MENU
 		for (unsigned short i = 0; i < player.size(); i++)
 		{
-			sControlKeys key = player[i].getControlKeys();
+			sControlKeys key = player[i]->getControlKeys();
 			if (!key_pressed[i])
 			{
 				if (!key.is_pad)
@@ -425,7 +425,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 					if (sf::Keyboard::isKeyPressed(key.jump.key) || sf::Keyboard::isKeyPressed(key.fire.key))
 					{
 						key_pressed[i] = true;
-						if (player[i].getSkillPoints() > 0)
+						if (player[i]->getSkillPoints() > 0)
 						{
 							key_pressed[i] = true;
 							switch (option[i])
@@ -433,19 +433,19 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 							case 1:
 							case 3:
 							{
-								player[i].addSkill(option[i]);
+								player[i]->addSkill(option[i]);
 								break;
 							}
 							case 2:
 							{
-								if (player[i].getLevel() >= 5)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 5)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							case 4:
 							{
-								if (player[i].getLevel() >= 10)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 10)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							}
@@ -508,7 +508,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 					if (sf::Joystick::isButtonPressed(key.pad, key.jump.button) || sf::Joystick::isButtonPressed(key.pad, key.fire.button))
 					{
 						key_pressed[i] = true;
-						if (player[i].getSkillPoints() > 0)
+						if (player[i]->getSkillPoints() > 0)
 						{
 							key_pressed[i] = true;
 							switch (option[i])
@@ -524,19 +524,19 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 							case 1:
 							case 2:
 							{
-								player[i].addSkill(option[i]);
+								player[i]->addSkill(option[i]);
 								break;
 							}
 							case 3:
 							{
-								if (player[i].getLevel() >= 5)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 5)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							case 4:
 							{
-								if (player[i].getLevel() >= 10)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 10)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							}
@@ -574,7 +574,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 			start.x = g_width / 2 - (float)(player.size() / 2) * (t_stats_window.getSize().x + 32) - 32;
 			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y) / 2 + 32;
 
-			player[i].drawSkillTree(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y), option[i], close_menu[i]);
+			player[i]->drawSkillTree(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y), option[i], close_menu[i]);
 		}
 
 		win.display();

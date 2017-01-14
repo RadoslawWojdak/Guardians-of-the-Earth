@@ -50,10 +50,10 @@ void cItemShop::setPosition(float x, float y)
 }
 
 
-cShop::cShop(std::vector <cCharacter> &player, bool *modulators)
+cShop::cShop(std::vector <cCharacter*>&player, bool *modulators)
 {
 	for (unsigned int i = 0; i < player.size(); i++)
-		this->player.push_back(&player[i]);
+		this->player.push_back(player[i]);
 
 	short discount = -1;
 	if (modulators[2])

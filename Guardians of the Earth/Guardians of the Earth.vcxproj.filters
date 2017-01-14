@@ -43,6 +43,12 @@
     <Filter Include="Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;">
       <UniqueIdentifier>{df68466a-e573-4c5f-81fe-cbc471a33ca0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;">
+      <UniqueIdentifier>{54f41851-4658-49e6-85c9-805b22f2513f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;">
+      <UniqueIdentifier>{8ae1e8d4-f3a2-46c9-b0e4-eb292c0f4d9d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -128,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="checkbox.cpp">
       <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="knight.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -217,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="checkbox.h">
       <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="knight.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

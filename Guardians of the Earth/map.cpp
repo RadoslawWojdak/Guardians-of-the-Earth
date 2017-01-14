@@ -621,24 +621,25 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cCharacter temp_player(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cKnight *knight = new cKnight(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cCharacter *temp_player = knight;
 
 			bool end = false;	//Nie przydzielono pozycji
 
 			//Pêtla trwa tak d³ugo a¿ postaæ nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
 			while (!end)
 			{
-				temp_player.setAllPositions(this->randomPosition(0, 192));
+				temp_player->setAllPositions(this->randomPosition(0, 192));
 
 				//Je¿eli postaæ nie jest zakopany w sztywnym obiekcie
-				if (!temp_player.isCollisionOnGrid(is_solid, grid_size) && !temp_player.isCollisionOnGrid(is_npc, grid_size))
+				if (!temp_player->isCollisionOnGrid(is_solid, grid_size) && !temp_player->isCollisionOnGrid(is_npc, grid_size))
 				{
-					temp_player.setAllPositions(sf::Vector2f(temp_player.getPosition().x, temp_player.getPosition().y + 32));
+					temp_player->setAllPositions(sf::Vector2f(temp_player->getPosition().x, temp_player->getPosition().y + 32));
 
 					//Je¿eli pod postaci¹ znajduje siê sztywny obiekt
-					if (temp_player.isCollisionOnGrid(is_solid, grid_size) || temp_player.isCollisionOnGrid(is_npc, grid_size))
+					if (temp_player->isCollisionOnGrid(is_solid, grid_size) || temp_player->isCollisionOnGrid(is_npc, grid_size))
 					{
-						temp_player.setAllPositions(sf::Vector2f(temp_player.getPosition().x, temp_player.getPosition().y - 32));
+						temp_player->setAllPositions(sf::Vector2f(temp_player->getPosition().x, temp_player->getPosition().y - 32));
 						end = true;
 					}
 				}
@@ -648,39 +649,38 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		}
 
 		for (unsigned short i = 0; i < number_of_players; i++)
-			player[i].initPet();
+			player[i]->initPet();
 	}
 	else
 	{
 		for (unsigned short i = 0; i < this->player.size(); i++)
 		{
-			this->player[i].bodyRecreate(this->physics_world, this->world_type);	//Cia³a zawsze musz¹ siê odnowiaæ (powód: m.in. oddzia³ywanie na lód)
+			this->player[i]->bodyRecreate(this->physics_world, this->world_type);	//Cia³a zawsze musz¹ siê odnowiaæ (powód: m.in. oddzia³ywanie na lód)
 
 			bool end = false;	//Nie przydzielono pozycji
 
 			//Pêtla trwa tak d³ugo a¿ postaæ nie znajdzie siê dok³adanie nad powierzchni¹ sztywnego obiektu
 			while (!end)
 			{
-				this->player[i].setAllPositions(this->randomPosition(0, 192));
+				this->player[i]->setAllPositions(this->randomPosition(0, 192));
 				
 				//Je¿eli postaæ nie jest zakopana w sztywnym obiekcie
-				if (!this->player[i].isCollisionOnGrid(is_solid, grid_size) && !this->player[i].isCollisionOnGrid(is_npc, grid_size))
+				if (!this->player[i]->isCollisionOnGrid(is_solid, grid_size) && !this->player[i]->isCollisionOnGrid(is_npc, grid_size))
 				{
-					this->player[i].setAllPositions(sf::Vector2f(this->player[i].getPosition().x, this->player[i].getPosition().y + 32));
+					this->player[i]->setAllPositions(sf::Vector2f(this->player[i]->getPosition().x, this->player[i]->getPosition().y + 32));
 
 					//Je¿eli pod postaci¹ znajduje siê sztywny obiekt
-					if (this->player[i].isCollisionOnGrid(is_solid, grid_size))
+					if (this->player[i]->isCollisionOnGrid(is_solid, grid_size))
 					{
-						this->player[i].setAllPositions(sf::Vector2f(this->player[i].getPosition().x, this->player[i].getPosition().y - 32));
+						this->player[i]->setAllPositions(sf::Vector2f(this->player[i]->getPosition().x, this->player[i]->getPosition().y - 32));
 						end = true;
 					}
 				}
 			}
 			
-			this->player[i].rebirth();
+			this->player[i]->rebirth();
 		}
 	}
-
 	//!Generowanie graczy
 
 	std::cout << "\n\n";
@@ -773,22 +773,22 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 	bool are_all_players_dead = true;
 	for (unsigned int i = 0; i < this->player.size(); i++)
 	{
-		if (!this->player[i].isDead())
+		if (!this->player[i]->isDead())
 		{
 			are_all_players_dead = false;
 			
-			this->player[i].control(&(this->physics_world), this->world_type, this->bullet);
-			this->player[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
-			this->player[i].applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-			this->player[i].checkIndicators(&(this->physics_world), this->world_type, this->bullet);
-			this->player[i].move(win, sf::Vector2f(this->width, this->height));
+			this->player[i]->control(&(this->physics_world), this->world_type, this->bullet);
+			this->player[i]->specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i]->applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
+			this->player[i]->checkIndicators(&(this->physics_world), this->world_type, this->bullet);
+			this->player[i]->move(win, sf::Vector2f(this->width, this->height));
 			
 			//Rozpoczêcie nastêpnego poziomu
-			if (this->player[i].getPosition().x - this->player[i].getOrigin().x > this->width)
+			if (this->player[i]->getPosition().x - this->player[i]->getOrigin().x > this->width)
 			{
 				for (unsigned short j = 0; j < this->player.size(); j++)
-					if (!this->player[j].isDead())
-						this->player[j].addStatsForEndOfLevel(this->level_number, this->experience_countdown);
+					if (!this->player[j]->isDead())
+						this->player[j]->addStatsForEndOfLevel(this->level_number, this->experience_countdown);
 
 				cShop shop(this->player, modulators);
 				if (!shop.shopMenu(win) || !menuSkillTree(win, this->player))
@@ -811,7 +811,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 		bool no_more_life = true;
 		for (short i = 0; i < this->player.size(); i++)
 		{
-			if (this->player[i].hasLife())
+			if (this->player[i]->hasLife())
 			{
 				no_more_life = false;
 				break;
@@ -840,10 +840,10 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	short how_many_player_alive = 0;
 	for (int i = 0; i < this->player_number; i++)
 	{
-		if (!this->player[i].isDead())
+		if (!this->player[i]->isDead())
 		{
-			view_center_point.x += this->player[i].getPosition().x;
-			view_center_point.y += this->player[i].getPosition().y;
+			view_center_point.x += this->player[i]->getPosition().x;
+			view_center_point.y += this->player[i]->getPosition().y;
 			how_many_player_alive++;
 		}
 	}
@@ -893,25 +893,25 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned int i = 0; i < this->npc.size(); i++)
 		win.draw(this->npc[i]);
 	for (unsigned short i = 0; i < this->player.size(); i++)
-		if (!this->player[i].isDead())
+		if (!this->player[i]->isDead())
 		{
-			win.draw(this->player[i]);
-			if (this->player[i].isPetAlive())
-				win.draw(this->player[i].getPet());
+			win.draw(*(this->player[i]));
+			if (this->player[i]->isPetAlive())
+				win.draw(this->player[i]->getPet());
 		}
 	for (unsigned int i = 0; i < this->background_obj.size(); i++)
 		if (this->background_obj[i].front)
 			this->background_obj[i].drawAllGraphics(win);
 	//Statystyki graczy
-	this->player[0].drawStats(win, sf::Vector2f(16, 16));
+	this->player[0]->drawStats(win, sf::Vector2f(16, 16));
 	if (this->player_number >= 2)
 	{
-		this->player[1].drawStats(win, sf::Vector2f(148, 16));
+		this->player[1]->drawStats(win, sf::Vector2f(148, 16));
 		if (this->player_number >= 3)
 		{
-			this->player[2].drawStats(win, sf::Vector2f(536, 16));
+			this->player[2]->drawStats(win, sf::Vector2f(536, 16));
 			if (this->player_number == 4)
-				this->player[3].drawStats(win, sf::Vector2f(668, 16));
+				this->player[3]->drawStats(win, sf::Vector2f(668, 16));
 		}
 	}
 
@@ -1021,8 +1021,8 @@ void cMap::destroy(bool destroy_players)
 
 	if (destroy_players)
 		for (unsigned short i = 0; i < this->player.size(); i++)
-			if (!player[i].isDead())
-				this->physics_world.DestroyBody(this->player[i].getBody());
+			if (!player[i]->isDead())
+				this->physics_world.DestroyBody(this->player[i]->getBody());
 
 	for (unsigned int i = 0; i < this->physics_world.GetJointCount(); i++)
 		this->physics_world.DestroyJoint(this->physics_world.GetJointList());

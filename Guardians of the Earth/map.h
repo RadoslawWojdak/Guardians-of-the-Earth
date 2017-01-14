@@ -20,6 +20,7 @@
 #include "bullet.h"
 #include "shop.h"
 #include "menu.h"
+#include "knight.h"
 
 /*
 Skróty (skrót + s = liczba mnoga):
@@ -50,7 +51,7 @@ class cMap
 	std::vector <cTrampoline> trampoline;
 	std::vector <cPowerUp> power_up;
 	std::vector <cLadder> ladder;
-	std::vector <cCharacter> player;
+	std::vector <cCharacter*> player;
 	std::vector <cBullet> bullet;
 	//!Obiekty na mapie
 

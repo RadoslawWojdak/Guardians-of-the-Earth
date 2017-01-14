@@ -44,6 +44,7 @@ struct sControlKeys
 
 class cCharacter :public cCharacterAnimation
 {
+protected:
 	b2BodyDef body_def;
 	b2Body *body;
 
@@ -61,6 +62,7 @@ class cCharacter :public cCharacterAnimation
 
 	b2Vec2 last_speed;
 	bool fire = true;		//Czy gracz ca³y czas trzyma klawisz strza³u?
+	bool can_crush;			//Czy postaæ gracza mo¿e zgniataæ NPC-y?
 	bool can_jump = false;
 	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
 
@@ -111,7 +113,7 @@ public:
 	
 	void beenHit();
 	void kill();
-	void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
+	virtual void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
 	void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
