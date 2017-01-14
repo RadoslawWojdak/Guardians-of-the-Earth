@@ -223,12 +223,13 @@ bool initGraph()
 
 	//POSTACIE
 	//Rycerz
-	for (unsigned int i = 0; i < 1; i++)
+	for (unsigned int i = 0; i < 2; i++)
 	{
 		std::string character = "";
 		switch (i)
 		{
 		case 0: {character = "knight"; break;}
+		case 1: {character = "archer"; break;}
 		}
 
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
@@ -271,20 +272,13 @@ bool initGraph()
 				return false;
 			s_characters_skill[i][j].setTexture(t_characters_skill[i][j]);
 		}
-	}
-
-	//PET-Y
-	for (unsigned int i = 0; i < 1; i++)
-	{
-		std::string nr;
-		std::stringstream ss;
-		ss << i + 1;
-		nr = ss.str();
-		ss.clear();
-
-		std::string path = "graphics\\pets\\pet-" + nr + ".png";
-		if (!t_pet[i].loadFromFile(path))
-			return false;
+		//PET-Y
+		for (int j = 0; j < 2; j++)
+		{
+			std::string path = "graphics\\characters\\" + character + "\\pet.png";
+			if (!t_pet[i].loadFromFile(path))
+				return false;
+		}
 	}
 
 	//INNE
