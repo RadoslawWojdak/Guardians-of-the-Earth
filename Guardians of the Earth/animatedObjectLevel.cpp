@@ -77,9 +77,21 @@ sf::Vector2f cAnimatedObjectLevel::getAnimationStartPosition()
 	return this->start_position;
 }
 
+short cAnimatedObjectLevel::getCurrentFrame()
+{
+	return this->current_frame;
+}
+
 bool cAnimatedObjectLevel::isAnimationBeginsAgain()
 {
 	if (this->current_frame == 0 && this->time_to_next_frame == this->time_between_frames)
+		return true;
+	return false;
+}
+
+bool cAnimatedObjectLevel::isEndOfLastFrame()
+{
+	if (this->current_frame == this->frames - 1 && this->time_to_next_frame == 1)
 		return true;
 	return false;
 }

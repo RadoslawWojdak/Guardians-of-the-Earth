@@ -202,11 +202,6 @@ void cCharacter::jump(float force)
 	this->can_jump = false;
 }
 
-void cCharacter::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
-{
-	;
-}
-
 void cCharacter::levelUp()
 {
 	this->exp -= this->requiredExpToLevelUp();

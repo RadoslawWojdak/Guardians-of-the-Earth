@@ -12,11 +12,19 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	this->bonus[0] = 5;
 	this->bonus[1] = 0;
 
+	this->extra_shot_timer = 0;
+
 	for (short i = 0; i < 2; i++)
 	{
 		this->bonus_sprite[i].setTexture(t_characters_bonus_icon[this->character_type][i]);
 		this->bonus_sprite[i].setColor(sf::Color(this->bonus_sprite[i].getColor().g, this->bonus_sprite[i].getColor().b, this->bonus_sprite[i].getColor().a, 192));
 	}
+}
+
+void cArcher::extraShotCountdown()
+{
+	if (this->extra_shot_timer > 1)
+		this->extra_shot_timer--;
 }
 
 void cArcher::addPassiveSkill(unsigned short skill_id)
@@ -62,7 +70,14 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 
 		if (this->isShooting())
 		{
-			animationSpecial1(7);
+			//Jeœli gracz ma wciœniêty klawisz strza³u, a animacja siê skoñczy³a, to w³¹cza siê licznik. Je¿eli gracz do koñca licznika nie póœci klawisza, to po puszczeniu u¿yje bonusu1.
+			if (this->isEndOfLastFrame() && ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.fire.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.fire.button))))
+			{
+				if (this->extra_shot_timer <= 0)
+					this->extra_shot_timer = 25;
+			}
+			else
+				animationSpecial1(7);
 
 			//Postaæ zaczyna siê zatrzymywaæ (podczas strza³u nie mo¿e siê poruszaæ)
 			if (this->body->GetLinearVelocity().x > 0)
@@ -188,7 +203,7 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 	}
 }
 
-void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
+void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction, float strength, unsigned short piercing)
 {
 	b2Vec2 force;
 	sf::Vector2f start_pos;
@@ -245,18 +260,43 @@ void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 			force.y += 2.5f / ((this->arrows + 1) * 0.5f);
 		else
 			force.y -= 2.5f / ((this->arrows + 1) * 0.5f);
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, 0.25f, 1, this->player_no));
+		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, strength, piercing, this->player_no));
 	}
 }
 
 void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBullet>& bullet)
 {
 	this->immunityCountdown();
-	if (this->isShooting() && this->isAnimationBeginsAgain())
+	//Timer u¿ywania bonusu 1
+	if (this->isShooting())
 	{
-		this->animationStanding();
-		this->shot(world, world_type, bullet, this->dir);
+		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.fire.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.fire.button)))
+		{
+			if (this->isEndOfLastFrame())
+			{
+				this->extraShotCountdown();
+			}
+		}
+		//Je¿eli gracz zdecydowa³ siê nie u¿yæ bonusu 1
+		else if (this->isAnimationBeginsAgain())
+		{
+			this->animationStanding();
+			this->shot(world, world_type, bullet, this->dir);
+		}
 	}
+	else
+	{
+		if (this->extra_shot_timer == 1)
+		{
+			if (bonus[0] > 0)
+			{
+				bonus[0]--;
+				this->shot(world, world_type, bullet, this->dir, 1, 1);
+			}
+		}
+		this->extra_shot_timer = 0;
+	}
+	//!Timer u¿ywania bonusu 1
 
 	if (this->exp >= this->requiredExpToLevelUp())
 		this->levelUp();

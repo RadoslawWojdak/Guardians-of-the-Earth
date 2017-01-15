@@ -21,7 +21,7 @@ public:
 	cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
 
 	virtual void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
-	virtual void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
+	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	
 	virtual void checkIndicators(b2World * world, eWorld world_type, std::vector<cBullet>& bullet);
 

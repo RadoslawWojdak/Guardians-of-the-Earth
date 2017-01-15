@@ -94,7 +94,6 @@ protected:
 
 	void initControlKeys(short player_no);
 	void jump(float force);
-	virtual void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	void levelUp();
 	virtual void addPassiveSkill(unsigned short skill_id);
 	void startInviolability();
