@@ -112,6 +112,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animatedObjectLevel.cpp" />
+    <ClCompile Include="archer.cpp" />
     <ClCompile Include="backgroundobject.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bonusblock.cpp" />
@@ -146,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedObjectLevel.h" />
+    <ClInclude Include="archer.h" />
     <ClInclude Include="backgroundobject.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="bonusblock.h" />

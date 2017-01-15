@@ -347,10 +347,10 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 	this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f));
 }
 
-void cNPC::hurt()
+void cNPC::hurt(float strength)
 {
-	this->hp--;
-	if (this->hp == 0)
+	this->hp -= strength;
+	if (this->hp <= 0)
 		this->kill();
 }
 

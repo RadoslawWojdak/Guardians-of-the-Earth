@@ -5,7 +5,6 @@ const short TIME_ANIMATION_STANDING = 7;
 const short TIME_ANIMATION_JUMPING = 7;
 const short TIME_ANIMATION_CLIMBING = 7;
 const short TIME_ANIMATION_SWIMMING = 7;
-const short TIME_ANIMATION_SPECIAL1 = 3;
 
 cCharacterAnimation::cCharacterAnimation(sf::Texture &texture, sf::Vector2f pos_on_map)
 	:cAnimatedObjectLevel(texture, pos_on_map, sf::Vector2f(22.0f, 32.0f), TIME_ANIMATION_STANDING)
@@ -43,8 +42,13 @@ void cCharacterAnimation::animationSwimming()
 	this->animation();
 }
 
-void cCharacterAnimation::animationSpecial1()
+void cCharacterAnimation::animationSpecial1(short time_between_frames)
 {
-	this->setAnimationStartPosition(sf::Vector2f(0.0f, 160.0f), TIME_ANIMATION_SPECIAL1);
+	this->setAnimationStartPosition(sf::Vector2f(0.0f, 160.0f), time_between_frames);
 	this->animation();
+}
+
+eCharacterAnimationType cCharacterAnimation::getAnimationType()
+{
+	return (eCharacterAnimationType)((short)(this->getAnimationStartPosition().y) / 32);
 }

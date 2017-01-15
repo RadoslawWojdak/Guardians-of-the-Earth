@@ -5,6 +5,10 @@
 
 class cKnight :public cCharacter
 {
+	//Bonusy
+	short b1_in_b2_timer;
+	unsigned short bonus1_in_bonus2;	//Jak wiele pocisków ma jeszcze wystrzeliæ gracz, gdy jest w trakcie dzia³ania bonusu2
+
 	void startSpecial1();
 	void special1Countdown();
 	void startB1InB2();

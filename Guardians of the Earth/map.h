@@ -21,6 +21,7 @@
 #include "shop.h"
 #include "menu.h"
 #include "knight.h"
+#include "archer.h"
 
 /*
 Skróty (skrót + s = liczba mnoga):

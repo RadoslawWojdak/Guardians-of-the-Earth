@@ -31,6 +31,7 @@ sf::Texture t_button_extra_life;
 sf::Texture t_button_extra_hp;
 sf::Texture t_close_button;
 sf::Texture t_selected_character;
+sf::Texture t_passive_text;
 
 bool initGraph()
 {
@@ -310,6 +311,8 @@ bool initGraph()
 	if (!t_close_button.loadFromFile("graphics\\others\\close_button.png"))
 		return false;
 	if (!t_selected_character.loadFromFile("graphics\\others\\selected_character.png"))
+		return false;
+	if (!t_passive_text.loadFromFile("graphics\\others\\passive_text.png"))
 		return false;
 
 	return true;

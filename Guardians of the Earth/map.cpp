@@ -622,10 +622,12 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		for (int i = 0; i < number_of_players; i++)
 		{
 			cKnight *knight = new cKnight(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cArcher *archer = new cArcher(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cCharacter *temp_player = NULL;
 			switch (character[i])
 			{
-			default: temp_player = knight;
+			case 1: {temp_player = archer; break;}
+			default: {temp_player = knight; break;}
 			}
 
 			bool end = false;	//Nie przydzielono pozycji

@@ -48,6 +48,7 @@ protected:
 	b2BodyDef body_def;
 	b2Body *body;
 
+	eCharacter character_type;
 	short player_no;
 	eDirection dir = DIR_RIGHT;
 
@@ -89,8 +90,6 @@ protected:
 
 	//Bonusy
 	unsigned int bonus[2];	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
-	short b1_in_b2_timer;
-	unsigned short bonus1_in_bonus2;	//Jak wiele pocisków ma jeszcze wystrzeliæ gracz, gdy jest w trakcie dzia³ania bonusu2
 	eDirection shot_dir;
 
 	void initControlKeys(short player_no);

@@ -1,12 +1,13 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, bool gravity, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id)
+cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, short player_id)
 {
-	this->adjustGraphicsParameters(t_characters_bonus[0][0], pos);
+	this->adjustGraphicsParameters(texture, pos);
 
 	this->gravity = gravity;
 	this->last_pos = pos;
 	this->speed = speed;
+	this->strength = strength;
 	this->piercing = piercing;
 	this->player_id = player_id;
 	
@@ -126,7 +127,7 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool 
 				if (this->piercing == 0)
 					this->destroyed = true;
 
-				npc[i].hurt();
+				npc[i].hurt(strength);
 				if (npc[i].isDead())
 				{
 					if (this->player_id != 0)

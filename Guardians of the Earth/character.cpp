@@ -107,11 +107,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->stats_window.setColor(sf::Color(this->stats_window.getColor().g, this->stats_window.getColor().b, this->stats_window.getColor().a, 192));
 	this->heart.setTexture(t_heart);
 	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
-	for (short i = 0; i < 2; i++)
-	{
-		this->bonus_sprite[i].setTexture(t_characters_bonus_icon[0][i]);
-		this->bonus_sprite[i].setColor(sf::Color(this->bonus_sprite[i].getColor().g, this->bonus_sprite[i].getColor().b, this->bonus_sprite[i].getColor().a, 192));
-	}
+	
 	this->immunity_time = 0;
 	this->special1_time = 0;
 	this->life = 3;
@@ -130,9 +126,6 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->is_on_ice = false;
 	this->is_on_ladder = false;
 	this->dead = false;
-
-	this->bonus[0] = 5;
-	this->bonus[1] = 0;
 
 	//BOX2D
 	float32 a = this->getTextureRect().width * 0.02f;
@@ -187,7 +180,7 @@ void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
 void cCharacter::initPet()
 {
 	this->pet_point = sf::Vector2f(this->getPosition().x, this->getPosition().y + 24);
-	this->pet = cPet(&(this->pet_point), 1);
+	this->pet = cPet(this->character_type, &(this->pet_point), 1);
 }
 
 void cCharacter::jump(float force)
@@ -299,7 +292,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 
 					if (this->can_crush)
 					{
-						npc[i].hurt();
+						npc[i].hurt(1.0f);
 						if (npc[i].isDead())
 						{
 							this->addStatsForNPC(npc[i]);
@@ -326,7 +319,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 					}
 					else
 					{
-						npc[i].hurt();
+						npc[i].hurt(0.1f);
 						if (npc[i].isDead())
 						{
 							this->addStatsForNPC(npc[i]);

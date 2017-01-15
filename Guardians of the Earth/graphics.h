@@ -35,6 +35,7 @@ extern sf::Texture t_button_extra_life;
 extern sf::Texture t_button_extra_hp;
 extern sf::Texture t_close_button;
 extern sf::Texture t_selected_character;
+extern sf::Texture t_passive_text;
 
 bool initGraph();
 bool shutdownGraph();
