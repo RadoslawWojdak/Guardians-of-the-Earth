@@ -214,6 +214,11 @@ void cCharacter::levelUp()
 	this->skill_points++;
 }
 
+void cCharacter::addPassiveSkill(unsigned short skill_id)
+{
+	;
+}
+
 void cCharacter::startInviolability()
 {
 	this->immunity_time = 120;
@@ -579,11 +584,7 @@ void cCharacter::addLife()
 
 void cCharacter::addPower(short power_id)
 {
-	switch (power_id)
-	{
-	case 1: {this->bonus[0] += 5 + this->number_of_skill[0]; break;}
-	case 2: {this->bonus[1]++; break;}
-	}
+	;
 }
 
 void cCharacter::addStatsForPowerUp(cPowerUp &power_up)
@@ -640,6 +641,8 @@ void cCharacter::addSkill(unsigned short skill_id)
 {
 	this->number_of_skill[skill_id - 1]++;
 	this->skill_points--;
+
+	addPassiveSkill(skill_id - 1);
 }
 
 void cCharacter::subtractCash(unsigned int how_many_to_subtract)

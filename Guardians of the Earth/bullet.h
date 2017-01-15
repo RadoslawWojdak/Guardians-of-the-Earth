@@ -22,10 +22,12 @@ protected:
 	b2Body *body;
 
 private:
-	bool destroyed = false;
+	bool destroyed;
+	bool stop;
 	bool gravity;
 	sf::Vector2f last_pos;
 	b2Vec2 speed;
+	b2Vec2 last_speed;
 	short player_id;	//Do jakiego gracza nale¿y (0 = NPC)
 	float strength;		//Ile hp odbierze NPC-owi
 	unsigned short piercing;	//Ilu przeciwników mo¿e zabiæ, zanim zniknie (W przypadku NPC-ów z wiêksz¹ iloœci¹ HP odejmuje tyle, ile NPC ma HP)

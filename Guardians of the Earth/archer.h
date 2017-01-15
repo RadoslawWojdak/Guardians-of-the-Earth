@@ -5,8 +5,13 @@
 
 class cArcher :public cCharacter
 {
+	unsigned short arrows;
+
 	void startShooting();
 	bool isShooting();
+
+	virtual void addPassiveSkill(unsigned short skill_id);
+	virtual void addPower(short power_id);
 
 public:
 	cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);

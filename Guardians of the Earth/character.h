@@ -96,6 +96,7 @@ protected:
 	void jump(float force);
 	virtual void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	void levelUp();
+	virtual void addPassiveSkill(unsigned short skill_id);
 	void startInviolability();
 	void immunityCountdown();
 
@@ -117,7 +118,7 @@ public:
 
 	void addHP();
 	void addLife();
-	void addPower(short power_id);
+	virtual void addPower(short power_id);
 
 	void addStatsForPowerUp(cPowerUp &power_up);
 	void addStatsForTreasure(cTreasure &treasure);

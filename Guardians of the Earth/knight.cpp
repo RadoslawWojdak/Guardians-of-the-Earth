@@ -18,11 +18,28 @@ cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	}
 }
 
+void cKnight::addPassiveSkill(unsigned short skill_id)
+{
+	switch (skill_id)
+	{
+	default: break;
+	}
+}
+
+void cKnight::addPower(short power_id)
+{
+	switch (power_id)
+	{
+	case 1: {this->bonus[0] += 5 + this->number_of_skill[0]; break;}
+	case 2: {this->bonus[1]++; break;}
+	}
+}
+
 void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (this->isSpecial1())
 		this->animationSpecial1(3);
-
+	
 	if (!this->isDead())
 	{
 		float speed_multipler = 1;

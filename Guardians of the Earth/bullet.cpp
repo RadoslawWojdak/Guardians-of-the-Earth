@@ -4,9 +4,12 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 {
 	this->adjustGraphicsParameters(texture, pos);
 
+	this->destroyed = false;
+	this->stop = false;
 	this->gravity = gravity;
 	this->last_pos = pos;
 	this->speed = speed;
+	this->last_speed = speed;
 	this->strength = strength;
 	this->piercing = piercing;
 	this->player_id = player_id;
@@ -42,16 +45,33 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 
 void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 {
-	if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
+	//if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
+	if (!this->stop)
 	{
-		if (this->body->GetLinearVelocity().x > 0)
-			this->setRotation(180);
-		else if (this->body->GetLinearVelocity().x < 0)
-			this->setRotation(0);
-		else if (this->body->GetLinearVelocity().y > 0)
-			this->setRotation(270);
-		else if (this->body->GetLinearVelocity().y < 0)
-			this->setRotation(90);
+		if ((this->last_speed.x > -0.02f && this->body->GetLinearVelocity().x < 0.02f && this->last_speed.x != this->body->GetLinearVelocity().x) || (this->last_speed.x < 0.02f && this->body->GetLinearVelocity().x > -0.02f && this->last_speed.x != this->body->GetLinearVelocity().x) || (this->last_speed.y > 0 && this->body->GetLinearVelocity().y < 0) || (this->last_speed.y < -0.2f && this->body->GetLinearVelocity().y >= -0.05f))
+		{
+			this->stop = true;
+			this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+			this->body->SetSleepingAllowed(true);
+			this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
+			return;
+		}
+		this->last_speed = this->body->GetLinearVelocity();
+
+		if (fabs(this->body->GetLinearVelocity().x) > fabs(this->body->GetLinearVelocity().y))
+		{
+			if (this->body->GetLinearVelocity().x > 0)
+				this->setRotation(180);
+			else
+				this->setRotation(0);
+		}
+		else
+		{
+			if (this->body->GetLinearVelocity().y > 0)
+				this->setRotation(270);
+			else
+				this->setRotation(90);
+		}
 
 		//Pozycja
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
@@ -96,7 +116,7 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 
 void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
 {
-	if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
+	if (!this->stop)
 	{
 		//Kolizje z Bonusowymi blokami
 		for (int i = bonus_block.size() - 1; i >= 0; i--)

@@ -8,6 +8,7 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	
 	this->can_crush = false;
 
+	this->arrows = 1;
 	this->bonus[0] = 5;
 	this->bonus[1] = 0;
 
@@ -15,6 +16,24 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	{
 		this->bonus_sprite[i].setTexture(t_characters_bonus_icon[this->character_type][i]);
 		this->bonus_sprite[i].setColor(sf::Color(this->bonus_sprite[i].getColor().g, this->bonus_sprite[i].getColor().b, this->bonus_sprite[i].getColor().a, 192));
+	}
+}
+
+void cArcher::addPassiveSkill(unsigned short skill_id)
+{
+	switch (skill_id)
+	{
+	case 0: {this->arrows++; break;}
+	case 1: {this->max_speed_x = 4.5f + 0.45f * (pow(0.8f, 0.2f * this->number_of_skill[skill_id])); break;}	//4.5 + (max ~ 10 (pierwszy skill ~ 0.43 - ka¿dy nastêpny ma coraz mniejszy krok wzrostu))
+	}
+}
+
+void cArcher::addPower(short power_id)
+{
+	switch (power_id)
+	{
+	case 1: {this->bonus[0] += 5; break;}
+	case 2: {this->bonus[1]++; break;}
 	}
 }
 
@@ -171,14 +190,63 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 
 void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
+	b2Vec2 force;
+	sf::Vector2f start_pos;
+	struct
+	{
+		bool x = false, y = false;
+	} increase;	//Czy wartoœci si³y maj¹ wzrastaæ?
+
 	if (shot_direction == DIR_UP)
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, b2Vec2(0.0f, -10.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 0.25f, 1 + this->number_of_skill[1], this->player_no));
+	{
+		force = b2Vec2(0.0f - 5 * 0.5f, -10.0f + 5 * 0.5f);
+		start_pos = sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4);
+		increase.x = true;
+		increase.y = false;
+	}
 	else if (shot_direction == DIR_DOWN)
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, b2Vec2(0.0f, 10.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 0.25f, 1 + this->number_of_skill[1], this->player_no));
+	{
+		force = b2Vec2(0.0f - 5 * 0.5f, 10.0f - 5 * 0.5f);
+		start_pos = sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4);
+		increase.x = true;
+		increase.y = true;
+	}
 	else if (shot_direction == DIR_LEFT)
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, b2Vec2(-10.0f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 0.25f, 1 + this->number_of_skill[1], this->player_no));
-	else if (shot_direction == DIR_RIGHT)
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, b2Vec2(10.0f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 0.25f, 1 + this->number_of_skill[1], this->player_no));
+	{
+		force = b2Vec2(-10.0f + 5 * 0.5f + 2.0f, 0.0f - 5 * 0.5f - 2.0f);
+		start_pos = sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y);
+		increase.x = false;
+		increase.y = true;
+	}
+	else
+	{
+		force = b2Vec2(10.0f - 5 * 0.5f - 2.0f, 0.0f - 5 * 0.5f - 2.0f);
+		start_pos = sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y);
+		increase.x = true;
+		increase.y = true;
+	}
+
+	for (int i = 0; i < this->arrows; i++)
+	{
+		if (force.x >= 10.0f)
+			increase.x = false;
+		else if (force.x <= -10.0f)
+			increase.x = true;
+		if (force.y >= 10.0f)
+			increase.y = false;
+		else if (force.y <= -10.0f)
+			increase.y = true;
+		
+		if (increase.x)
+			force.x += 2.5f / ((this->arrows + 1) * 0.5f);
+		else
+			force.x -= 2.5f / ((this->arrows + 1) * 0.5f);
+		if (increase.y)
+			force.y += 2.5f / ((this->arrows + 1) * 0.5f);
+		else
+			force.y -= 2.5f / ((this->arrows + 1) * 0.5f);
+		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, 0.25f, 1, this->player_no));
+	}
 }
 
 void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBullet>& bullet)
@@ -189,6 +257,9 @@ void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBu
 		this->animationStanding();
 		this->shot(world, world_type, bullet, this->dir);
 	}
+
+	if (this->exp >= this->requiredExpToLevelUp())
+		this->levelUp();
 }
 
 void cArcher::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed)
