@@ -66,9 +66,9 @@ class cMap
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 
 public:
-	cMap(eWorld world, short number_of_players, bool *modulators);				//Tworzenie mapy za pomoca funkcji generate()
+	cMap(eWorld world, short number_of_players, eCharacter character[], bool *modulators);				//Tworzenie mapy za pomoca funkcji generate()
 	
-	void levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level);	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
+	void levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[] = {});	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
 	
 	bool movements(sf::RenderWindow &win, sf::View &view, bool *modulators);	//Ruch œwiata (Box2D + ewentualne dodatkowe) (w przypdaku œmierci wsyzstkich graczy zwraca FALSE)
 	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran

@@ -48,6 +48,12 @@ enum eWorld
 	WORLD_DESERT = 4
 };
 
+enum eCharacter
+{
+	CHARACTER_KNIGHT = 0,
+	CHARACTER_ARCHER = 1
+};
+
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...
 {
 	OBJECT_NONE = 0,

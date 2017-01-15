@@ -1,15 +1,15 @@
 #include "map.h"
 #include <iostream>
 
-cMap::cMap(eWorld world, short number_of_players, bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(number_of_players, modulators, false, false);
+	levelGenerator(number_of_players, modulators, false, false, character);
 }
 
-void cMap::levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level)
+void cMap::levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
 {
 	system("CLS");
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
@@ -622,7 +622,11 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		for (int i = 0; i < number_of_players; i++)
 		{
 			cKnight *knight = new cKnight(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			cCharacter *temp_player = knight;
+			cCharacter *temp_player = NULL;
+			switch (character[i])
+			{
+			default: temp_player = knight;
+			}
 
 			bool end = false;	//Nie przydzielono pozycji
 

@@ -30,6 +30,7 @@ sf::Texture t_button_rebirth;
 sf::Texture t_button_extra_life;
 sf::Texture t_button_extra_hp;
 sf::Texture t_close_button;
+sf::Texture t_selected_character;
 
 bool initGraph()
 {
@@ -307,6 +308,8 @@ bool initGraph()
 	if (!t_button_extra_hp.loadFromFile("graphics\\others\\button_extra_hp.png"))
 		return false;
 	if (!t_close_button.loadFromFile("graphics\\others\\close_button.png"))
+		return false;
+	if (!t_selected_character.loadFromFile("graphics\\others\\selected_character.png"))
 		return false;
 
 	return true;

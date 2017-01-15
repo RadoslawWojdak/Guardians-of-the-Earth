@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *modulators_tab)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -51,9 +51,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *mo
 		case 0:	//Nowa gra
 		{
 			if (menuChooseNumberOfPlayers(win, players, modulators_tab))
-				end_loop = true;
-			else
-				option = -1;
+			{
+				if (menuSelectCharacters(win, players, character, modulators_tab))
+					end_loop = true;
+			}
 			break;
 		}
 		case 1:	//Wczytaj grê
@@ -63,7 +64,6 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *mo
 		case 2:	//Opcje
 		{
 			menuOptions(win);
-			option = -1;
 			break;
 		}
 		case 3: //Wyjœcie
@@ -73,10 +73,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *mo
 		case 4:
 		{
 			menuProfiles(win, profile);
-			option = -1;
 			break;
 		}
 		}
+		option = -1;
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
@@ -188,6 +188,104 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		case 5: {g_score_multipler += modulators_tab[i] * 0.2f; break;}
 		}
 	}
+
+	if (win.isOpen() && !back_pressed)
+		return true;
+	return false;
+}
+
+bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter character[], bool *modulators_tab)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
+	bool click = true;
+	bool end_loop = false;
+	bool back_pressed = false;
+
+	const int NUMBER_OF_BUTTONS = players * 2 + 2;
+	const int CHARACTERS = 2;
+
+	sf::Sprite *selected_character = new sf::Sprite[players];
+
+	class cButton *button = new cButton[NUMBER_OF_BUTTONS];
+	for (int i = 0; i < players; i++)
+	{
+		character[i] = (eCharacter)0;
+
+		float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
+
+		selected_character[i].setTexture(t_selected_character);
+		selected_character[i].setOrigin(selected_character[i].getTextureRect().width / 2, selected_character[i].getTextureRect().height / 2);
+		selected_character[i].setPosition(start_x + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+
+		for (int j = 0; j < CHARACTERS; j++)
+		{
+			button[i * CHARACTERS + j] = cButton(sf::Vector2f(0, 0), "", t_character[j]);
+			button[i * CHARACTERS + j].setTextureRect(sf::IntRect(66, 0, 22, 32));
+			button[i * CHARACTERS + j].setOrigin(button[i * CHARACTERS + j].getTextureRect().width / 2, button[i * CHARACTERS + j].getTextureRect().height / 2);
+			button[i * CHARACTERS + j].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+		}
+	}
+	button[NUMBER_OF_BUTTONS - 2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 8), "Start");
+	button[NUMBER_OF_BUTTONS - 1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 40), "Back");
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		//Dzia³ania na przyciskach
+		bool selected = false;
+		for (int i = 0; i < players; i++)
+		{
+			for (int j = 0; j < CHARACTERS; j++)
+			{
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && button[i * CHARACTERS + j].isMouseOver(win))
+				{
+					float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
+					selected_character[i].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+
+					character[i] = (eCharacter)j;
+					selected = true;
+					break;
+				}
+			}
+			if (selected)
+				break;
+		}
+		//START, BACK BUTTON
+		for (int i = 1; i <= 2; i++)
+		{
+			bool is_mouse_over = button[NUMBER_OF_BUTTONS - i].isMouseOver(win);
+			button[NUMBER_OF_BUTTONS - i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				end_loop = true;
+				if (i == 1)
+					back_pressed = true;
+			}
+		}
+		//!START, BACK BUTTON
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		for (int i = 0; i < players; i++)
+			win.draw(selected_character[i]);
+		for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
 
 	if (win.isOpen() && !back_pressed)
 		return true;
