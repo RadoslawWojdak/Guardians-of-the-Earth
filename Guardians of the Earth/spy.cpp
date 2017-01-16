@@ -12,6 +12,9 @@ cSpy::cSpy(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short pl
 	this->bonus[1] = 0;
 
 	this->ivisibility_timer = 0;
+	this->taser_timer = 0;
+
+	this->has_taser = true;
 
 	for (short i = 0; i < 2; i++)
 	{
@@ -76,6 +79,29 @@ void cSpy::stopInvisibility()
 bool cSpy::isInvisibility()
 {
 	if (this->ivisibility_timer > 0)
+		return true;
+	return false;
+}
+
+void cSpy::usedTaser()
+{
+	this->taser_timer = 900;
+	this->has_taser = false;
+}
+
+void cSpy::taserCountdown()
+{
+	if (this->taser_timer > 0)
+	{
+		this->taser_timer--;
+		if (this->taser_timer == 0)
+			this->has_taser = true;
+	}
+}
+
+bool cSpy::canUseTaser()
+{
+	if (this->taser_timer == 0)
 		return true;
 	return false;
 }
@@ -205,6 +231,201 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 	}
 }
 
+void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+{
+	if (!this->isDead())
+	{
+		//Kolizje z Bonusowymi blokami
+		for (int i = bonus_block.size() - 1; i >= 0; i--)
+		{
+			if (this->getGlobalBounds().intersects(bonus_block[i].getGlobalBounds()))
+			{
+				if (this->last_position.y - this->getOrigin().y >= bonus_block[i].getPosition().y + this->getOrigin().y || this->isSpecial1())
+				{
+					this->addStatsForBonusBlock();
+					bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->last_speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->last_speed.y * 2.25f), modulators);
+					bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
+					bonus_block.erase(bonus_block.begin() + i);
+				}
+			}
+		}
+
+		//Kolizje z NPC-ami
+		for (int i = npc.size() - 1; i >= 0; i--)
+		{
+			if (this->getGlobalBounds().intersects(npc[i].getGlobalBounds()))
+			{
+				if ((this->last_position.y + this->getOrigin().y <= npc[i].getLastPosition().y - this->getOrigin().y + 3 && (!npc[i].getFeatures().top_hurts || this->isSpecial1())))	//Je¿eli postaæ spad³a na NPC-a; last_position naprawia b³êdy zwi¹zane z œmierci¹ postaci, gdy spada³a zbyt szybko; +3 - gdy postaæ znajduje siê tu¿ nad NPC-em i chce na niego spaœæ (gracz nie chodi tu¿ nad pod³o¿em, lecz bezpoœrednio na nim)
+				{
+					this->setAllPositions(sf::Vector2f(this->getPosition().x, npc[i].getGlobalBounds().top - this->getTextureRect().height / 2 - 4));
+
+					if (this->can_crush)
+					{
+						npc[i].hurt(1.0f);
+						if (npc[i].isDead())
+						{
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
+					}
+
+					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					{
+						this->jump(-5.0f - this->extra_height_of_jump);
+						this->stop_jump = false;
+					}
+					else
+						this->jump(-3.0f - this->extra_height_of_jump / 1.35f);
+
+					this->possible_extra_jumps = this->extra_jump;
+				}
+				else	//Je¿eli dotkniêto NPC-a w inny sposób
+				{
+					if (!this->canUseTaser())
+					{
+						if (!this->isInviolability())
+							this->beenHit();
+					}
+					else
+					{
+						this->usedTaser();
+						npc[i].kill();
+						this->addStatsForNPC(npc[i]);
+						npc.erase(npc.begin() + i);
+					}
+				}
+			}
+		}
+
+		if (this->isDead())
+			return;
+
+		//Kolizje z power-up'ami
+		for (int i = power_up.size() - 1; i >= 0; i--)
+		{
+			if (this->getGlobalBounds().intersects(power_up[i].getGlobalBounds()))
+			{
+				this->addStatsForPowerUp(power_up[i]);
+				power_up.erase(power_up.begin() + i);
+			}
+		}
+
+		//Kolizje ze skarbami
+		for (int i = treasure.size() - 1; i >= 0; i--)
+		{
+			if (this->getGlobalBounds().intersects(treasure[i].getGlobalBounds()))
+			{
+				this->addStatsForTreasure(treasure[i]);
+				treasure.erase(treasure.begin() + i);
+			}
+		}
+
+		//Kolizje z lodem
+		if (world_type == WORLD_ICE_LAND)
+		{
+			if (this->can_jump)	//Dopiero jak stanie na czymœ innym ni¿ lód, to przestaje siê œlizgaæ
+				this->is_on_ice = false;
+			for (unsigned short i = 0; i < fluid.size(); i++)
+			{
+				if (this->getGlobalBounds().intersects(fluid[i].getGlobalBounds()))
+				{
+					this->is_on_ice = true;
+					break;
+				}
+			}
+		}
+
+		//Kolizje z trampolinami
+		for (unsigned short i = 0; i < trampoline.size(); i++)
+		{
+			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
+			{
+				if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+				{
+					this->jump(-6.0f - this->extra_height_of_jump);
+					this->stop_jump = false;
+				}
+				else
+					this->jump(-4.0f - this->extra_height_of_jump / 1.5f);
+
+				this->possible_extra_jumps = this->extra_jump;
+				break;	//Nawet gdyby by³o wiêcej trampolin to nie robi³oby to ró¿nicy
+			}
+		}
+
+		//Kolizje z drabinami
+		bool ladder_collision = false;
+		for (unsigned int i = 0; i < ladder.size(); i++)
+		{
+			if (this->getGlobalBounds().intersects(ladder[i].getGlobalBounds()))
+			{
+				ladder_collision = true;
+
+				if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) || sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+				{
+					this->dir = DIR_UP;
+
+					this->body->SetGravityScale(0.0f);
+					this->is_on_ladder = true;
+					this->stop_jump = true;
+					this->can_jump = true;
+
+					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
+					{
+						this->dir = DIR_UP;
+						this->body->SetLinearVelocity(b2Vec2(0.0f, -(this->max_speed_x + this->extra_speed) * 0.39f));
+						if (!this->isSpecial1())
+							this->animationClimbing(true);
+					}
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
+					{
+						this->dir = DIR_DOWN;
+						this->body->SetLinearVelocity(b2Vec2(0.0f, (this->max_speed_x + this->extra_speed) * 0.39f));
+						if (!this->isSpecial1())
+							this->animationClimbing(false);
+					}
+				}
+
+				if (this->is_on_ladder)
+				{
+					this->possible_extra_jumps = this->extra_jump;
+
+					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
+
+					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
+						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
+
+					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+					{
+						this->dir = DIR_LEFT;
+						this->body->SetLinearVelocity(b2Vec2(-(this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
+					}
+					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+					{
+						this->dir = DIR_RIGHT;
+						this->body->SetLinearVelocity(b2Vec2((this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
+					}
+
+					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					{
+						this->jump(-5.0f - this->extra_height_of_jump);
+						this->stop_jump = false;
+						this->is_on_ladder = false;
+					}
+				}
+
+				break;	//Nawet gdyby by³o wiêcej drabin to nie robi³oby to ró¿nicy
+			}
+		}
+		if (!ladder_collision)
+			this->is_on_ladder = false;
+	}
+}
+
 void cSpy::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
 	if (this->bonus[0] > 0)
@@ -238,6 +459,7 @@ void cSpy::checkIndicators(b2World *world, eWorld world_type, std::vector <cBull
 	}
 	//!Timer u¿ywania bonusu 1
 	this->invisibilityCountdown();
+	this->taserCountdown();
 	
 	if (this->exp >= this->requiredExpToLevelUp())
 		this->levelUp();

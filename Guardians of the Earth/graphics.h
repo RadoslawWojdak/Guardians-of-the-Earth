@@ -26,6 +26,7 @@ extern sf::Texture t_stats_window;
 extern sf::Texture t_pause_menu_window;
 extern sf::Texture t_dialog_window;
 extern sf::Texture t_heart;
+extern sf::Texture t_taser;
 extern sf::Texture t_experience_bar;
 extern sf::Texture t_discount_sign;
 extern sf::Texture t_button;

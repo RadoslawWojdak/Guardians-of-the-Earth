@@ -71,12 +71,14 @@ protected:
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
+	sf::Sprite taser;
 	sf::Sprite bonus_sprite[2];
 	unsigned int immunity_time;
 	unsigned int special1_time;
 	unsigned short life;
 	unsigned int score;
 	unsigned int cash;
+	bool has_taser;
 
 	float max_speed_x;
 	float extra_speed;
@@ -110,7 +112,7 @@ public:
 	void beenHit();
 	void kill();
 	virtual void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
-	void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	virtual void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
 	virtual void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia

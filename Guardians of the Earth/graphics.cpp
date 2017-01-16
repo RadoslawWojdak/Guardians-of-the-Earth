@@ -21,6 +21,7 @@ sf::Texture t_stats_window;
 sf::Texture t_pause_menu_window;
 sf::Texture t_dialog_window;
 sf::Texture t_heart;
+sf::Texture t_taser;
 sf::Texture t_experience_bar;
 sf::Texture t_discount_sign;
 sf::Texture t_button;
@@ -291,6 +292,8 @@ bool initGraph()
 	if (!t_dialog_window.loadFromFile("graphics\\others\\dialog_window.png"))
 		return false;
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+		return false;
+	if (!t_taser.loadFromFile("graphics\\others\\taser.png"))
 		return false;
 	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
 		return false;

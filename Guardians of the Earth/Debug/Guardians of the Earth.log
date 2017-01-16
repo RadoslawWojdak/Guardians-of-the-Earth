@@ -1,29 +1,4 @@
 ﻿  spy.cpp
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  treasure.cpp
-  trampoline.cpp
-  powerup.cpp
-  pet.cpp
-  objectlevel.cpp
-  npc.cpp
-  ladder.cpp
-  ground.cpp
-  fluid.cpp
-  characterAnimation.cpp
-  bonusblock.cpp
-  block.cpp
-  backgroundobject.cpp
-  animatedObjectLevel.cpp
-  shop.cpp
-  menu.cpp
-  map.cpp
-  main.cpp
-  knight.cpp
-  global_variables.cpp
-  character.cpp
-  bullet.cpp
-  archer.cpp
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)

@@ -107,12 +107,15 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->stats_window.setColor(sf::Color(this->stats_window.getColor().g, this->stats_window.getColor().b, this->stats_window.getColor().a, 192));
 	this->heart.setTexture(t_heart);
 	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
-	
+	this->taser.setTexture(t_taser);
+	this->taser.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
+
 	this->immunity_time = 0;
 	this->special1_time = 0;
 	this->life = 3;
 	this->score = 0;
 	this->cash = 0;
+	this->has_taser = false;
 
 	this->max_speed_x = 4.5f;
 	this->extra_speed = 0.0f;
@@ -741,6 +744,13 @@ void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
 		text.setString(text_str);
 		text.setPosition(left_top_corner.x + this->bonus_sprite[i].getTextureRect().width + i * 64, left_top_corner.y + t_stats_window.getSize().y + 6 - text.getGlobalBounds().height / 2);
 		win.draw(text);
+	}
+
+	//Paralizator
+	if (this->has_taser)
+	{
+		this->taser.setPosition(left_top_corner.x, left_top_corner.y + t_stats_window.getSize().y + this->bonus_sprite[0].getTextureRect().height + 12);
+		win.draw(this->taser);
 	}
 }
 
