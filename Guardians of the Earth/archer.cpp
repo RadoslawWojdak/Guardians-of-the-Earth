@@ -207,6 +207,10 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				if (this->bonus[1] > 0 && this->bonus2_timer == 0)
 				{
 					bonus[1]--;
+					
+					this->extra_speed = this->max_speed_x / 1.65f;
+					this->extra_height_of_jump = 0.75f;
+					this->extra_jump += this->number_of_skill[2];
 					bonus2_timer = 600;
 				}
 			}
@@ -311,15 +315,11 @@ void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBu
 
 	//Timer bonusu 2
 	this->bonus2Countdown();
-	if (this->bonus2_timer > 0)
-	{
-		this->extra_speed = this->max_speed_x / 1.65f;
-		this->extra_height_of_jump = 0.75f;
-	}
-	else
+	if (this->bonus2_timer == 1)
 	{
 		this->extra_speed = 0.0f;
 		this->extra_height_of_jump = 0.0f;
+		this->extra_jump -= this->number_of_skill[2];
 	}
 
 	if (this->exp >= this->requiredExpToLevelUp())

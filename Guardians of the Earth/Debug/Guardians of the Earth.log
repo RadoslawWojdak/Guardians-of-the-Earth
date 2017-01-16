@@ -1,5 +1,4 @@
-﻿  knight.cpp
+﻿  archer.cpp
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\character.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\knight.cpp(26): warning C4065: switch statement contains 'default' but no 'case' labels
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)
