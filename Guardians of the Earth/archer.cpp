@@ -11,7 +11,6 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	this->arrows = 1;
 	this->bonus[0] = 5;
 	this->bonus[1] = 5;
-	this->number_of_skill[3] = 0;
 
 	this->extra_shot_timer = 0;
 	this->bonus2_timer = 0;
@@ -267,7 +266,7 @@ void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 			force.y += 2.5f / ((this->arrows + 1) * 0.5f);
 		else
 			force.y -= 2.5f / ((this->arrows + 1) * 0.5f);
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, strength, piercing, this->player_no));
+		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, strength, piercing, 0, this->player_no));
 	}
 }
 
@@ -369,10 +368,10 @@ void cArcher::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner,
 
 	//Obrazki nad umiejêtnoœciami
 	sf::Sprite passive_text(t_passive_text);
-	passive_text.setPosition(sf::Vector2f(left_top_corner.x + 32 + t_characters_skill[0][0].getSize().x / 2 - this->bonus_sprite[0].getTextureRect().width / 2, left_top_corner.y + 100));
+	passive_text.setPosition(sf::Vector2f(left_top_corner.x + 32 + t_characters_skill[this->character_type][0].getSize().x / 2 - this->bonus_sprite[0].getTextureRect().width / 2, left_top_corner.y + 100));
 	win.draw(passive_text);
 
-	this->bonus_sprite[1].setPosition(sf::Vector2f(left_top_corner.x + 80 + t_characters_skill[0][2].getSize().x / 2 - this->bonus_sprite[1].getTextureRect().width / 2, left_top_corner.y + 100));
+	this->bonus_sprite[1].setPosition(sf::Vector2f(left_top_corner.x + 80 + t_characters_skill[this->character_type][2].getSize().x / 2 - this->bonus_sprite[1].getTextureRect().width / 2, left_top_corner.y + 100));
 	win.draw(this->bonus_sprite[1]);
 
 	//Umiejêtnoœci
@@ -392,14 +391,14 @@ void cArcher::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner,
 		}
 
 		//Umiejêtnoœæ
-		s_characters_skill[1][i].setPosition(pos);
+		s_characters_skill[this->character_type][i].setPosition(pos);
 		if (selected_skill == i + 1)
-			s_characters_skill[1][i].setColor(sf::Color(255, 255, 255));
+			s_characters_skill[this->character_type][i].setColor(sf::Color(255, 255, 255));
 		else if (this->lvl >= required_level)
-			s_characters_skill[1][i].setColor(sf::Color(128, 128, 128));
+			s_characters_skill[this->character_type][i].setColor(sf::Color(128, 128, 128));
 		else
-			s_characters_skill[1][i].setColor(sf::Color(16, 16, 16));
-		win.draw(s_characters_skill[1][i]);
+			s_characters_skill[this->character_type][i].setColor(sf::Color(16, 16, 16));
+		win.draw(s_characters_skill[this->character_type][i]);
 
 		//Napis
 		if (this->lvl >= required_level)
@@ -410,7 +409,7 @@ void cArcher::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner,
 
 			text.setString(number);
 			text.setFillColor(sf::Color(255, 215, 0));
-			text.setPosition(sf::Vector2f(pos.x + s_characters_skill[1][i].getTextureRect().width - 4, pos.y + s_characters_skill[1][i].getTextureRect().height - 4));
+			text.setPosition(sf::Vector2f(pos.x + s_characters_skill[this->character_type][i].getTextureRect().width - 4, pos.y + s_characters_skill[this->character_type][i].getTextureRect().height - 4));
 			win.draw(text);
 		}
 	}

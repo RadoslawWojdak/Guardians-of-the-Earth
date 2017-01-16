@@ -61,7 +61,8 @@ enum eWorld
 enum eCharacter
 {
 	CHARACTER_KNIGHT = 0,
-	CHARACTER_ARCHER = 1
+	CHARACTER_ARCHER = 1,
+	CHARACTER_SPY = 2
 };
 
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...

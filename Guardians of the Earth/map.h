@@ -22,6 +22,7 @@
 #include "menu.h"
 #include "knight.h"
 #include "archer.h"
+#include "spy.h"
 
 /*
 Skróty (skrót + s = liczba mnoga):

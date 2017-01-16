@@ -67,8 +67,8 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 			this->setScale(1.0f, 1.0f);
 
 			this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
-			if (this->body->GetLinearVelocity().x > max_speed_x * speed_multipler)
-				this->body->SetLinearVelocity(b2Vec2(max_speed_x * speed_multipler, this->body->GetLinearVelocity().y));
+			if (this->body->GetLinearVelocity().x > (max_speed_x + this->extra_speed) * speed_multipler)
+				this->body->SetLinearVelocity(b2Vec2((max_speed_x + this->extra_speed) * speed_multipler, this->body->GetLinearVelocity().y));
 			else if (this->body->GetLinearVelocity().x < 0)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
@@ -83,8 +83,8 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 			this->setScale(-1.0f, 1.0f);
 
 			this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
-			if (this->body->GetLinearVelocity().x < -max_speed_x * speed_multipler)
-				this->body->SetLinearVelocity(b2Vec2(-max_speed_x * speed_multipler, this->body->GetLinearVelocity().y));
+			if (this->body->GetLinearVelocity().x < -(max_speed_x + this->extra_speed) * speed_multipler)
+				this->body->SetLinearVelocity(b2Vec2(-(max_speed_x + this->extra_speed) * speed_multipler, this->body->GetLinearVelocity().y));
 			else if (this->body->GetLinearVelocity().x > 0)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
@@ -120,9 +120,9 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 			if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
 			{
 				if (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0)	//Dodatkowe skoki s¹ ni¿sze ni¿ g³ówne
-					this->jump(-4.0f);
+					this->jump(-4.0f - ((float)this->extra_height_of_jump / 1.5f));
 				else
-					this->jump(-5.0f);
+					this->jump(-5.0f - this->extra_height_of_jump);
 				if (this->is_immersed_in == FLUID_NONE)
 					this->stop_jump = false;
 			}
@@ -139,7 +139,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				{
 					this->shot(physics_world, world_type, bullet, this->dir);
 					//Je¿eli gracz u¿ywa bonusu 2 (krêcenie siê), to zaczyna strzelaæ pociskami
-					if (this->isSpecial1())
+					if (this->isSpecial1() && this->b1_in_b2_timer == 0)
 					{
 						this->startB1InB2();
 						this->shot_dir = this->dir;
@@ -165,13 +165,13 @@ void cKnight::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 		this->bonus[0]--;
 
 		if (shot_direction == DIR_UP)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
 		else if (shot_direction == DIR_DOWN)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
 		else if (shot_direction == DIR_LEFT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
 		else if (shot_direction == DIR_RIGHT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
 	}
 }
 
@@ -271,10 +271,10 @@ void cKnight::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner,
 	win.draw(text);
 
 	//Obrazki nad umiejêtnoœciami
-	this->bonus_sprite[0].setPosition(sf::Vector2f(left_top_corner.x + 32 + t_characters_skill[0][0].getSize().x / 2 - this->bonus_sprite[0].getTextureRect().width / 2, left_top_corner.y + 100));
+	this->bonus_sprite[0].setPosition(sf::Vector2f(left_top_corner.x + 32 + t_characters_skill[this->character_type][0].getSize().x / 2 - this->bonus_sprite[0].getTextureRect().width / 2, left_top_corner.y + 100));
 	win.draw(this->bonus_sprite[0]);
 
-	this->bonus_sprite[1].setPosition(sf::Vector2f(left_top_corner.x + 80 + t_characters_skill[0][2].getSize().x / 2 - this->bonus_sprite[1].getTextureRect().width / 2, left_top_corner.y + 100));
+	this->bonus_sprite[1].setPosition(sf::Vector2f(left_top_corner.x + 80 + t_characters_skill[this->character_type][2].getSize().x / 2 - this->bonus_sprite[1].getTextureRect().width / 2, left_top_corner.y + 100));
 	win.draw(this->bonus_sprite[1]);
 
 	//Umiejêtnoœci
@@ -294,14 +294,14 @@ void cKnight::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner,
 		}
 
 		//Umiejêtnoœæ
-		s_characters_skill[0][i].setPosition(pos);
+		s_characters_skill[this->character_type][i].setPosition(pos);
 		if (selected_skill == i + 1)
-			s_characters_skill[0][i].setColor(sf::Color(255, 255, 255));
+			s_characters_skill[this->character_type][i].setColor(sf::Color(255, 255, 255));
 		else if (this->lvl >= required_level)
-			s_characters_skill[0][i].setColor(sf::Color(128, 128, 128));
+			s_characters_skill[this->character_type][i].setColor(sf::Color(128, 128, 128));
 		else
-			s_characters_skill[0][i].setColor(sf::Color(16, 16, 16));
-		win.draw(s_characters_skill[0][i]);
+			s_characters_skill[this->character_type][i].setColor(sf::Color(16, 16, 16));
+		win.draw(s_characters_skill[this->character_type][i]);
 
 		//Napis
 		if (this->lvl >= required_level)
@@ -312,7 +312,7 @@ void cKnight::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner,
 
 			text.setString(number);
 			text.setFillColor(sf::Color(255, 215, 0));
-			text.setPosition(sf::Vector2f(pos.x + s_characters_skill[0][i].getTextureRect().width - 4, pos.y + s_characters_skill[0][i].getTextureRect().height - 4));
+			text.setPosition(sf::Vector2f(pos.x + s_characters_skill[this->character_type][i].getTextureRect().width - 4, pos.y + s_characters_skill[this->character_type][i].getTextureRect().height - 4));
 			win.draw(text);
 		}
 	}

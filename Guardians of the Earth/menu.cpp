@@ -202,8 +202,8 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 	bool end_loop = false;
 	bool back_pressed = false;
 
-	const int NUMBER_OF_BUTTONS = players * 2 + 2;
-	const int CHARACTERS = 2;
+	const int CHARACTERS = g_number_of_characters;
+	const int NUMBER_OF_BUTTONS = players * CHARACTERS + 2;
 
 	sf::Sprite *selected_character = new sf::Sprite[players];
 

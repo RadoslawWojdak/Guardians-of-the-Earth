@@ -1,6 +1,6 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, short player_id)
+cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, short player_id)
 {
 	this->adjustGraphicsParameters(texture, pos);
 
@@ -12,6 +12,7 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 	this->last_speed = speed;
 	this->strength = strength;
 	this->piercing = piercing;
+	this->bouncing = bouncing;
 	this->player_id = player_id;
 	
 	//BOX2D
@@ -34,6 +35,8 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 	fd.shape = &shape;
 	fd.density = 20.0f;
 	fd.friction = 50.0f;
+	if (this->bouncing > 0)
+		fd.restitution = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_BULLET);
 	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
@@ -45,16 +48,23 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 
 void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 {
-	//if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
 	if (!this->stop)
 	{
 		if ((this->last_speed.x > -0.02f && this->body->GetLinearVelocity().x < 0.02f && this->last_speed.x != this->body->GetLinearVelocity().x) || (this->last_speed.x < 0.02f && this->body->GetLinearVelocity().x > -0.02f && this->last_speed.x != this->body->GetLinearVelocity().x) || (this->last_speed.y > 0 && this->body->GetLinearVelocity().y < 0) || (this->last_speed.y < -0.2f && this->body->GetLinearVelocity().y >= -0.05f))
 		{
-			this->stop = true;
-			this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-			this->body->SetSleepingAllowed(true);
-			this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
-			return;
+			if (this->bouncing == 0)
+			{
+				this->stop = true;
+				this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+				this->body->SetSleepingAllowed(true);
+				this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
+				return;
+			}
+			else
+			{
+				this->bouncing--;
+				this->body->SetTransform(b2Vec2(this->body->GetPosition().x - this->last_speed.x * 0.02f, this->body->GetPosition().y - this->last_speed.y * 0.02f), 0);
+			}
 		}
 		this->last_speed = this->body->GetLinearVelocity();
 

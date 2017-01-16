@@ -141,6 +141,9 @@
     <ClCompile Include="archer.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="spy.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -234,6 +237,9 @@
       <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClInclude>
     <ClInclude Include="archer.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="spy.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClInclude>
   </ItemGroup>
