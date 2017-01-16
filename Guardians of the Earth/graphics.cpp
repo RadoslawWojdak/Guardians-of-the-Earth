@@ -10,12 +10,12 @@ sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
 sf::Texture t_npc[5];
 sf::Texture t_object[8];
-sf::Texture t_character[2];
-sf::Texture t_characters_bonus[2][2];
-sf::Texture t_characters_bonus_icon[2][2];
-sf::Texture t_characters_skill[2][4];
-sf::Sprite s_characters_skill[2][4];
-sf::Texture t_pet[2];
+sf::Texture t_character[g_number_of_characters];
+sf::Texture t_characters_bonus[g_number_of_characters][2];
+sf::Texture t_characters_bonus_icon[g_number_of_characters][2];
+sf::Texture t_characters_skill[g_number_of_characters][4];
+sf::Sprite s_characters_skill[g_number_of_characters][4];
+sf::Texture t_pet[g_number_of_characters];
 
 sf::Texture t_stats_window;
 sf::Texture t_pause_menu_window;
@@ -224,14 +224,14 @@ bool initGraph()
 	}
 
 	//POSTACIE
-	//Rycerz
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < g_number_of_characters; i++)
 	{
 		std::string character = "";
 		switch (i)
 		{
 		case 0: {character = "knight"; break;}
 		case 1: {character = "archer"; break;}
+		case 2: {character = "spy"; break;}
 		}
 
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
@@ -275,7 +275,7 @@ bool initGraph()
 			s_characters_skill[i][j].setTexture(t_characters_skill[i][j]);
 		}
 		//PET-Y
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < g_number_of_characters; j++)
 		{
 			std::string path = "graphics\\characters\\" + character + "\\pet.png";
 			if (!t_pet[i].loadFromFile(path))
