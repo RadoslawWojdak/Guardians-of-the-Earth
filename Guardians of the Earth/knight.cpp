@@ -18,14 +18,6 @@ cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	}
 }
 
-void cKnight::addPassiveSkill(unsigned short skill_id)
-{
-	switch (skill_id)
-	{
-	default: break;
-	}
-}
-
 void cKnight::addPower(short power_id)
 {
 	switch (power_id)
@@ -241,6 +233,12 @@ void cKnight::b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cB
 				this->b1_in_b2_timer = 30;
 		}
 	}
+}
+
+void cKnight::addSkill(unsigned short skill_id)
+{
+	this->number_of_skill[skill_id - 1]++;
+	this->skill_points--;
 }
 
 void cKnight::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed)

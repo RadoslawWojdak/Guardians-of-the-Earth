@@ -10,7 +10,8 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 
 	this->arrows = 1;
 	this->bonus[0] = 5;
-	this->bonus[1] = 0;
+	this->bonus[1] = 5;
+	this->number_of_skill[3] = 0;
 
 	this->extra_shot_timer = 0;
 	this->bonus2_timer = 0;
@@ -34,15 +35,6 @@ void cArcher::bonus2Countdown()
 		this->bonus2_timer--;
 }
 
-void cArcher::addPassiveSkill(unsigned short skill_id)
-{
-	switch (skill_id)
-	{
-	case 0: {this->arrows++; break;}
-	case 1: {this->max_speed_x = 4.5f + 0.45f * (pow(0.8f, 0.2f * this->number_of_skill[skill_id])); break;}	//4.5 + (max ~ 10 (pierwszy skill ~ 0.43 - ka¿dy nastêpny ma coraz mniejszy krok wzrostu))
-	}
-}
-
 void cArcher::addPower(short power_id)
 {
 	switch (power_id)
@@ -54,7 +46,7 @@ void cArcher::addPower(short power_id)
 
 void cArcher::startShooting()
 {
-	this->animationSpecial1(7);
+	this->animationSpecial1(7 - (bonus2_timer > 0 ? this->number_of_skill[3] : 0));
 }
 
 bool cArcher::isShooting()
@@ -84,7 +76,7 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 					this->extra_shot_timer = 25;
 			}
 			else
-				animationSpecial1(7);
+				animationSpecial1(7 - (bonus2_timer > 0 ? this->number_of_skill[3] : 0));
 
 			//Postaæ zaczyna siê zatrzymywaæ (podczas strza³u nie mo¿e siê poruszaæ)
 			if (this->body->GetLinearVelocity().x > 0)
@@ -324,6 +316,26 @@ void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBu
 
 	if (this->exp >= this->requiredExpToLevelUp())
 		this->levelUp();
+}
+
+void cArcher::addSkill(unsigned short skill_id)
+{
+	this->number_of_skill[skill_id - 1]++;
+	this->skill_points--;
+
+	switch (skill_id - 1)
+	{
+	case 0: {this->arrows++; break;}
+	case 1: {this->max_speed_x = 4.5f + 0.45f * (pow(0.8f, 0.2f * this->number_of_skill[skill_id])); break;}	//4.5 + (max ~ 10 (pierwszy skill ~ 0.43 - ka¿dy nastêpny ma coraz mniejszy krok wzrostu))
+	case 3:
+	{
+		if (this->number_of_skill[3] > 3)
+		{
+			this->number_of_skill[3]--;
+			this->skill_points++;
+		}
+	}
+	}
 }
 
 void cArcher::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed)

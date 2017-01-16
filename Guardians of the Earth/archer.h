@@ -15,7 +15,6 @@ class cArcher :public cCharacter
 	void startShooting();
 	bool isShooting();
 
-	virtual void addPassiveSkill(unsigned short skill_id);
 	virtual void addPower(short power_id);
 
 public:
@@ -26,6 +25,7 @@ public:
 
 	virtual void checkIndicators(b2World * world, eWorld world_type, std::vector<cBullet>& bullet);
 
+	virtual void addSkill(unsigned short skill_id);
 	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
 };
 

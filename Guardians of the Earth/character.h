@@ -53,9 +53,9 @@ protected:
 	eDirection dir = DIR_RIGHT;
 
 	sf::Sprite exp_bar;
-	unsigned short lvl = 1;
+	unsigned short lvl = 10;
 	unsigned int exp = 0;
-	unsigned short skill_points = 0;
+	unsigned short skill_points = 9;
 	unsigned short number_of_skill[4] = {};
 
 	cPet pet;
@@ -97,7 +97,6 @@ protected:
 	void initControlKeys(short player_no);
 	void jump(float force);
 	void levelUp();
-	virtual void addPassiveSkill(unsigned short skill_id);
 	void startInviolability();
 	void immunityCountdown();
 
@@ -126,7 +125,7 @@ public:
 	void addStatsForNPC(cNPC &npc);
 	void addStatsForBonusBlock();
 	void addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown);
-	void addSkill(unsigned short skill_id);
+	virtual void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);

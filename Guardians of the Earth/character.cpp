@@ -211,11 +211,6 @@ void cCharacter::levelUp()
 	this->skill_points++;
 }
 
-void cCharacter::addPassiveSkill(unsigned short skill_id)
-{
-	;
-}
-
 void cCharacter::startInviolability()
 {
 	this->immunity_time = 120;
@@ -636,10 +631,7 @@ void cCharacter::addStatsForEndOfLevel(unsigned int level_number, unsigned short
 
 void cCharacter::addSkill(unsigned short skill_id)
 {
-	this->number_of_skill[skill_id - 1]++;
-	this->skill_points--;
-
-	addPassiveSkill(skill_id - 1);
+	;
 }
 
 void cCharacter::subtractCash(unsigned int how_many_to_subtract)
