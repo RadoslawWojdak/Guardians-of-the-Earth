@@ -8,8 +8,10 @@ class cArcher :public cCharacter
 	unsigned short arrows;
 
 	short extra_shot_timer;
+	short bonus2_timer;
 
 	void extraShotCountdown();
+	void bonus2Countdown();
 	void startShooting();
 	bool isShooting();
 

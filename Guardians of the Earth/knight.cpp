@@ -9,7 +9,7 @@ cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	this->can_crush = true;
 
 	this->bonus[0] = 5;
-	this->bonus[1] = 2;
+	this->bonus[1] = 0;
 
 	for (short i = 0; i < 2; i++)
 	{
@@ -195,7 +195,7 @@ void cKnight::checkIndicators(b2World *world, eWorld world_type, std::vector <cB
 
 void cKnight::startSpecial1()
 {
-	if (this->bonus[1] > 0)
+	if (this->bonus[1] > 0 && !this->isSpecial1())
 	{
 		bonus[1]--;
 		this->special1_time = 600 + this->number_of_skill[2] * 100;

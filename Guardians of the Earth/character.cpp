@@ -115,7 +115,9 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->cash = 0;
 
 	this->max_speed_x = 4.5f;
+	this->extra_speed = 0.0f;
 	this->extra_jump = 0;
+	this->extra_height_of_jump = 0.0f;
 	if (modulators[1])
 		this->extra_jump++;
 	this->last_position = this->getPosition();
@@ -302,11 +304,11 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
-						this->jump(-5.0f);
+						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
 					}
 					else
-						this->jump(-3.0f);
+						this->jump(-3.0f - this->extra_height_of_jump / 1.35f);
 
 					this->possible_extra_jumps = this->extra_jump;
 				}
@@ -375,11 +377,11 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 			{
 				if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 				{
-					this->jump(-6.0f);
+					this->jump(-6.0f - this->extra_height_of_jump);
 					this->stop_jump = false;
 				}
 				else
-					this->jump(-4.0f);
+					this->jump(-4.0f - this->extra_height_of_jump / 1.5f);
 
 				this->possible_extra_jumps = this->extra_jump;
 				break;	//Nawet gdyby by³o wiêcej trampolin to nie robi³oby to ró¿nicy
@@ -408,14 +410,14 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
 					{
 						this->dir = DIR_UP;
-						this->body->SetLinearVelocity(b2Vec2(0.0f, -1.75f));
+						this->body->SetLinearVelocity(b2Vec2(0.0f, -(this->max_speed_x + this->extra_speed) * 0.39f));
 						if (!this->isSpecial1())
 							this->animationClimbing(true);
 					}
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
 					{
 						this->dir = DIR_DOWN;
-						this->body->SetLinearVelocity(b2Vec2(0.0f, 1.75f));
+						this->body->SetLinearVelocity(b2Vec2(0.0f, (this->max_speed_x + this->extra_speed) * 0.39f));
 						if (!this->isSpecial1())
 							this->animationClimbing(false);
 					}
@@ -435,17 +437,17 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
 					{
 						this->dir = DIR_LEFT;
-						this->body->SetLinearVelocity(b2Vec2(-1.0f, this->body->GetLinearVelocity().y));
+						this->body->SetLinearVelocity(b2Vec2(-(this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
 					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
 					{
 						this->dir = DIR_RIGHT;
-						this->body->SetLinearVelocity(b2Vec2(1.0f, this->body->GetLinearVelocity().y));
+						this->body->SetLinearVelocity(b2Vec2((this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
 
 					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
 					{
-						this->jump(-5.0f);
+						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
 						this->is_on_ladder = false;
 					}
@@ -463,7 +465,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 {
 	if (!this->isDead() && !this->is_on_ladder)	//Gdy gracz jest na drabinie, nie dzia³a na niego ¿adna grawitacja
 	{
-		//Gracz nie mo¿e przyspieszyæ postaci, gdy ta spada
+		//Gracz nie mo¿e przyspieszyæ skoku (zwiêkszaæ wysokoœci skoku) postaci, gdy ta spada
 		if (this->body->GetLinearVelocity().y >= 0)
 			this->stop_jump = true;
 
@@ -479,8 +481,8 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 				this->body->SetGravityScale(0.035f);
 				if (this->body->GetLinearVelocity().y > 0.5f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.5f));
-				else if (this->body->GetLinearVelocity().y < -0.5f)
-					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -0.5f));
+				else if (this->body->GetLinearVelocity().y < -0.5f - this->extra_height_of_jump * 0.1f)
+					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -0.5f - this->extra_height_of_jump * 0.1f));
 
 				break;
 			}
@@ -491,8 +493,8 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 				this->body->SetGravityScale(0.35f);
 				if (this->body->GetLinearVelocity().y > 2.0f)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 2.0f));
-				else if (this->body->GetLinearVelocity().y < -2.0f)
-					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -2.0f));
+				else if (this->body->GetLinearVelocity().y < -2.0f - this->extra_height_of_jump * 0.4f)
+					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -2.0f - this->extra_height_of_jump * 0.4f));
 
 				break;
 			}
@@ -504,7 +506,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 		else
 		{
 			if (this->is_immersed_in != FLUID_NONE && ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button))))	//Je¿eli wyskoczy³ z wody
-				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -5.0f));
+				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -5.0f - this->extra_height_of_jump));
 
 			this->body->SetGravityScale(1.0f);
 			this->is_immersed_in = FLUID_NONE;

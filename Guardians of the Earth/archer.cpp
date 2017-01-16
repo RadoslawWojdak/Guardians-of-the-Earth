@@ -13,6 +13,7 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	this->bonus[1] = 0;
 
 	this->extra_shot_timer = 0;
+	this->bonus2_timer = 0;
 
 	for (short i = 0; i < 2; i++)
 	{
@@ -25,6 +26,12 @@ void cArcher::extraShotCountdown()
 {
 	if (this->extra_shot_timer > 1)
 		this->extra_shot_timer--;
+}
+
+void cArcher::bonus2Countdown()
+{
+	if (this->bonus2_timer > 0)
+		this->bonus2_timer--;
 }
 
 void cArcher::addPassiveSkill(unsigned short skill_id)
@@ -121,8 +128,8 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				this->setScale(1.0f, 1.0f);
 
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
-				if (this->body->GetLinearVelocity().x > max_speed_x * speed_multipler)
-					this->body->SetLinearVelocity(b2Vec2(max_speed_x * speed_multipler, this->body->GetLinearVelocity().y));
+				if (this->body->GetLinearVelocity().x > (this->max_speed_x + this->extra_speed) * speed_multipler)
+					this->body->SetLinearVelocity(b2Vec2((this->max_speed_x + this->extra_speed) * speed_multipler, this->body->GetLinearVelocity().y));
 				else if (this->body->GetLinearVelocity().x < 0)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 			}
@@ -137,8 +144,8 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				this->setScale(-1.0f, 1.0f);
 
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.1f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
-				if (this->body->GetLinearVelocity().x < -max_speed_x * speed_multipler)
-					this->body->SetLinearVelocity(b2Vec2(-max_speed_x * speed_multipler, this->body->GetLinearVelocity().y));
+				if (this->body->GetLinearVelocity().x < -(this->max_speed_x + this->extra_speed) * speed_multipler)
+					this->body->SetLinearVelocity(b2Vec2(-(this->max_speed_x + this->extra_speed) * speed_multipler, this->body->GetLinearVelocity().y));
 				else if (this->body->GetLinearVelocity().x > 0)
 					this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 			}
@@ -174,9 +181,9 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				if ((this->body->GetLinearVelocity().y == 0 && this->can_jump) || (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0) || (this->body->GetLinearVelocity().y >= 0 && this->is_immersed_in != FLUID_NONE))	//1 - W przypadku gdy spadnie sk¹dœ (can_jump jest aktywne); 2 - W przypadku, gdy akurat prêdkoœæ Y by³aby równa 0 (miêdzy wyskokiem a upadkiem); 3 - W przypadku gdy obiekt jest zanurzony w p³ynie
 				{
 					if (this->body->GetLinearVelocity().y > 0 && this->body->GetLinearVelocity().y < 3.0f && this->possible_extra_jumps > 0)	//Dodatkowe skoki s¹ ni¿sze ni¿ g³ówne
-						this->jump(-4.0f);
+						this->jump(-4.0f - ((float)this->extra_height_of_jump / 1.5f));
 					else
-						this->jump(-5.0f);
+						this->jump(-5.0f - this->extra_height_of_jump);
 					if (this->is_immersed_in == FLUID_NONE)
 						this->stop_jump = false;
 				}
@@ -197,7 +204,11 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 
 			if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.special1.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.special1.button)))
 			{
-				;
+				if (this->bonus[1] > 0 && this->bonus2_timer == 0)
+				{
+					bonus[1]--;
+					bonus2_timer = 600;
+				}
 			}
 		}
 	}
@@ -277,7 +288,7 @@ void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBu
 				this->extraShotCountdown();
 			}
 		}
-		//Je¿eli gracz zdecydowa³ siê nie u¿yæ bonusu 1
+		//Je¿eli gracz zdecydowa³ siê nie u¿yæ bonusu 1 (wytwarza siê zwyk³a strza³a)
 		else if (this->isAnimationBeginsAgain())
 		{
 			this->animationStanding();
@@ -297,6 +308,19 @@ void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBu
 		this->extra_shot_timer = 0;
 	}
 	//!Timer u¿ywania bonusu 1
+
+	//Timer bonusu 2
+	this->bonus2Countdown();
+	if (this->bonus2_timer > 0)
+	{
+		this->extra_speed = this->max_speed_x / 1.65f;
+		this->extra_height_of_jump = 0.75f;
+	}
+	else
+	{
+		this->extra_speed = 0.0f;
+		this->extra_height_of_jump = 0.0f;
+	}
 
 	if (this->exp >= this->requiredExpToLevelUp())
 		this->levelUp();

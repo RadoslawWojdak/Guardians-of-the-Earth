@@ -697,6 +697,7 @@ bool menuPause(sf::RenderWindow &win)
 	sf::Sprite background(texture_background);
 
 	//Ustawienie widoku na punkt od (0; 0) (dziêki temu mo¿na dzia³aæ na pozycjach od punktu (0; 0) przy rysowaniu menu
+	sf::View start_view = win.getView();	//Poprzedni widok musi byæ zapisany, ¿eby gra nie przenosi³a gracza w okolice punktu (0; 0)
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
 	//Tworzenie t³a Menu Pauzy
@@ -766,6 +767,8 @@ bool menuPause(sf::RenderWindow &win)
 
 		win.display();
 	} while (win.isOpen() && !end_loop);
+
+	win.setView(start_view);
 
 	if (win.isOpen())
 		return true;

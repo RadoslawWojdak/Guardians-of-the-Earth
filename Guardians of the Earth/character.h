@@ -79,7 +79,9 @@ protected:
 	unsigned int cash;
 
 	float max_speed_x;
+	float extra_speed;
 	unsigned short extra_jump;	//Iloœæ dodatkowych skoków
+	float extra_height_of_jump;
 	unsigned short possible_extra_jumps = 0;	//Aktualna iloœæ mo¿liwych dodatkowych skoków do wykonania
 	sf::Vector2f last_position;
 	
