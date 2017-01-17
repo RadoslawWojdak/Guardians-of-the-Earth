@@ -10,7 +10,7 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 
 	this->arrows = 1;
 	this->bonus[0] = 5;
-	this->bonus[1] = 5;
+	this->bonus[1] = 0;
 
 	this->extra_shot_timer = 0;
 	this->bonus2_timer = 0;
