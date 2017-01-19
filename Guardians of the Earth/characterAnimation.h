@@ -2,6 +2,7 @@
 #define characterAnimation_h
 
 #include "animatedObjectLevel.h"
+#include "enums.h"
 
 class cCharacterAnimation :public cAnimatedObjectLevel
 {
@@ -13,7 +14,9 @@ protected:
 	void animationJumping();
 	void animationClimbing(bool climbs_up);
 	void animationSwimming();
-	void animationSpecial1();
+	void animationSpecial1(short time_between_frames);
+
+	eCharacterAnimationType getAnimationType();
 };
 
 #endif //!characterAnimation_h

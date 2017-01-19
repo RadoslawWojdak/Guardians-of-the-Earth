@@ -16,6 +16,16 @@ enum eCategory
 	CAT_BULLET = 8
 };
 
+enum eCharacterAnimationType
+{
+	ANIMATION_STANDING = 0,
+	ANIMATION_WALKING = 1,
+	ANIMATION_JUMPING = 2,
+	ANIMATION_CLIMBING = 3,
+	ANIMATION_SWIMMING = 4,
+	ANIMATION_SPECIAL1 = 5
+};
+
 enum eBackgroundType
 {
 	BG_NONE = 0,				//Brak typu
@@ -46,6 +56,13 @@ enum eWorld
 	WORLD_UNDERWATER = 2,
 	WORLD_ICE_LAND = 3,
 	WORLD_DESERT = 4
+};
+
+enum eCharacter
+{
+	CHARACTER_KNIGHT = 0,
+	CHARACTER_ARCHER = 1,
+	CHARACTER_SPY = 2
 };
 
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...

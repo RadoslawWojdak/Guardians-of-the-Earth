@@ -37,7 +37,7 @@ class cShop
 	cButton exit_button;
 	
 public:
-	cShop(std::vector <cCharacter> &player, bool *modulators);
+	cShop(std::vector <cCharacter*> &player, bool *modulators);
 
 	bool shopMenu(sf::RenderWindow &win);	//Zwraca wartoœæ FALSE, gdy okno programu zosta³o zamkniête
 };

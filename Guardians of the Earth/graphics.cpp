@@ -10,17 +10,18 @@ sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
 sf::Texture t_npc[5];
 sf::Texture t_object[8];
-sf::Texture t_character[2];
-sf::Texture t_characters_bonus[2][2];
-sf::Texture t_characters_bonus_icon[2][2];
-sf::Texture t_characters_skill[2][4];
-sf::Sprite s_characters_skill[2][4];
-sf::Texture t_pet[2];
+sf::Texture t_character[g_number_of_characters];
+sf::Texture t_characters_bonus[g_number_of_characters][2];
+sf::Texture t_characters_bonus_icon[g_number_of_characters][2];
+sf::Texture t_characters_skill[g_number_of_characters][4];
+sf::Sprite s_characters_skill[g_number_of_characters][4];
+sf::Texture t_pet[g_number_of_characters];
 
 sf::Texture t_stats_window;
 sf::Texture t_pause_menu_window;
 sf::Texture t_dialog_window;
 sf::Texture t_heart;
+sf::Texture t_taser;
 sf::Texture t_experience_bar;
 sf::Texture t_discount_sign;
 sf::Texture t_button;
@@ -30,6 +31,8 @@ sf::Texture t_button_rebirth;
 sf::Texture t_button_extra_life;
 sf::Texture t_button_extra_hp;
 sf::Texture t_close_button;
+sf::Texture t_selected_character;
+sf::Texture t_passive_text;
 
 bool initGraph()
 {
@@ -222,13 +225,14 @@ bool initGraph()
 	}
 
 	//POSTACIE
-	//Rycerz
-	for (unsigned int i = 0; i < 1; i++)
+	for (unsigned int i = 0; i < g_number_of_characters; i++)
 	{
 		std::string character = "";
 		switch (i)
 		{
 		case 0: {character = "knight"; break;}
+		case 1: {character = "archer"; break;}
+		case 2: {character = "spy"; break;}
 		}
 
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
@@ -271,20 +275,13 @@ bool initGraph()
 				return false;
 			s_characters_skill[i][j].setTexture(t_characters_skill[i][j]);
 		}
-	}
-
-	//PET-Y
-	for (unsigned int i = 0; i < 1; i++)
-	{
-		std::string nr;
-		std::stringstream ss;
-		ss << i + 1;
-		nr = ss.str();
-		ss.clear();
-
-		std::string path = "graphics\\pets\\pet-" + nr + ".png";
-		if (!t_pet[i].loadFromFile(path))
-			return false;
+		//PET-Y
+		for (int j = 0; j < g_number_of_characters; j++)
+		{
+			std::string path = "graphics\\characters\\" + character + "\\pet.png";
+			if (!t_pet[i].loadFromFile(path))
+				return false;
+		}
 	}
 
 	//INNE
@@ -295,6 +292,8 @@ bool initGraph()
 	if (!t_dialog_window.loadFromFile("graphics\\others\\dialog_window.png"))
 		return false;
 	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+		return false;
+	if (!t_taser.loadFromFile("graphics\\others\\taser.png"))
 		return false;
 	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
 		return false;
@@ -313,6 +312,10 @@ bool initGraph()
 	if (!t_button_extra_hp.loadFromFile("graphics\\others\\button_extra_hp.png"))
 		return false;
 	if (!t_close_button.loadFromFile("graphics\\others\\close_button.png"))
+		return false;
+	if (!t_selected_character.loadFromFile("graphics\\others\\selected_character.png"))
+		return false;
+	if (!t_passive_text.loadFromFile("graphics\\others\\passive_text.png"))
 		return false;
 
 	return true;

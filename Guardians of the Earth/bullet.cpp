@@ -1,22 +1,18 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Vector2f pos, unsigned short piercing, short player_id)
+cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, short player_id)
 {
-	this->adjustGraphicsParameters(t_characters_bonus[0][0], pos);
+	this->adjustGraphicsParameters(texture, pos);
 
-	if (speed.x > 0)
-		this->setRotation(180);
-	else if (speed.x < 0)
-		this->setRotation(0);
-	else if (speed.y > 0)
-		this->setRotation(270);
-	else if (speed.y < 0)
-		this->setRotation(90);
-
-	this->gravity = false;
+	this->destroyed = false;
+	this->stop = false;
+	this->gravity = gravity;
 	this->last_pos = pos;
 	this->speed = speed;
+	this->last_speed = speed;
+	this->strength = strength;
 	this->piercing = piercing;
+	this->bouncing = bouncing;
 	this->player_id = player_id;
 	
 	//BOX2D
@@ -28,15 +24,19 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Ve
 	body_def.allowSleep = true;
 
 	this->body = physics_world->CreateBody(&body_def);
-	this->body->SetGravityScale(0.0f);
+	if (!this->gravity)
+		this->body->SetGravityScale(0.0f);
 	this->body->SetBullet(true);
-
+	
 	b2PolygonShape shape;
 	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.02f);
 
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.density = 20.0f;
+	fd.friction = 50.0f;
+	if (this->bouncing > 0)
+		fd.restitution = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_BULLET);
 	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
@@ -48,8 +48,41 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, b2Vec2 speed, sf::Ve
 
 void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 {
-	if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
+	if (!this->stop)
 	{
+		if ((this->last_speed.x > -0.02f && this->body->GetLinearVelocity().x < 0.02f && this->last_speed.x != this->body->GetLinearVelocity().x) || (this->last_speed.x < 0.02f && this->body->GetLinearVelocity().x > -0.02f && this->last_speed.x != this->body->GetLinearVelocity().x) || (this->last_speed.y > 0 && this->body->GetLinearVelocity().y < 0) || (this->last_speed.y < -0.2f && this->body->GetLinearVelocity().y >= -0.05f))
+		{
+			if (this->bouncing == 0)
+			{
+				this->stop = true;
+				this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+				this->body->SetSleepingAllowed(true);
+				this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
+				return;
+			}
+			else
+			{
+				this->bouncing--;
+				this->body->SetTransform(b2Vec2(this->body->GetPosition().x - this->last_speed.x * 0.02f, this->body->GetPosition().y - this->last_speed.y * 0.02f), 0);
+			}
+		}
+		this->last_speed = this->body->GetLinearVelocity();
+
+		if (fabs(this->body->GetLinearVelocity().x) > fabs(this->body->GetLinearVelocity().y))
+		{
+			if (this->body->GetLinearVelocity().x > 0)
+				this->setRotation(180);
+			else
+				this->setRotation(0);
+		}
+		else
+		{
+			if (this->body->GetLinearVelocity().y > 0)
+				this->setRotation(270);
+			else
+				this->setRotation(90);
+		}
+
 		//Pozycja
 		this->setPosition(this->body->GetPosition().x * 50.0f, this->body->GetPosition().y * 50.0f);
 		this->last_pos = this->getPosition();
@@ -86,15 +119,14 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 		{
 			if (this->gravity)
 				this->body->SetGravityScale(1.0f);
-			this->body->SetLinearVelocity(this->speed);
 		}
 		//!Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
 	}
 }
 
-void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
+void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
 {
-	if (this->body->GetLinearVelocity().x != 0 || this->body->GetLinearVelocity().y != 0)
+	if (!this->stop)
 	{
 		//Kolizje z Bonusowymi blokami
 		for (int i = bonus_block.size() - 1; i >= 0; i--)
@@ -106,7 +138,7 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool 
 					this->destroyed = true;
 
 				if (this->player_id != 0)
-					character[this->player_id - 1].addStatsForBonusBlock();
+					character[this->player_id - 1]->addStatsForBonusBlock();
 
 				bonus_block[i].dropTreasures(physics_world, world_type, treasure, sf::Vector2f((float)((rand() % 2 ? -1 : 1) * rand() % 9) / 10.0f + this->speed.x * 2.25f, -(float)(rand() % 10 + 12) / 10.0f + this->speed.y * 2.25f), modulators);
 				bonus_block[i].getBody()->GetWorld()->DestroyBody(bonus_block[i].getBody());
@@ -125,11 +157,11 @@ void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool 
 				if (this->piercing == 0)
 					this->destroyed = true;
 
-				npc[i].hurt();
+				npc[i].hurt(strength);
 				if (npc[i].isDead())
 				{
 					if (this->player_id != 0)
-						character[this->player_id - 1].addStatsForNPC(npc[i]);
+						character[this->player_id - 1]->addStatsForNPC(npc[i]);
 					npc.erase(npc.begin() + i);
 				}
 				

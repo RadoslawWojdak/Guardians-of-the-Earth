@@ -6,10 +6,10 @@ cPet::cPet()
 	;
 }
 
-cPet::cPet(sf::Vector2f *point_follow, short initial_hp)
+cPet::cPet(eCharacter character_type, sf::Vector2f *point_follow, short initial_hp)
 {
 	this->point_follow = point_follow;
-	this->adjustGraphicsParameters(t_pet[0], sf::Vector2f(this->point_follow->x - 4.0f, this->point_follow->y - 16.0f));
+	this->adjustGraphicsParameters(t_pet[character_type], sf::Vector2f(this->point_follow->x - 4.0f, this->point_follow->y - 16.0f));
 	
 	this->hp = initial_hp;
 	if (this->hp < 0)

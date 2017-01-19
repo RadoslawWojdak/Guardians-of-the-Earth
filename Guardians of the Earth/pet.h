@@ -4,6 +4,7 @@
 #include "SFML\Graphics.hpp"
 #include "objectlevel.h"
 #include "graphics.h"
+#include "enums.h"
 
 class cPet :public cObjectLevel
 {
@@ -14,7 +15,7 @@ class cPet :public cObjectLevel
 
 public:
 	cPet();
-	cPet(sf::Vector2f *point_follow, short initial_hp);
+	cPet(eCharacter character_type, sf::Vector2f *point_follow, short initial_hp);
 
 	void move();
 

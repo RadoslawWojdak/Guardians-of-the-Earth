@@ -1,6 +1,8 @@
 #ifndef global_variables_h
 #define global_variables_h
 
+const int g_number_of_characters = 3;
+
 extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
 extern bool g_fullscreen;	//Czy jest w³¹czony tryb pe³noekranowy
 extern int g_framerate_limit;	//Czêstotliwoœæ odœwie¿ania

@@ -3,6 +3,7 @@
 
 #include "SFML\Graphics.hpp"
 #include <sstream>	//Konwersja liczby na tekst
+#include "global_variables.h"
 
 extern sf::Texture t_block[2];
 extern sf::Texture t_bonus_block[2];
@@ -14,17 +15,18 @@ extern sf::Texture t_background[5];
 extern sf::Texture *t_background_obj[5];
 extern sf::Texture t_npc[5];
 extern sf::Texture t_object[8];
-extern sf::Texture t_character[2];
-extern sf::Texture t_characters_bonus[2][2];
-extern sf::Texture t_characters_bonus_icon[2][2];
-extern sf::Texture t_characters_skill[2][4];
-extern sf::Sprite s_characters_skill[2][4];
-extern sf::Texture t_pet[2];
+extern sf::Texture t_character[g_number_of_characters];
+extern sf::Texture t_characters_bonus[g_number_of_characters][2];
+extern sf::Texture t_characters_bonus_icon[g_number_of_characters][2];
+extern sf::Texture t_characters_skill[g_number_of_characters][4];
+extern sf::Sprite s_characters_skill[g_number_of_characters][4];
+extern sf::Texture t_pet[g_number_of_characters];
 
 extern sf::Texture t_stats_window;
 extern sf::Texture t_pause_menu_window;
 extern sf::Texture t_dialog_window;
 extern sf::Texture t_heart;
+extern sf::Texture t_taser;
 extern sf::Texture t_experience_bar;
 extern sf::Texture t_discount_sign;
 extern sf::Texture t_button;
@@ -34,6 +36,8 @@ extern sf::Texture t_button_rebirth;
 extern sf::Texture t_button_extra_life;
 extern sf::Texture t_button_extra_hp;
 extern sf::Texture t_close_button;
+extern sf::Texture t_selected_character;
+extern sf::Texture t_passive_text;
 
 bool initGraph();
 bool shutdownGraph();

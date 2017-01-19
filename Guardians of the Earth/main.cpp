@@ -51,13 +51,14 @@ int main()
 	while (win.isOpen())
 	{
 		short number_of_players;
-		if (!mainMenu(win, profile, number_of_players, modulators))
+		eCharacter character[4];
+		if (!mainMenu(win, profile, number_of_players, character, modulators))
 			return 0;
 
 		win.clear();
 		win.display();
 
-		cMap map(WORLD_OVERWORLD, number_of_players, modulators);
+		cMap map(WORLD_OVERWORLD, number_of_players, character, modulators);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));

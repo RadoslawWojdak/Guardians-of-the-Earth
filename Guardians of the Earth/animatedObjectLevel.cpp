@@ -62,7 +62,7 @@ void cAnimatedObjectLevel::setAnimationStartPosition(sf::Vector2f pos, short tim
 		this->frames = (this->getTexture()->getSize().x - this->start_position.x) / size_of_one_frame_image.x;
 		this->setFrame(0);
 		this->time_between_frames = time_between_frames;
-		this->time_to_next_frame = time_between_frames;
+		this->time_to_next_frame = time_between_frames - 1;
 	}
 }
 
@@ -75,4 +75,23 @@ void cAnimatedObjectLevel::setTimeBetweenFrames(short time)
 sf::Vector2f cAnimatedObjectLevel::getAnimationStartPosition()
 {
 	return this->start_position;
+}
+
+short cAnimatedObjectLevel::getCurrentFrame()
+{
+	return this->current_frame;
+}
+
+bool cAnimatedObjectLevel::isAnimationBeginsAgain()
+{
+	if (this->current_frame == 0 && this->time_to_next_frame == this->time_between_frames)
+		return true;
+	return false;
+}
+
+bool cAnimatedObjectLevel::isEndOfLastFrame()
+{
+	if (this->current_frame == this->frames - 1 && this->time_to_next_frame == 1)
+		return true;
+	return false;
 }

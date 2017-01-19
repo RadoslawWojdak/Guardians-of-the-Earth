@@ -44,14 +44,16 @@ struct sControlKeys
 
 class cCharacter :public cCharacterAnimation
 {
+protected:
 	b2BodyDef body_def;
 	b2Body *body;
 
+	eCharacter character_type;
 	short player_no;
 	eDirection dir = DIR_RIGHT;
 
 	sf::Sprite exp_bar;
-	unsigned short lvl = 1;
+	unsigned short lvl = 0;
 	unsigned int exp = 0;
 	unsigned short skill_points = 0;
 	unsigned short number_of_skill[4] = {};
@@ -61,6 +63,7 @@ class cCharacter :public cCharacterAnimation
 
 	b2Vec2 last_speed;
 	bool fire = true;		//Czy gracz ca³y czas trzyma klawisz strza³u?
+	bool can_crush;			//Czy postaæ gracza mo¿e zgniataæ NPC-y?
 	bool can_jump = false;
 	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
 
@@ -68,15 +71,19 @@ class cCharacter :public cCharacterAnimation
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
+	sf::Sprite taser;
 	sf::Sprite bonus_sprite[2];
 	unsigned int immunity_time;
 	unsigned int special1_time;
 	unsigned short life;
 	unsigned int score;
 	unsigned int cash;
+	bool has_taser;
 
 	float max_speed_x;
+	float extra_speed;
 	unsigned short extra_jump;	//Iloœæ dodatkowych skoków
+	float extra_height_of_jump;
 	unsigned short possible_extra_jumps = 0;	//Aktualna iloœæ mo¿liwych dodatkowych skoków do wykonania
 	sf::Vector2f last_position;
 	
@@ -87,20 +94,13 @@ class cCharacter :public cCharacterAnimation
 
 	//Bonusy
 	unsigned int bonus[2];	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
-	short b1_in_b2_timer;
-	unsigned short bonus1_in_bonus2;	//Jak wiele pocisków ma jeszcze wystrzeliæ gracz, gdy jest w trakcie dzia³ania bonusu2
 	eDirection shot_dir;
 
 	void initControlKeys(short player_no);
 	void jump(float force);
-	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	void levelUp();
 	void startInviolability();
 	void immunityCountdown();
-	void startSpecial1();
-	void special1Countdown();
-	void startB1InB2();
-	void b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);
 
 public:
 	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
@@ -111,26 +111,26 @@ public:
 	
 	void beenHit();
 	void kill();
-	void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
-	void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	virtual void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
+	virtual void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
-	void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
+	virtual void checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
 	void rebirth();
 
 	void addHP();
 	void addLife();
-	void addPower(short power_id);
+	virtual void addPower(short power_id);
 
 	void addStatsForPowerUp(cPowerUp &power_up);
 	void addStatsForTreasure(cTreasure &treasure);
 	void addStatsForNPC(cNPC &npc);
 	void addStatsForBonusBlock();
 	void addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown);
-	void addSkill(unsigned short skill_id);
+	virtual void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
-	void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
+	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
 
 	void setAllPositions(sf::Vector2f pos);
 	

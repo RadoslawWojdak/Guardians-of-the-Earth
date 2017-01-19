@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *modulators_tab)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -51,9 +51,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *mo
 		case 0:	//Nowa gra
 		{
 			if (menuChooseNumberOfPlayers(win, players, modulators_tab))
-				end_loop = true;
-			else
-				option = -1;
+			{
+				if (menuSelectCharacters(win, players, character, modulators_tab))
+					end_loop = true;
+			}
 			break;
 		}
 		case 1:	//Wczytaj grê
@@ -63,7 +64,6 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *mo
 		case 2:	//Opcje
 		{
 			menuOptions(win);
-			option = -1;
 			break;
 		}
 		case 3: //Wyjœcie
@@ -73,10 +73,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, bool *mo
 		case 4:
 		{
 			menuProfiles(win, profile);
-			option = -1;
 			break;
 		}
 		}
+		option = -1;
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
@@ -188,6 +188,104 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		case 5: {g_score_multipler += modulators_tab[i] * 0.2f; break;}
 		}
 	}
+
+	if (win.isOpen() && !back_pressed)
+		return true;
+	return false;
+}
+
+bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter character[], bool *modulators_tab)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+
+	bool click = true;
+	bool end_loop = false;
+	bool back_pressed = false;
+
+	const int CHARACTERS = g_number_of_characters;
+	const int NUMBER_OF_BUTTONS = players * CHARACTERS + 2;
+
+	sf::Sprite *selected_character = new sf::Sprite[players];
+
+	class cButton *button = new cButton[NUMBER_OF_BUTTONS];
+	for (int i = 0; i < players; i++)
+	{
+		character[i] = (eCharacter)0;
+
+		float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
+
+		selected_character[i].setTexture(t_selected_character);
+		selected_character[i].setOrigin(selected_character[i].getTextureRect().width / 2, selected_character[i].getTextureRect().height / 2);
+		selected_character[i].setPosition(start_x + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+
+		for (int j = 0; j < CHARACTERS; j++)
+		{
+			button[i * CHARACTERS + j] = cButton(sf::Vector2f(0, 0), "", t_character[j]);
+			button[i * CHARACTERS + j].setTextureRect(sf::IntRect(66, 0, 22, 32));
+			button[i * CHARACTERS + j].setOrigin(button[i * CHARACTERS + j].getTextureRect().width / 2, button[i * CHARACTERS + j].getTextureRect().height / 2);
+			button[i * CHARACTERS + j].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+		}
+	}
+	button[NUMBER_OF_BUTTONS - 2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 8), "Start");
+	button[NUMBER_OF_BUTTONS - 1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 40), "Back");
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		//Dzia³ania na przyciskach
+		bool selected = false;
+		for (int i = 0; i < players; i++)
+		{
+			for (int j = 0; j < CHARACTERS; j++)
+			{
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && button[i * CHARACTERS + j].isMouseOver(win))
+				{
+					float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
+					selected_character[i].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+
+					character[i] = (eCharacter)j;
+					selected = true;
+					break;
+				}
+			}
+			if (selected)
+				break;
+		}
+		//START, BACK BUTTON
+		for (int i = 1; i <= 2; i++)
+		{
+			bool is_mouse_over = button[NUMBER_OF_BUTTONS - i].isMouseOver(win);
+			button[NUMBER_OF_BUTTONS - i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				end_loop = true;
+				if (i == 1)
+					back_pressed = true;
+			}
+		}
+		//!START, BACK BUTTON
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		for (int i = 0; i < players; i++)
+			win.draw(selected_character[i]);
+		for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
 
 	if (win.isOpen() && !back_pressed)
 		return true;
@@ -341,12 +439,12 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 }
 
 
-bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter> &player)
+bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter*>&player)
 {
 	return true;
 }
 
-bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
+bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter*> &player)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
@@ -374,7 +472,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 		//DZIA£ANIA NA MENU
 		for (unsigned short i = 0; i < player.size(); i++)
 		{
-			sControlKeys key = player[i].getControlKeys();
+			sControlKeys key = player[i]->getControlKeys();
 			if (!key_pressed[i])
 			{
 				if (!key.is_pad)
@@ -425,7 +523,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 					if (sf::Keyboard::isKeyPressed(key.jump.key) || sf::Keyboard::isKeyPressed(key.fire.key))
 					{
 						key_pressed[i] = true;
-						if (player[i].getSkillPoints() > 0)
+						if (player[i]->getSkillPoints() > 0)
 						{
 							key_pressed[i] = true;
 							switch (option[i])
@@ -433,19 +531,19 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 							case 1:
 							case 3:
 							{
-								player[i].addSkill(option[i]);
+								player[i]->addSkill(option[i]);
 								break;
 							}
 							case 2:
 							{
-								if (player[i].getLevel() >= 5)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 5)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							case 4:
 							{
-								if (player[i].getLevel() >= 10)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 10)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							}
@@ -508,7 +606,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 					if (sf::Joystick::isButtonPressed(key.pad, key.jump.button) || sf::Joystick::isButtonPressed(key.pad, key.fire.button))
 					{
 						key_pressed[i] = true;
-						if (player[i].getSkillPoints() > 0)
+						if (player[i]->getSkillPoints() > 0)
 						{
 							key_pressed[i] = true;
 							switch (option[i])
@@ -524,19 +622,19 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 							case 1:
 							case 2:
 							{
-								player[i].addSkill(option[i]);
+								player[i]->addSkill(option[i]);
 								break;
 							}
 							case 3:
 							{
-								if (player[i].getLevel() >= 5)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 5)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							case 4:
 							{
-								if (player[i].getLevel() >= 10)
-									player[i].addSkill(option[i]);
+								if (player[i]->getLevel() >= 10)
+									player[i]->addSkill(option[i]);
 								break;
 							}
 							}
@@ -574,7 +672,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter> &player)
 			start.x = g_width / 2 - (float)(player.size() / 2) * (t_stats_window.getSize().x + 32) - 32;
 			start.y = g_height / 2 - (t_stats_window.getSize().y + t_button.getSize().y + t_button_extra_hp.getSize().y + t_characters_bonus_icon[0][0].getSize().y + t_power_up[0].getSize().y) / 2 + 32;
 
-			player[i].drawSkillTree(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y), option[i], close_menu[i]);
+			player[i]->drawSkillTree(win, sf::Vector2f(start.x + 16 + i * (t_stats_window.getSize().y + 48), start.y), option[i], close_menu[i]);
 		}
 
 		win.display();
@@ -599,6 +697,7 @@ bool menuPause(sf::RenderWindow &win)
 	sf::Sprite background(texture_background);
 
 	//Ustawienie widoku na punkt od (0; 0) (dziêki temu mo¿na dzia³aæ na pozycjach od punktu (0; 0) przy rysowaniu menu
+	sf::View start_view = win.getView();	//Poprzedni widok musi byæ zapisany, ¿eby gra nie przenosi³a gracza w okolice punktu (0; 0)
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 
 	//Tworzenie t³a Menu Pauzy
@@ -668,6 +767,8 @@ bool menuPause(sf::RenderWindow &win)
 
 		win.display();
 	} while (win.isOpen() && !end_loop);
+
+	win.setView(start_view);
 
 	if (win.isOpen())
 		return true;

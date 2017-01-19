@@ -25,6 +25,9 @@ protected:
 	void setTimeBetweenFrames(short time);
 
 	sf::Vector2f getAnimationStartPosition();
+	short getCurrentFrame();
+	bool isAnimationBeginsAgain();
+	bool isEndOfLastFrame();
 };
 
 #endif //!animatedObjectLevel_h
