@@ -72,7 +72,10 @@ int main()
 			while (win.pollEvent(ev))
 			{
 				if (ev.type == sf::Event::Closed)
-					win.close();
+				{
+					if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+						win.close();
+				}
 			}
 
 			//DZIALANIA W GRZE

@@ -25,7 +25,8 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -69,7 +70,8 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		}
 		case 3: //Wyjœcie
 		{
-			return false;
+			if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+				return false;
 		}
 		case 4:
 		{
@@ -124,7 +126,8 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -239,7 +242,8 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -319,7 +323,8 @@ bool menuOptions(sf::RenderWindow &win)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -391,7 +396,8 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -474,7 +480,8 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter*> &player)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -730,7 +737,8 @@ bool menuPause(sf::RenderWindow &win)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
