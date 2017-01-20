@@ -283,7 +283,15 @@ void cSpy::specialCollisions(b2World &physics_world, eWorld world_type, bool *mo
 				{
 					if (!this->canUseTaser())
 					{
-						if (!this->isInviolability())
+						if (this->hasMagicShield())
+						{
+							this->turnOffMagicShield();
+
+							npc[i].kill();
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
+						else if (!this->isInviolability())
 							this->beenHit();
 					}
 					else
@@ -446,6 +454,7 @@ void cSpy::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet
 void cSpy::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
+	this->magicShieldCountdown();
 	//Timer u¿ywania bonusu 1
 	if (this->isShooting())
 	{

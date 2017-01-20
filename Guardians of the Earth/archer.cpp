@@ -273,6 +273,7 @@ void cArcher::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bul
 void cArcher::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
 {
 	this->immunityCountdown();
+	this->magicShieldCountdown();
 	//Timer u¿ywania bonusu 1
 	if (this->isShooting())
 	{

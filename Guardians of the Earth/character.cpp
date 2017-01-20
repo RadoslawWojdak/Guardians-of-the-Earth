@@ -108,9 +108,13 @@ cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f p
 	this->heart.setTexture(t_heart);
 	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
 	this->taser.setTexture(t_taser);
-	this->taser.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
+	this->taser.setColor(sf::Color(this->taser.getColor().g, this->taser.getColor().b, this->taser.getColor().a, 192));
+	this->magic_shield.setTexture(t_magic_shield);
+	this->magic_shield.setColor(sf::Color(this->magic_shield.getColor().g, this->magic_shield.getColor().b, this->magic_shield.getColor().a, 0));
+	this->magic_shield.setOrigin(this->magic_shield.getTextureRect().width / 2, this->magic_shield.getTextureRect().height / 2);
 
 	this->immunity_time = 0;
+	this->magic_shield_time = 0;
 	this->special1_time = 0;
 	this->life = 3;
 	this->score = 0;
@@ -234,6 +238,32 @@ void cCharacter::immunityCountdown()
 	}
 }
 
+void cCharacter::useMagicShield(unsigned int time)
+{
+	this->magic_shield_time = time;
+}
+
+void cCharacter::magicShieldCountdown()
+{
+	if (this->hasMagicShield())
+	{
+		this->magic_shield_time--;
+
+		if (this->magic_shield_time == 0)
+			this->turnOffMagicShield();
+		else if (this->magic_shield_time < 240)
+			this->magic_shield.setColor(sf::Color(this->magic_shield.getColor().r, this->magic_shield.getColor().g, this->magic_shield.getColor().b, this->magic_shield_time / 2 + 60));
+		else if (this->magic_shield.getColor().a == 0)
+			this->magic_shield.setColor(sf::Color(this->magic_shield.getColor().r, this->magic_shield.getColor().g, this->magic_shield.getColor().b, 190));
+	}
+}
+
+void cCharacter::turnOffMagicShield()
+{
+	this->magic_shield_time = 0;
+	this->magic_shield.setColor(sf::Color(this->getColor().r, this->getColor().g, this->getColor().b, 0));
+}
+
 void cCharacter::beenHit()
 {
 	if (this->isPetAlive())
@@ -314,7 +344,15 @@ void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bo
 				{
 					if (!this->isSpecial1())
 					{
-						if (!this->isInviolability())
+						if (this->hasMagicShield())
+						{
+							this->turnOffMagicShield();
+							
+							npc[i].kill();
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
+						else if (!this->isInviolability())
 							this->beenHit();
 					}
 					else
@@ -553,6 +591,7 @@ void cCharacter::rebirth()
 	this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 
 	this->immunity_time = 0;
+	this->magic_shield_time = 0;
 	this->special1_time = 0;
 	this->setColor(sf::Color(255, 255, 255, 255));
 
@@ -641,6 +680,14 @@ void cCharacter::addSkill(unsigned short skill_id)
 void cCharacter::subtractCash(unsigned int how_many_to_subtract)
 {
 	this->cash -= how_many_to_subtract;
+}
+
+void cCharacter::draw(sf::RenderWindow &win)
+{
+	win.draw(*this);
+
+	this->magic_shield.setPosition(this->getPosition());
+	win.draw(this->magic_shield);
 }
 
 void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
@@ -804,6 +851,13 @@ bool cCharacter::isDead()
 bool cCharacter::isInviolability()
 {
 	if (this->immunity_time > 0)
+		return true;
+	return false;
+}
+
+bool cCharacter::hasMagicShield()
+{
+	if (this->magic_shield_time > 0)
 		return true;
 	return false;
 }

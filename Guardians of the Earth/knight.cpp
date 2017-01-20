@@ -178,6 +178,7 @@ void cKnight::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bul
 void cKnight::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
+	this->magicShieldCountdown();
 	this->special1Countdown();
 	this->b1InB2Countdown(world, world_type, bullet);
 

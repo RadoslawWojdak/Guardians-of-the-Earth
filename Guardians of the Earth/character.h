@@ -73,7 +73,9 @@ protected:
 	sf::Sprite heart;
 	sf::Sprite taser;
 	sf::Sprite bonus_sprite[2];
+	sf::Sprite magic_shield;
 	unsigned int immunity_time;
+	unsigned int magic_shield_time;
 	unsigned int special1_time;
 	unsigned short life;
 	unsigned int score;
@@ -101,6 +103,8 @@ protected:
 	void levelUp();
 	void startInviolability();
 	void immunityCountdown();
+	void magicShieldCountdown();
+	void turnOffMagicShield();
 
 public:
 	cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
@@ -121,6 +125,7 @@ public:
 	void addHP();
 	void addLife();
 	virtual void addPower(short power_id);
+	void useMagicShield(unsigned int time);
 
 	void addStatsForPowerUp(cPowerUp &power_up);
 	void addStatsForTreasure(cTreasure &treasure);
@@ -129,6 +134,8 @@ public:
 	void addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown);
 	virtual void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
+	
+	void draw(sf::RenderWindow &win);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
 
@@ -141,6 +148,7 @@ public:
 	bool isPetAlive();
 	bool isDead();
 	bool isInviolability();
+	bool hasMagicShield();
 	bool isSpecial1();
 	unsigned int getCash();
 	unsigned short getLevel();

@@ -905,7 +905,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned short i = 0; i < this->player.size(); i++)
 		if (!this->player[i]->isDead())
 		{
-			win.draw(*(this->player[i]));
+			this->player[i]->draw(win);
 			if (this->player[i]->isPetAlive())
 				win.draw(this->player[i]->getPet());
 		}

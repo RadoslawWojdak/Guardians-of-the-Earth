@@ -56,11 +56,15 @@ void cSorceress::heal(b2World &physics_world, eWorld world_type, std::vector <cC
 		for (int i = 0; i < player.size(); i++)
 		{
 			if (!player[i]->isDead())
+			{
 				player[i]->addHP();
+				player[i]->useMagicShield(this->number_of_skill[2] * 150);
+			}
 			else
 				is_dead[i] = true;
 		}
 
+		//Odrodzenie innej postaci, je¿eli wylosowano odrodzenie
 		if (random <= chance_for_rebirth && (is_dead[0] || is_dead[1] || is_dead[2] || is_dead[3]))
 		{
 			for (;;)
@@ -257,7 +261,8 @@ void cSorceress::shot(b2World &world, eWorld world_type, std::vector <cBullet> &
 
 void cSorceress::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
 {
-	immunityCountdown();
+	this->immunityCountdown();
+	this->magicShieldCountdown();
 	//Timer u¿ywania bonusu 1
 	if (this->isShooting())
 	{
