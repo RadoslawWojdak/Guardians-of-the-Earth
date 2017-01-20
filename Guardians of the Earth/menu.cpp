@@ -212,18 +212,16 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 	{
 		character[i] = (eCharacter)0;
 
-		float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
-
 		selected_character[i].setTexture(t_selected_character);
 		selected_character[i].setOrigin(selected_character[i].getTextureRect().width / 2, selected_character[i].getTextureRect().height / 2);
-		selected_character[i].setPosition(start_x + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+		selected_character[i].setPosition(g_width / 2 - (float)CHARACTERS / 2 * 48 + 22, g_height / 2 + (i - players) * 40);
 
 		for (int j = 0; j < CHARACTERS; j++)
 		{
 			button[i * CHARACTERS + j] = cButton(sf::Vector2f(0, 0), "", t_character[j]);
 			button[i * CHARACTERS + j].setTextureRect(sf::IntRect(66, 0, 22, 32));
 			button[i * CHARACTERS + j].setOrigin(button[i * CHARACTERS + j].getTextureRect().width / 2, button[i * CHARACTERS + j].getTextureRect().height / 2);
-			button[i * CHARACTERS + j].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+			button[i * CHARACTERS + j].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 40);
 		}
 	}
 	button[NUMBER_OF_BUTTONS - 2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 8), "Start");
@@ -249,7 +247,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && button[i * CHARACTERS + j].isMouseOver(win))
 				{
 					float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
-					selected_character[i].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+					selected_character[i].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 40);
 
 					character[i] = (eCharacter)j;
 					selected = true;

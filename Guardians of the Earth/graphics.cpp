@@ -33,6 +33,7 @@ sf::Texture t_button_extra_hp;
 sf::Texture t_close_button;
 sf::Texture t_selected_character;
 sf::Texture t_passive_text;
+sf::Texture t_magic_shield;
 
 bool initGraph()
 {
@@ -233,6 +234,7 @@ bool initGraph()
 		case 0: {character = "knight"; break;}
 		case 1: {character = "archer"; break;}
 		case 2: {character = "spy"; break;}
+		case 3: {character = "sorceress"; break;}
 		}
 
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
@@ -316,6 +318,8 @@ bool initGraph()
 	if (!t_selected_character.loadFromFile("graphics\\others\\selected_character.png"))
 		return false;
 	if (!t_passive_text.loadFromFile("graphics\\others\\passive_text.png"))
+		return false;
+	if (!t_magic_shield.loadFromFile("graphics\\others\\magic_shield.png"))
 		return false;
 
 	return true;

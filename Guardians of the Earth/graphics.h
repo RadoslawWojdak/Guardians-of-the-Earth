@@ -38,6 +38,7 @@ extern sf::Texture t_button_extra_hp;
 extern sf::Texture t_close_button;
 extern sf::Texture t_selected_character;
 extern sf::Texture t_passive_text;
+extern sf::Texture t_magic_shield;
 
 bool initGraph();
 bool shutdownGraph();

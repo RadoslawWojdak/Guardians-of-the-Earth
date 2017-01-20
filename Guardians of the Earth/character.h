@@ -53,7 +53,7 @@ protected:
 	eDirection dir = DIR_RIGHT;
 
 	sf::Sprite exp_bar;
-	unsigned short lvl = 0;
+	unsigned short lvl = 1;
 	unsigned int exp = 0;
 	unsigned short skill_points = 0;
 	unsigned short number_of_skill[4] = {};
