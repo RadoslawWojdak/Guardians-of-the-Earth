@@ -111,6 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="actionOnText.cpp" />
     <ClCompile Include="animatedObjectLevel.cpp" />
     <ClCompile Include="archer.cpp" />
     <ClCompile Include="backgroundobject.cpp" />
@@ -148,6 +149,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="actionOnText.h" />
     <ClInclude Include="animatedObjectLevel.h" />
     <ClInclude Include="archer.h" />
     <ClInclude Include="backgroundobject.h" />

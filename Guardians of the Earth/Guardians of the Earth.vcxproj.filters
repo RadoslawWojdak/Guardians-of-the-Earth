@@ -147,6 +147,9 @@
     <ClCompile Include="sorceress.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="actionOnText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -247,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="sorceress.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="actionOnText.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
