@@ -23,7 +23,8 @@ enum eCharacterAnimationType
 	ANIMATION_JUMPING = 2,
 	ANIMATION_CLIMBING = 3,
 	ANIMATION_SWIMMING = 4,
-	ANIMATION_SPECIAL1 = 5
+	ANIMATION_SPECIAL1 = 5,
+	ANIMATION_SPECIAL2 = 6
 };
 
 enum eBackgroundType
@@ -62,7 +63,8 @@ enum eCharacter
 {
 	CHARACTER_KNIGHT = 0,
 	CHARACTER_ARCHER = 1,
-	CHARACTER_SPY = 2
+	CHARACTER_SPY = 2,
+	CHARACTER_SORCERESS = 3
 };
 
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...

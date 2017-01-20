@@ -15,6 +15,7 @@ protected:
 	void animationClimbing(bool climbs_up);
 	void animationSwimming();
 	void animationSpecial1(short time_between_frames);
+	void animationSpecial2(short time_between_frames);
 
 	eCharacterAnimationType getAnimationType();
 };

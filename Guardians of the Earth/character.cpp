@@ -539,7 +539,7 @@ void cCharacter::move(sf::RenderWindow &win, sf::Vector2f level_size)
 	}
 }
 
-void cCharacter::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cCharacter::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	;
 }

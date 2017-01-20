@@ -4,7 +4,7 @@ cSpy::cSpy(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short pl
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_SPY;
-	this->setTexture(t_character[2]);
+	this->setTexture(t_character[this->character_type]);
 
 	this->can_crush = false;
 
@@ -443,7 +443,7 @@ void cSpy::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet
 	}
 }
 
-void cSpy::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cSpy::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
 	//Timer u¿ywania bonusu 1

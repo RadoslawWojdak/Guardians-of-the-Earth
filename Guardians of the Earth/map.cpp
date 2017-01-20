@@ -624,11 +624,13 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 			cKnight *knight = new cKnight(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cArcher *archer = new cArcher(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cSpy *spy = new cSpy(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cSorceress *sorceress = new cSorceress(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cCharacter *temp_player = NULL;
 			switch (character[i])
 			{
 			case 1: {temp_player = archer; break;}
 			case 2: {temp_player = spy; break;}
+			case 3: {temp_player = sorceress; break;}
 			default: {temp_player = knight; break;}
 			}
 
@@ -788,7 +790,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 			this->player[i]->control(&(this->physics_world), this->world_type, this->bullet);
 			this->player[i]->specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i]->applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-			this->player[i]->checkIndicators(&(this->physics_world), this->world_type, this->bullet);
+			this->player[i]->checkIndicators(&(this->physics_world), this->world_type, this->player, this->bullet);
 			this->player[i]->move(win, sf::Vector2f(this->width, this->height));
 			
 			//Rozpoczêcie nastêpnego poziomu

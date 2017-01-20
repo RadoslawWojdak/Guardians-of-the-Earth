@@ -4,7 +4,7 @@ cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_ARCHER;
-	this->setTexture(t_character[1]);
+	this->setTexture(t_character[this->character_type]);
 	
 	this->can_crush = false;
 
@@ -270,7 +270,7 @@ void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 	}
 }
 
-void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector<cBullet>& bullet)
+void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
 {
 	this->immunityCountdown();
 	//Timer u¿ywania bonusu 1

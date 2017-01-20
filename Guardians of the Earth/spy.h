@@ -28,7 +28,7 @@ public:
 	virtual void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 
-	virtual void checkIndicators(b2World * world, eWorld world_type, std::vector<cBullet>& bullet);
+	virtual void checkIndicators(b2World * world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet);
 
 	virtual void addSkill(unsigned short skill_id);
 	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);

@@ -4,7 +4,7 @@ cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_KNIGHT;
-	this->setTexture(t_character[0]);
+	this->setTexture(t_character[this->character_type]);
 	
 	this->can_crush = true;
 
@@ -175,7 +175,7 @@ void cKnight::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 	}
 }
 
-void cKnight::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cKnight::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
 	this->special1Countdown();

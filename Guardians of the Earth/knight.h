@@ -22,7 +22,7 @@ public:
 	virtual void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
 	void shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction);
 	
-	virtual void checkIndicators(b2World * world, eWorld world_type, std::vector<cBullet>& bullet);
+	virtual void checkIndicators(b2World * world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet);
 
 	virtual void addSkill(unsigned short skill_id);
 	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
