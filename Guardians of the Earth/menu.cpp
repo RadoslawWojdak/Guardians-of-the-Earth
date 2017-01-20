@@ -3,6 +3,7 @@
 bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
@@ -80,6 +81,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < 4; i++)
 			button[i].draw(win);
 		profile_button.draw(win);
@@ -94,6 +96,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
@@ -167,6 +170,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < 5; i++)
 			button[i].draw(win);
 		for (int i = 0; i < 6; i++)
@@ -197,6 +201,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter character[], bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
@@ -214,14 +219,14 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 
 		selected_character[i].setTexture(t_selected_character);
 		selected_character[i].setOrigin(selected_character[i].getTextureRect().width / 2, selected_character[i].getTextureRect().height / 2);
-		selected_character[i].setPosition(g_width / 2 - (float)CHARACTERS / 2 * 48 + 22, g_height / 2 + (i - players) * 40);
+		selected_character[i].setPosition(g_width / 2 - (float)CHARACTERS / 2 * 48 + 22, g_height / 2 + (i - players) * 48);
 
 		for (int j = 0; j < CHARACTERS; j++)
 		{
 			button[i * CHARACTERS + j] = cButton(sf::Vector2f(0, 0), "", t_character[j]);
 			button[i * CHARACTERS + j].setTextureRect(sf::IntRect(66, 0, 22, 32));
 			button[i * CHARACTERS + j].setOrigin(button[i * CHARACTERS + j].getTextureRect().width / 2, button[i * CHARACTERS + j].getTextureRect().height / 2);
-			button[i * CHARACTERS + j].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 40);
+			button[i * CHARACTERS + j].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 48);
 		}
 	}
 	button[NUMBER_OF_BUTTONS - 2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 8), "Start");
@@ -247,7 +252,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && button[i * CHARACTERS + j].isMouseOver(win))
 				{
 					float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
-					selected_character[i].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 40);
+					selected_character[i].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 48);
 
 					character[i] = (eCharacter)j;
 					selected = true;
@@ -278,6 +283,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < players; i++)
 			win.draw(selected_character[i]);
 		for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
@@ -293,6 +299,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 bool menuOptions(sf::RenderWindow &win)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
@@ -352,6 +359,7 @@ bool menuOptions(sf::RenderWindow &win)
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < 2; i++)
 			button[i].draw(win);
 		win.display();
@@ -365,6 +373,7 @@ bool menuOptions(sf::RenderWindow &win)
 bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
@@ -426,6 +435,7 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < 3; i++)
 			button[i].draw(win);
 		win.display();
