@@ -248,12 +248,16 @@ void cSorceress::shot(b2World &world, eWorld world_type, std::vector <cBullet> &
 		int chance_for_extra_bullet = this->number_of_skill[0] * 10;
 		int random = rand() % 100 + 1;
 
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(0.0f, 0.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y), 1.0f + this->number_of_skill[1], 1, 0, this->player_no));
-		bullet[bullet.size() - 1].setColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
-
-		if (random <= chance_for_extra_bullet)	//Je¿eli uda³o siê wylosowaæ dodatkowy strza³, to strzela dwoma pociskami (nastêpny leci do 2-giego przeciwnika)
+		for (int i = 0; i < 1 + (random <= chance_for_extra_bullet ? 1 : 0); i++)
 		{
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(0.0f, 0.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y), 1.0f + this->number_of_skill[1], 1, 0, this->player_no));
+			if (shot_direction == DIR_UP)
+				bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x + i * 6, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], 0, true, this->player_no));
+			else if (shot_direction == DIR_DOWN)
+				bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x + i * 6, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], 0, true, this->player_no));
+			else if (shot_direction == DIR_LEFT)
+				bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y - i * 6), 1.0f, 1 + this->number_of_skill[1], 0, true, this->player_no));
+			else if (shot_direction == DIR_RIGHT)
+				bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y - i * 6), 1.0f, 1 + this->number_of_skill[1], 0, true, this->player_no));
 			bullet[bullet.size() - 1].setColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
 		}
 	}

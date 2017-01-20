@@ -1,6 +1,6 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World &physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, short player_id)
+cBullet::cBullet(b2World &physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, bool wall_penetration, short player_id)
 {
 	this->adjustGraphicsParameters(texture, pos);
 
@@ -39,7 +39,10 @@ cBullet::cBullet(b2World &physics_world, eWorld world_type, sf::Texture &texture
 		fd.restitution = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_BULLET);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	if (!wall_penetration)
+		fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));
+	else
+		fd.filter.maskBits = CATEGORY(CAT_EMPTY);
 
 	this->body->CreateFixture(&fd);
 
@@ -119,6 +122,8 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 		{
 			if (this->gravity)
 				this->body->SetGravityScale(1.0f);
+			else
+				this->body->SetLinearVelocity(this->speed);
 		}
 		//!Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
 	}

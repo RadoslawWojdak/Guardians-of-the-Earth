@@ -5,6 +5,7 @@
 
 enum eCategory
 {
+	CAT_EMPTY = -1,
 	CAT_GROUND = 0,
 	CAT_BLOCK = 1,
 	CAT_BONUS_BLOCK = 2,

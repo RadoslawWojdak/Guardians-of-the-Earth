@@ -165,13 +165,13 @@ void cKnight::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bul
 		this->bonus[0]--;
 
 		if (shot_direction == DIR_UP)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 		else if (shot_direction == DIR_DOWN)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 		else if (shot_direction == DIR_LEFT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 		else if (shot_direction == DIR_RIGHT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 	}
 }
 

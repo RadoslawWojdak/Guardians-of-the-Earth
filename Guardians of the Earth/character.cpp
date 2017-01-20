@@ -155,7 +155,7 @@ cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f p
 	fd.density = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_CHARACTER);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));
 
 	this->body->CreateFixture(&fd);
 }
@@ -181,7 +181,7 @@ void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
 	fd.density = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_CHARACTER);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));
 
 	this->body->CreateFixture(&fd);
 }

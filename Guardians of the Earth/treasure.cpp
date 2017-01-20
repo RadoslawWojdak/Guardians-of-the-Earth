@@ -50,7 +50,7 @@ cTreasure::cTreasure(b2World &physics_world, eWorld world_type, sf::Vector2f pos
 
 	//BOX2D
 	uint16 category_bits = CATEGORY(CAT_TREASURE);	//Filtr kateogri
-	uint16 mask_bits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);		//Filtr kolizji
+	uint16 mask_bits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));		//Filtr kolizji
 	if (physics)
 	{
 		switch (this->value)

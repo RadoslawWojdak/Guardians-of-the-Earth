@@ -266,7 +266,7 @@ void cArcher::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bul
 			force.y += 2.5f / ((this->arrows + 1) * 0.5f);
 		else
 			force.y -= 2.5f / ((this->arrows + 1) * 0.5f);
-		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, strength, piercing, 0, this->player_no));
+		bullet.push_back(cBullet(world, world_type, t_characters_bonus[1][0], true, force, start_pos, strength, piercing, 0, false, this->player_no));
 	}
 }
 
