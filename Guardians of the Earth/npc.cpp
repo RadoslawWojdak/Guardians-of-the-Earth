@@ -1,6 +1,6 @@
 #include "npc.h"
 #include <iostream>
-cNPC::cNPC(b2World *physics_world, eWorld world_type, bool *modulators, unsigned short id, sf::Vector2f pos, eDirection direction)
+cNPC::cNPC(b2World &physics_world, eWorld world_type, bool *modulators, unsigned short id, sf::Vector2f pos, eDirection direction)
 {
 	this->adjustGraphicsParameters(t_npc[id - 1], pos);
 	
@@ -28,7 +28,7 @@ cNPC::cNPC(b2World *physics_world, eWorld world_type, bool *modulators, unsigned
 	body_def.fixedRotation = true;
 	body_def.allowSleep = false;
 
-	this->body = physics_world->CreateBody(&body_def);
+	this->body = physics_world.CreateBody(&body_def);
 	this->body->SetActive(false);
 	if (this->features.flying)
 		this->body->SetGravityScale(0.0f);

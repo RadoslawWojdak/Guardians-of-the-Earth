@@ -89,7 +89,7 @@ void cCharacter::initControlKeys(short player_no)
 	}
 }
 
-cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacterAnimation(t_character[0], pos)
 {
 	this->animationStanding();
@@ -141,7 +141,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	body_def.fixedRotation = true;
 	body_def.allowSleep = false;
 
-	this->body = physics_world->CreateBody(&body_def);
+	this->body = physics_world.CreateBody(&body_def);
 	
 	b2PolygonShape shape;
 	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.06f);
@@ -257,12 +257,12 @@ void cCharacter::kill()
 	}
 }
 
-void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cCharacter::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	;	//Funkcja wirtualna
 }
 
-void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
@@ -539,7 +539,7 @@ void cCharacter::move(sf::RenderWindow &win, sf::Vector2f level_size)
 	}
 }
 
-void cCharacter::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
+void cCharacter::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	;
 }

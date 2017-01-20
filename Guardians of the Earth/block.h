@@ -14,7 +14,7 @@ protected:
 	b2Body *body;
 
 public:
-	cBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos);
+	cBlock(b2World &physics_world, sf::Texture &texture, sf::Vector2f pos);
 
 	b2Body *getBody();
 };

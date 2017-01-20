@@ -1,6 +1,6 @@
 #include "archer.h"
 
-cArcher::cArcher(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cArcher::cArcher(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_ARCHER;
@@ -55,7 +55,7 @@ bool cArcher::isShooting()
 	return false;
 }
 
-void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cArcher::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (!this->isDead())
 	{
@@ -209,7 +209,7 @@ void cArcher::control(b2World *physics_world, eWorld world_type, std::vector <cB
 	}
 }
 
-void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction, float strength, unsigned short piercing)
+void cArcher::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction, float strength, unsigned short piercing)
 {
 	b2Vec2 force;
 	sf::Vector2f start_pos;
@@ -270,7 +270,7 @@ void cArcher::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 	}
 }
 
-void cArcher::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
+void cArcher::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
 {
 	this->immunityCountdown();
 	//Timer u¿ywania bonusu 1

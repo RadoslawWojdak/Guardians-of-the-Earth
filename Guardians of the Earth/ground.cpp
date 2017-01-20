@@ -4,7 +4,7 @@ unsigned int cGround::ground_id = 0;
 b2BodyDef cGround::physics_body_def;
 b2Body *cGround::physics_body = NULL;
 
-void groundsInit(b2World *physics_world)
+void groundsInit(b2World &physics_world)
 {
 	cGround gr;
 	gr.resetMainParameters(physics_world);
@@ -392,10 +392,10 @@ void cGround::graphicsCustomize(sf::Vector2u map_size, bool *ground_exists, sf::
 		setTexture(t_ground[this->world_type][46]);
 }
 
-void cGround::resetMainParameters(b2World *physics_world)
+void cGround::resetMainParameters(b2World &physics_world)
 {
 	this->ground_id = 0;
-	this->physics_body = physics_world->CreateBody(&(this->physics_body_def));
+	this->physics_body = physics_world.CreateBody(&(this->physics_body_def));
 }
 
 b2Body *cGround::getBody()

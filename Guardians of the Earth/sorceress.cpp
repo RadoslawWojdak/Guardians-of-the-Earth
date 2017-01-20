@@ -1,6 +1,6 @@
 #include "sorceress.h"
 
-cSorceress::cSorceress(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cSorceress::cSorceress(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_SORCERESS;
@@ -42,15 +42,40 @@ bool cSorceress::isHealing()
 	return false;
 }
 
-void cSorceress::heal(std::vector <cCharacter*> player)
+void cSorceress::heal(b2World &physics_world, eWorld world_type, std::vector <cCharacter*> player)
 {
 	if (this->bonus[1] > 0)
 	{
 		this->bonus[1]--;
 
+		int chance_for_rebirth = this->number_of_skill[3] * 5;
+		int random = rand() % 100 + 1;
+
+		bool is_dead[4] = {};
+
 		for (int i = 0; i < player.size(); i++)
+		{
 			if (!player[i]->isDead())
 				player[i]->addHP();
+			else
+				is_dead[i] = true;
+		}
+
+		if (random <= chance_for_rebirth && (is_dead[0] || is_dead[1] || is_dead[2] || is_dead[3]))
+		{
+			for (;;)
+			{
+				short rebirth = rand() % 4;
+				if (is_dead[rebirth])
+				{
+					player[rebirth]->bodyRecreate(physics_world, world_type);
+					player[rebirth]->rebirth();
+					player[rebirth]->setAllPositions(this->getPosition());
+
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -64,7 +89,7 @@ void cSorceress::addPower(short power_id)
 }
 
 
-void cSorceress::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cSorceress::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (!this->isDead())
 	{
@@ -210,18 +235,27 @@ void cSorceress::control(b2World *physics_world, eWorld world_type, std::vector 
 	}
 }
 
-void cSorceress::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
+void cSorceress::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
 	if (this->bonus[0] > 0)
 	{
-		//this->bonus[0]--;
+		this->bonus[0]--;
+
+		int chance_for_extra_bullet = this->number_of_skill[0] * 10;
+		int random = rand() % 100 + 1;
 
 		bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(0.0f, 0.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y), 1.0f + this->number_of_skill[1], 1, 0, this->player_no));
 		bullet[bullet.size() - 1].setColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
+
+		if (random <= chance_for_extra_bullet)	//Je¿eli uda³o siê wylosowaæ dodatkowy strza³, to strzela dwoma pociskami (nastêpny leci do 2-giego przeciwnika)
+		{
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[this->character_type][0], false, b2Vec2(0.0f, 0.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y), 1.0f + this->number_of_skill[1], 1, 0, this->player_no));
+			bullet[bullet.size() - 1].setColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
+		}
 	}
 }
 
-void cSorceress::checkIndicators(b2World * world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
+void cSorceress::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector<cBullet>& bullet)
 {
 	immunityCountdown();
 	//Timer u¿ywania bonusu 1
@@ -240,7 +274,7 @@ void cSorceress::checkIndicators(b2World * world, eWorld world_type, std::vector
 		if (this->isAnimationBeginsAgain())
 		{
 			this->animationStanding();
-			this->heal(player);
+			this->heal(world, world_type, player);
 		}
 	}
 	//!Timer u¿ywania bonusu 2
@@ -250,6 +284,26 @@ void cSorceress::addSkill(unsigned short skill_id)
 {
 	this->number_of_skill[skill_id - 1]++;
 	this->skill_points--;
+
+	switch (skill_id - 1)
+	{
+	case 1:
+	{
+		if (this->number_of_skill[0] > 10)
+		{
+			this->number_of_skill[0]--;
+			this->skill_points++;
+		}
+	}
+	case 4:
+	{
+		if (this->number_of_skill[3] > 20)
+		{
+			this->number_of_skill[3]--;
+			this->skill_points++;
+		}
+	}
+	}
 }
 
 void cSorceress::drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed)

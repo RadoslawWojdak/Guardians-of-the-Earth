@@ -1,6 +1,6 @@
 #include "bonusblock.h"
 
-cBonusBlock::cBonusBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos, short min_treasures, short max_treasures) :cBlock(physics_world, texture, pos)
+cBonusBlock::cBonusBlock(b2World &physics_world, sf::Texture &texture, sf::Vector2f pos, short min_treasures, short max_treasures) :cBlock(physics_world, texture, pos)
 {
 	this->min_treasures = min_treasures;
 	this->max_treasures = max_treasures;
@@ -28,7 +28,7 @@ cBonusBlock::cBonusBlock(b2World *physics_world, sf::Texture &texture, sf::Vecto
 	this->body->CreateFixture(&fd);
 }
 
-void cBonusBlock::dropTreasures(b2World *physics_world, eWorld world_type, std::vector <cTreasure> &treasure, sf::Vector2f hit_force, bool *modulators)
+void cBonusBlock::dropTreasures(b2World &physics_world, eWorld world_type, std::vector <cTreasure> &treasure, sf::Vector2f hit_force, bool *modulators)
 {
 	srand(time(NULL));
 

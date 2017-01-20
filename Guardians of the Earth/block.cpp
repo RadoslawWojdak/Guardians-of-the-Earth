@@ -1,11 +1,11 @@
 #include "block.h"
 
-cBlock::cBlock(b2World *physics_world, sf::Texture &texture, sf::Vector2f pos)
+cBlock::cBlock(b2World &physics_world, sf::Texture &texture, sf::Vector2f pos)
 {
 	this->adjustGraphicsParameters(texture, pos);
 
 	//BOX2D
-	this->body = physics_world->CreateBody(&body_def);
+	this->body = physics_world.CreateBody(&body_def);
 
 	b2ChainShape shape;
 	const float32 x = pos.x * 0.02f;

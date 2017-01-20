@@ -1,6 +1,6 @@
 #include "spy.h"
 
-cSpy::cSpy(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cSpy::cSpy(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_SPY;
@@ -106,7 +106,7 @@ bool cSpy::canUseTaser()
 	return false;
 }
 
-void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cSpy::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (!this->isDead())
 	{
@@ -231,7 +231,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 	}
 }
 
-void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cSpy::specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
@@ -426,7 +426,7 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 	}
 }
 
-void cSpy::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
+void cSpy::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
 	if (this->bonus[0] > 0)
 	{
@@ -443,7 +443,7 @@ void cSpy::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet
 	}
 }
 
-void cSpy::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
+void cSpy::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
 	//Timer u¿ywania bonusu 1

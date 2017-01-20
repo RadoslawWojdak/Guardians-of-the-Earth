@@ -1,6 +1,6 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, short player_id)
+cBullet::cBullet(b2World &physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, short player_id)
 {
 	this->adjustGraphicsParameters(texture, pos);
 
@@ -23,7 +23,7 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 	body_def.type = b2_dynamicBody;
 	body_def.allowSleep = true;
 
-	this->body = physics_world->CreateBody(&body_def);
+	this->body = physics_world.CreateBody(&body_def);
 	if (!this->gravity)
 		this->body->SetGravityScale(0.0f);
 	this->body->SetBullet(true);
@@ -124,7 +124,7 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 	}
 }
 
-void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
+void cBullet::specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->stop)
 	{

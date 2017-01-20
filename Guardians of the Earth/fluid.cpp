@@ -4,7 +4,7 @@ unsigned int cFluid::fluid_id = 0;
 b2BodyDef cFluid::physics_body_def;
 b2Body *cFluid::physics_body = NULL;
 
-void fluidInit(b2World *physics_world)
+void fluidInit(b2World &physics_world)
 {
 	cFluid fluid;
 	fluid.resetMainParameters(physics_world);
@@ -110,11 +110,11 @@ void cFluid::graphicsCustomize(eWorld world_type, sf::Vector2u map_size, bool *a
 	//!Dostosowywanie grafiki p³ynu do pozosta³ych p³ynów
 }
 
-void cFluid::resetMainParameters(b2World *physics_world)
+void cFluid::resetMainParameters(b2World &physics_world)
 {
 	this->fluid_id = 0;
 
-	this->physics_body = physics_world->CreateBody(&(this->physics_body_def));
+	this->physics_body = physics_world.CreateBody(&(this->physics_body_def));
 }
 
 b2Body *cFluid::getBody()

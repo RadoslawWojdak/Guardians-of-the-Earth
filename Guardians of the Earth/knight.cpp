@@ -1,6 +1,6 @@
 #include "knight.h"
 
-cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cKnight::cKnight(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_KNIGHT;
@@ -27,7 +27,7 @@ void cKnight::addPower(short power_id)
 	}
 }
 
-void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cKnight::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (this->isSpecial1())
 		this->animationSpecial1(3);
@@ -158,7 +158,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 	}
 }
 
-void cKnight::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
+void cKnight::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
 	if (this->bonus[0] > 0)
 	{
@@ -175,7 +175,7 @@ void cKnight::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bul
 	}
 }
 
-void cKnight::checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
+void cKnight::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
 	this->special1Countdown();
@@ -207,7 +207,7 @@ void cKnight::startB1InB2()
 	this->shot_dir = this->dir;
 }
 
-void cKnight::b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cKnight::b1InB2Countdown(b2World &world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (this->bonus1_in_bonus2 > 0)
 	{

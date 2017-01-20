@@ -26,8 +26,8 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	if (!refresh)
 		this->reserve_sector.clear();
 
-	groundsInit(&(this->physics_world));
-	fluidInit(&(this->physics_world));
+	groundsInit(this->physics_world);
+	fluidInit(this->physics_world);
 
 	this->width = 0;
 	this->height = 600;
@@ -104,16 +104,16 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 				switch (sector.getObject(j, i))
 				{
 				case eObjType::OBJECT_GROUND: {ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type)); break;}
-				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
-				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
+				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(this->physics_world, t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
+				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(this->physics_world, t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
 				case eObjType::OBJECT_FLUID:
 				{
 					if (this->world_type != WORLD_UNDERWATER)	//Œwiat podwodny jest ju¿ wype³niony wod¹, a obiekty wody tylko by niepotrzebnie spowalnia³y program (przy okazji teraz mo¿na dodaæ t³o)
 						fluid.push_back(cFluid(this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
 					break;
 				}
-				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
+				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(this->physics_world, this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(this->physics_world, 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
 				case eObjType::OBJECT_POWER_UP: {spawn_pu_pos.push_back(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down));	break;}
 				case eObjType::OBJECT_LADDER: {ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
 				}
@@ -278,7 +278,7 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		int random = randomNPCID(this->world_type);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(this->physics_world, this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
 		bool end = false;	//Nie przydzielono pozycji
 
@@ -621,10 +621,10 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cKnight *knight = new cKnight(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			cArcher *archer = new cArcher(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			cSpy *spy = new cSpy(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			cSorceress *sorceress = new cSorceress(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cKnight *knight = new cKnight(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cArcher *archer = new cArcher(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cSpy *spy = new cSpy(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cCharacter *temp_player = NULL;
 			switch (character[i])
 			{
@@ -734,7 +734,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 	if (this->bonus_block.size() == 0 && !this->golden_bb_created)
 	{
 		this->golden_bb_created = true;
-		this->bonus_block.push_back(cBonusBlock(&(this->physics_world), t_gold_bonus_block[0], sf::Vector2f(this->width - 160 - 16, this->height - 128 - 16), 40, 55));
+		this->bonus_block.push_back(cBonusBlock(this->physics_world, t_gold_bonus_block[0], sf::Vector2f(this->width - 160 - 16, this->height - 128 - 16), 40, 55));
 	}
 
 	//SKARBY
@@ -751,7 +751,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 	for (int i = this->bullet.size() - 1; i >= 0; i--)
 	{
 		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
-		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
+		this->bullet[i].specialCollisions(this->physics_world, this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
 		
 		if (this->bullet[i].isDestroyed())
 		{
@@ -787,10 +787,10 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 		{
 			are_all_players_dead = false;
 			
-			this->player[i]->control(&(this->physics_world), this->world_type, this->bullet);
-			this->player[i]->specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i]->control(this->physics_world, this->world_type, this->bullet);
+			this->player[i]->specialCollisions(this->physics_world, this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i]->applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-			this->player[i]->checkIndicators(&(this->physics_world), this->world_type, this->player, this->bullet);
+			this->player[i]->checkIndicators(this->physics_world, this->world_type, this->player, this->bullet);
 			this->player[i]->move(win, sf::Vector2f(this->width, this->height));
 			
 			//Rozpoczêcie nastêpnego poziomu

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
-cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
+cTreasure::cTreasure(b2World &physics_world, eWorld world_type, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
 {
 	//Losowanie wartoœci skaru
 	clock_t t1;
@@ -67,7 +67,7 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			body_def.allowSleep = true;
 			body_def.linearDamping = 0.55f;
 
-			body = physics_world->CreateBody(&body_def);
+			body = physics_world.CreateBody(&body_def);
 			body->SetLinearVelocity(b2Vec2(speed_x, speed_y));
 
 			b2CircleShape shape;
@@ -94,7 +94,7 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			body_def.fixedRotation = true;
 			body_def.allowSleep = false;
 
-			body = physics_world->CreateBody(&body_def);
+			body = physics_world.CreateBody(&body_def);
 			body->SetLinearVelocity(b2Vec2(speed_x, speed_y));
 
 			b2PolygonShape shape;
@@ -124,7 +124,7 @@ cTreasure::cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos
 			body_def.allowSleep = true;
 			body_def.linearDamping = 0.8f;
 
-			body = physics_world->CreateBody(&body_def);
+			body = physics_world.CreateBody(&body_def);
 			body->SetLinearVelocity(b2Vec2(speed_x, speed_y));
 
 			b2PolygonShape shape;

@@ -103,7 +103,7 @@ protected:
 	void immunityCountdown();
 
 public:
-	cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
+	cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
 
 	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
 
@@ -111,11 +111,11 @@ public:
 	
 	void beenHit();
 	void kill();
-	virtual void control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet);
-	virtual void specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
+	virtual void control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet);
+	virtual void specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block);	//Wszystkie kolizje spoza œwiata Box2D (kolizje oparte o grafikê SFML)
 	void applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_size);
 	void move(sf::RenderWindow &win, sf::Vector2f level_size);
-	virtual void checkIndicators(b2World *world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
+	virtual void checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet);	//Sprawdzenie wskaŸników takich jak timery i punkty doœwiadczenia
 	void rebirth();
 
 	void addHP();
