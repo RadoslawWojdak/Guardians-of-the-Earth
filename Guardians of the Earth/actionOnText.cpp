@@ -76,3 +76,35 @@ sf::String keyToStr(sf::Keyboard::Key key)
 
 	return "Unknown";
 }
+
+
+unsigned short uIntLength(unsigned int number)
+{
+	unsigned short length = 0;
+	for (int i = 0; ; i++)
+	{
+		if (number / (int)(pow(10, i)) == 0)
+		{
+			length = i;
+			break;
+		}
+	}
+	if (length == 0)	//Je¿eli d³ugoœæ liczby == 0 to znaczy, ¿e liczba ta to 0
+		length = 1;
+
+	return length;
+}
+
+std::string uIntToStr(unsigned int number)
+{
+	unsigned short length = uIntLength(number);
+
+	std::string number_str = "";
+	for (int i = length - 1; i >= 0; i--)
+	{
+		number_str += (char)(number / (int)pow(10, i) + 48);
+		number -= (number / (int)pow(10, i)) * pow(10, i);
+	}
+
+	return number_str;
+}

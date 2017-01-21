@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab, cScoreboard scoreboard[4])
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 	sf::Sprite background(t_background[0]);
@@ -9,11 +9,12 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 	bool end_loop = false;
 	short option = -1;
 
-	cButton button[4];
-	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 72), "New game");
-	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Load game");
-	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Options");
-	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 72), "Quit");
+	cButton button[5];
+	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 96), "New game");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Load game");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "High scores");
+	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Options");
+	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Quit");
 
 	cButton profile_button;
 	profile_button = cButton(sf::Vector2f(g_width - profile_button.getTextureRect().width - 32, 32), "", t_profile_button);
@@ -33,7 +34,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		}
 
 		//DZIA£ANIA NA MENU
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
 			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
@@ -66,18 +67,23 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		{
 			break;
 		}
-		case 2:	//Opcje
+		case 2:	//Najwy¿sze wyniki
+		{
+			menuHighScores(win, scoreboard);
+			break;
+		}
+		case 3:	//Opcje
 		{
 			menuOptions(win);
 			break;
 		}
-		case 3: //Wyjœcie
+		case 4: //Wyjœcie
 		{
 			if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
 				return false;
 			break;
 		}
-		case 4:
+		case 5:
 		{
 			menuProfiles(win, profile);
 			
@@ -93,7 +99,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
 		win.draw(background);
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 5; i++)
 			button[i].draw(win);
 		profile_button.draw(win);
 		win.draw(profile_name);
@@ -114,7 +120,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	bool end_loop = false;
 	bool back_pressed = false;
 
-	class cButton button[5];
+	cButton button[5];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 96), "1");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "2");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "3");
@@ -225,7 +231,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 
 	sf::Sprite *selected_character = new sf::Sprite[players];
 
-	class cButton *button = new cButton[NUMBER_OF_BUTTONS];
+	cButton *button = new cButton[NUMBER_OF_BUTTONS];
 	for (int i = 0; i < players; i++)
 	{
 		character[i] = (eCharacter)0;
@@ -318,7 +324,7 @@ bool menuOptions(sf::RenderWindow &win)
 	bool click = true;
 	bool end_loop = false;
 
-	class cButton button[3];
+	cButton button[3];
 	if (g_fullscreen)
 		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Fullscreen");
 	else
@@ -648,7 +654,7 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 	bool click = true;
 	bool end_loop = false;
 
-	class cButton button[3];
+	cButton button[3];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "New Profile");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Load Profile");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Back");
@@ -709,6 +715,129 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 		win.draw(background);
 		for (int i = 0; i < 3; i++)
 			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
+
+bool menuHighScores(sf::RenderWindow &win, cScoreboard scoreboard[4])
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+
+	cButton button[4];
+	button[0] = cButton(sf::Vector2f(g_width / 2, 48), "1 Player");
+	button[1] = cButton(sf::Vector2f(g_width / 2 - t_button.getSize().x / 2 - t_left_arrow.getSize().x / 2 - 8, 48), "", t_left_arrow);
+	button[2] = cButton(sf::Vector2f(g_width / 2 + t_button.getSize().x / 2 + t_right_arrow.getSize().x / 2 + 8, 48), "", t_right_arrow);
+	button[3] = cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back");
+
+
+	short high_score_id = 1;
+
+	sf::Text name[g_scoreboard_size];
+	sf::Text score[g_scoreboard_size];
+
+	for (int i = 0; i < g_scoreboard_size; i++)
+	{
+		name[i].setString(scoreboard[high_score_id - 1].getScoreRegistry(i).name);
+		name[i].setCharacterSize(12);
+		name[i].setFillColor(sf::Color());
+		name[i].setFont(font[1]);
+		name[i].setPosition((int)(g_width / 2 - name[i].getGlobalBounds().width - 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+
+		std::string score_str = uIntToStr(scoreboard[high_score_id - 1].getScoreRegistry(i).score);
+		
+		score[i].setString(score_str);
+		score[i].setCharacterSize(12);
+		score[i].setFillColor(sf::Color());
+		score[i].setFont(font[1]);
+		score[i].setPosition((int)(g_width / 2 + 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+	}
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 1; i < 4; i++)
+		{
+			bool is_mouse_over = button[i].isMouseOver(win);
+			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				switch (i)
+				{
+				case 1:
+				{
+					high_score_id--;
+					if (high_score_id < 1)
+						high_score_id = 4;
+
+					break;
+				}
+				case 2:
+				{
+					high_score_id++;
+					if (high_score_id > 4)
+						high_score_id = 1;
+
+					break;
+				}
+				case 3:
+				{
+					return false;
+				}
+				}
+
+				//Nazwa tabeli wyników
+				sf::String text = (char)(high_score_id + 48);
+				text += " Player";
+				if (high_score_id != 1)
+					text += 's';
+				button[0].setText(text);
+
+				//Dostosowanie wyników (aktualna tabela)
+				for (int i = 0; i < g_scoreboard_size; i++)
+				{
+					name[i].setString(scoreboard[high_score_id - 1].getScoreRegistry(i).name);
+					name[i].setPosition((int)(g_width / 2 - name[i].getGlobalBounds().width - 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+					
+					std::string score_str = uIntToStr(scoreboard[high_score_id - 1].getScoreRegistry(i).score);
+					
+					score[i].setString(score_str);
+					score[i].setPosition((int)(g_width / 2 + 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+		for (int i = 0; i < 4; i++)
+			button[i].draw(win);
+		for (int i = 0; i < g_scoreboard_size; i++)
+		{
+			win.draw(name[i]);
+			win.draw(score[i]);
+		}
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
@@ -986,7 +1115,7 @@ bool menuPause(sf::RenderWindow &win)
 	window.setPosition(sf::Vector2f(g_width / 2, g_height / 2));
 
 	//Tworzenie przycisków
-	class cButton button[3];
+	cButton button[3];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Back to game");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Options");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Exit game");

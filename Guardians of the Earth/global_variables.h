@@ -4,6 +4,7 @@
 #include "SFML\Graphics.hpp"
 
 const int g_number_of_characters = 4;
+const int g_scoreboard_size = 20;
 
 extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
 extern bool g_fullscreen;	//Czy jest w³¹czony tryb pe³noekranowy

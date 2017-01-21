@@ -1,6 +1,7 @@
 #include "SFML\Graphics.hpp"
 #include "Box2D\Box2D.h"
 #include <vector>
+#include <string>
 #include "graphics.h"
 #include "map.h"
 #include "sector.h"
@@ -9,6 +10,7 @@
 #include "menu.h"
 #include "dialogs.h"
 #include "profile.h"
+#include "scoreboard.h"
 
 /*
 Errors:
@@ -17,6 +19,8 @@ Errors:
 3 - Sector not found!
 4 - Can't create profile file!
 5 - Can't load profile file!
+6 - Can't save or create hiscore file!
+7 - Can't load hiscore file!
 */
 
 int main()
@@ -45,16 +49,25 @@ int main()
 	if (!profile.loadProfile(win, "default"))
 		profile.newProfile(win, "default");
 
+	cScoreboard scoreboard[4];	//Tabele wyników oparte o iloœæ graczy
+	for (int i = 0; i < 4; i++)
+	{
+		std::string path = "hiscores";
+		path += (char)(i + 1 + 48);
+		path += ".dat";
+		
+		scoreboard[i] = cScoreboard(win, path);
+	}
 	bool modulators[6] = {};
 	
 	sf::View p1;
 	sf::Event ev;
-
+	
 	while (win.isOpen())
 	{
 		short number_of_players;
 		eCharacter character[4];
-		if (!mainMenu(win, profile, number_of_players, character, modulators))
+		if (!mainMenu(win, profile, number_of_players, character, modulators, scoreboard))
 			return 0;
 
 		win.clear();

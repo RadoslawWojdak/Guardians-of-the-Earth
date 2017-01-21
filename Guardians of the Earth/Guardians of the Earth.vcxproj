@@ -126,6 +126,7 @@
     <ClCompile Include="characterAnimation.cpp" />
     <ClCompile Include="checkbox.cpp" />
     <ClCompile Include="dialogs.cpp" />
+    <ClCompile Include="scoreboard.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="knight.cpp" />
     <ClCompile Include="ladder.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="checkbox.h" />
     <ClInclude Include="dialogs.h" />
     <ClInclude Include="enums.h" />
+    <ClInclude Include="scoreboard.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="knight.h" />
     <ClInclude Include="ladder.h" />
