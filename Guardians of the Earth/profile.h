@@ -18,6 +18,7 @@ public:
 	bool loadProfile(std::string name);
 
 	unsigned int getCash();
+	std::string getName();
 };
 
 #endif //!profile_h

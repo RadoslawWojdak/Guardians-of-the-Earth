@@ -51,3 +51,8 @@ unsigned int cProfile::getCash()
 {
 	return this->cash;
 }
+
+std::string cProfile::getName()
+{
+	return this->name;
+}

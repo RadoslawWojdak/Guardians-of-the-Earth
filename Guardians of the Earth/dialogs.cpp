@@ -37,7 +37,8 @@ bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//G£ÓWNA CZÊŒÆ PÊTLI

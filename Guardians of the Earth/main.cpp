@@ -36,6 +36,7 @@ int main()
 		system("PAUSE");
 		return 2;
 	}
+	initControlKeys();
 
 	cProfile profile;
 	if (!profile.loadProfile("default"))

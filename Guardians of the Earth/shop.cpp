@@ -98,7 +98,7 @@ bool cShop::shopMenu(sf::RenderWindow &win)
 		//DZIA£ANIA NA MENU
 		for (int i = 0; i < this->player.size(); i++)
 		{
-			sControlKeys key = this->player[i]->getControlKeys();
+			sControlKeys key = g_key[player[i]->getPlayerNo() - 1];
 
 			if (!close_shop[i])
 			{

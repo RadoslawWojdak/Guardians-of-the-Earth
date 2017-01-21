@@ -17,7 +17,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 
 	cButton profile_button;
 	profile_button = cButton(sf::Vector2f(g_width - profile_button.getTextureRect().width - 32, 32), "", t_profile_button);
-	
+	sf::Text profile_name(profile.getName(), font[1], 30);
+	profile_name.setOrigin(0, profile_name.getGlobalBounds().height / 2);
+	profile_name.setPosition(g_width - profile_button.getTextureRect().width - 40 - profile_name.getGlobalBounds().width, profile_button.getPosition().y - 8);
+
 	sf::Event ev;
 	do
 	{
@@ -72,10 +75,16 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		{
 			if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
 				return false;
+			break;
 		}
 		case 4:
 		{
 			menuProfiles(win, profile);
+			
+			profile_name.setString(profile.getName());
+			profile_name.setOrigin(0, profile_name.getGlobalBounds().height / 2);
+			profile_name.setPosition(g_width - profile_button.getTextureRect().width - 40 - profile_name.getGlobalBounds().width, profile_button.getPosition().y - 8);
+
 			break;
 		}
 		}
@@ -87,6 +96,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		for (int i = 0; i < 4; i++)
 			button[i].draw(win);
 		profile_button.draw(win);
+		win.draw(profile_name);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
@@ -112,12 +122,12 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Back");
 
 	cCheckbox mod_checkbox[6];	//Checkbox'y - dla modulator
-	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 128, 255), modulators_tab[0]);
-	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(128, 255, 128), modulators_tab[1]);
-	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(128, 255, 128), modulators_tab[2]);
-	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 128, 128), modulators_tab[3]);
-	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 128, 128), modulators_tab[4]);
-	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 128, 128), modulators_tab[5]);
+	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 0, 255), modulators_tab[0]);
+	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(0, 255, 0), modulators_tab[1]);
+	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(0, 255, 0), modulators_tab[2]);
+	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 0, 0), modulators_tab[3]);
+	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 0, 0), modulators_tab[4]);
+	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 0, 0), modulators_tab[5]);
 	
 	sf::Event ev;
 	do
@@ -308,12 +318,13 @@ bool menuOptions(sf::RenderWindow &win)
 	bool click = true;
 	bool end_loop = false;
 
-	class cButton button[2];
+	class cButton button[3];
 	if (g_fullscreen)
-		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Fullscreen");
+		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Fullscreen");
 	else
-		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Windowed");
-	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Back");
+		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Windowed");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Control Settings");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Back");
 
 
 	sf::Event ev;
@@ -328,13 +339,15 @@ bool menuOptions(sf::RenderWindow &win)
 		}
 
 		//DZIA£ANIA NA MENU
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
 			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
 			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
 			{
-				if (i == 0)
+				switch (i)
+				{
+				case 0:
 				{
 					if (g_fullscreen)
 					{
@@ -350,9 +363,16 @@ bool menuOptions(sf::RenderWindow &win)
 					win.close();
 					win.create(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", (g_fullscreen ? sf::Style::Fullscreen : sf::Style::Close));
 					win.setFramerateLimit(g_framerate_limit);
+
+					break;
 				}
-				else if (i == 1)
-					return false;
+				case 1:
+				{
+					menuControlSettings(win);
+					break;
+				}
+				case 2: return false;
+				}
 				break;
 			}
 		}
@@ -365,7 +385,7 @@ bool menuOptions(sf::RenderWindow &win)
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
 		win.draw(background);
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 			button[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
@@ -373,6 +393,11 @@ bool menuOptions(sf::RenderWindow &win)
 	if (win.isOpen())
 		return true;
 	return false;
+}
+
+bool menuControlSettings(sf::RenderWindow &win)
+{
+	return true;
 }
 
 bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
@@ -487,7 +512,7 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter*> &player)
 		//DZIA£ANIA NA MENU
 		for (unsigned short i = 0; i < player.size(); i++)
 		{
-			sControlKeys key = player[i]->getControlKeys();
+			sControlKeys key = g_key[player[i]->getPlayerNo() - 1];
 			if (!key_pressed[i])
 			{
 				if (!key.is_pad)

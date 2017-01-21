@@ -1,6 +1,8 @@
 #ifndef global_variables_h
 #define global_variables_h
 
+#include "SFML\Graphics.hpp"
+
 const int g_number_of_characters = 4;
 
 extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
@@ -16,5 +18,29 @@ struct sFluidSpeedMultipler
 	float ice = 0.0f;
 };
 extern sFluidSpeedMultipler g_fluid_speed_multipler;
+
+union uButton
+{
+	sf::Keyboard::Key key;
+	unsigned int button;
+};
+
+struct sControlKeys
+{
+	bool is_pad;
+	unsigned int pad;
+
+	uButton up;
+	uButton down;
+	uButton left;
+	uButton right;
+	uButton jump;
+	uButton fire;
+	uButton special1;
+};
+
+extern sControlKeys g_key[4];
+
+void initControlKeys();
 
 #endif global_variables_h

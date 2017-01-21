@@ -1,94 +1,5 @@
 #include "character.h"
 
-sControlKeys g_player_control_keys[4];
-
-void cCharacter::initControlKeys(short player_no)
-{
-	switch (player_no)
-	{
-	case 1:
-	{
-		this->key.is_pad = false;
-		this->key.pad = -1;
-
-		this->key.up.key = sf::Keyboard::Key::Up;
-		this->key.down.key = sf::Keyboard::Key::Down;
-		this->key.left.key = sf::Keyboard::Key::Left;
-		this->key.right.key = sf::Keyboard::Key::Right;
-		this->key.jump.key = sf::Keyboard::Key::Space;
-		this->key.fire.key = sf::Keyboard::Key::LControl;
-		this->key.special1.key = sf::Keyboard::Key::RShift;
-		break;
-	}
-	case 2:
-	{
-		this->key.is_pad = false;
-		this->key.pad = -1;
-
-		this->key.up.key = sf::Keyboard::Key::W;
-		this->key.down.key = sf::Keyboard::Key::S;
-		this->key.left.key = sf::Keyboard::Key::A;
-		this->key.right.key = sf::Keyboard::Key::D;
-		this->key.jump.key = sf::Keyboard::Key::E;
-		this->key.fire.key = sf::Keyboard::Key::Q;
-		this->key.special1.key = sf::Keyboard::Key::F;
-		break;
-	}
-	case 3:
-	{
-		if (sf::Joystick::isConnected(0))
-		{
-			this->key.is_pad = true;
-			this->key.pad = 0;
-
-			this->key.jump.button = 2;
-			this->key.fire.button = 3;
-			this->key.special1.button = 5;
-		}
-		else
-		{
-			this->key.is_pad = false;
-			this->key.pad = -1;
-
-			this->key.up.key = sf::Keyboard::Key::U;
-			this->key.down.key = sf::Keyboard::Key::J;
-			this->key.left.key = sf::Keyboard::Key::H;
-			this->key.right.key = sf::Keyboard::Key::K;
-			this->key.jump.key = sf::Keyboard::Key::I;
-			this->key.fire.key = sf::Keyboard::Key::Y;
-			this->key.special1.key = sf::Keyboard::Key::L;
-		}
-		break;
-	}
-	case 4:
-	{
-		if (sf::Joystick::isConnected(1))
-		{
-			this->key.is_pad = true;
-			this->key.pad = 1;
-
-			this->key.jump.button = 2;
-			this->key.fire.button = 3;
-			this->key.special1.button = 5;
-		}
-		else
-		{
-			this->key.is_pad = false;
-			this->key.pad = -1;
-
-			this->key.up.key = sf::Keyboard::Key::Numpad8;
-			this->key.down.key = sf::Keyboard::Key::Numpad2;
-			this->key.left.key = sf::Keyboard::Key::Numpad4;
-			this->key.right.key = sf::Keyboard::Key::Numpad6;
-			this->key.jump.key = sf::Keyboard::Key::Numpad9;
-			this->key.fire.key = sf::Keyboard::Key::Numpad7;
-			this->key.special1.key = sf::Keyboard::Key::Numpad1;
-		}
-		break;
-	}
-	}
-}
-
 cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacterAnimation(t_character[0], pos)
 {
@@ -128,8 +39,6 @@ cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f p
 	if (modulators[1])
 		this->extra_jump++;
 	this->last_position = this->getPosition();
-
-	this->initControlKeys(player_no);
 
 	this->is_immersed_in = FLUID_NONE;
 	this->is_on_ice = false;
@@ -330,7 +239,7 @@ void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bo
 						}
 					}
 
-					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 					{
 						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
@@ -411,7 +320,7 @@ void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bo
 		{
 			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
 			{
-				if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+				if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 				{
 					this->jump(-6.0f - this->extra_height_of_jump);
 					this->stop_jump = false;
@@ -432,7 +341,7 @@ void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bo
 			{
 				ladder_collision = true;
 				
-				if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) || sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+				if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) || sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 				{
 					this->dir = DIR_UP;
 
@@ -441,16 +350,16 @@ void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bo
 					this->stop_jump = true;
 					this->can_jump = true;
 
-					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f))
 					{
 						this->dir = DIR_UP;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -(this->max_speed_x + this->extra_speed) * 0.39f));
 						if (!this->isSpecial1())
 							this->animationClimbing(true);
 					}
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f))
 					{
 						this->dir = DIR_DOWN;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, (this->max_speed_x + this->extra_speed) * 0.39f));
@@ -465,23 +374,23 @@ void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bo
 
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
 
-					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (!sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && !sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
 
-					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < -1.0f))
 					{
 						this->dir = DIR_LEFT;
 						this->body->SetLinearVelocity(b2Vec2(-(this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > 1.0f))
 					{
 						this->dir = DIR_RIGHT;
 						this->body->SetLinearVelocity(b2Vec2((this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
 
-					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 					{
 						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
@@ -541,7 +450,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 		}
 		else
 		{
-			if (this->is_immersed_in != FLUID_NONE && ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button))))	//Je¿eli wyskoczy³ z wody
+			if (this->is_immersed_in != FLUID_NONE && ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button))))	//Je¿eli wyskoczy³ z wody
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -5.0f - this->extra_height_of_jump));
 
 			this->body->SetGravityScale(1.0f);
@@ -814,6 +723,11 @@ void cCharacter::setAllPositions(sf::Vector2f pos)
 	this->setPosition(pos);
 }
 
+short cCharacter::getPlayerNo()
+{
+	return this->player_no;
+}
+
 cPet cCharacter::getPet()
 {
 	return this->pet;
@@ -822,11 +736,6 @@ cPet cCharacter::getPet()
 b2Body *cCharacter::getBody()
 {
 	return this->body;
-}
-
-sControlKeys cCharacter::getControlKeys()
-{
-	return this->key;
 }
 
 bool cCharacter::hasLife()

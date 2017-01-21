@@ -2,7 +2,7 @@
 #define character_h
 
 #include <sstream>	//Konwersja liczby na tekst
-#include "SFML\Graphics.hpp";
+#include "SFML\Graphics.hpp"
 #include "Box2D.h"
 #include "characterAnimation.h"
 #include "enums.h"
@@ -21,26 +21,6 @@
 #include "button.h"
 
 class cBullet;
-
-union uButton
-{
-	sf::Keyboard::Key key;
-	unsigned int button;
-};
-
-struct sControlKeys
-{
-	bool is_pad;
-	unsigned int pad;
-
-	uButton up;
-	uButton down;
-	uButton left;
-	uButton right;
-	uButton jump;
-	uButton fire;
-	uButton special1;
-};
 
 class cCharacter :public cCharacterAnimation
 {
@@ -66,8 +46,6 @@ protected:
 	bool can_crush;			//Czy postaæ gracza mo¿e zgniataæ NPC-y?
 	bool can_jump = false;
 	bool stop_jump = true;		//Czy gracz ca³y czas trzyma naciœniêt¹ spacjê? (dziêki temu postaæ mo¿e skakaæ na ró¿ne wysokoœci)
-
-	sControlKeys key;
 
 	sf::Sprite stats_window;
 	sf::Sprite heart;
@@ -98,7 +76,6 @@ protected:
 	unsigned int bonus[2];	//Jakoœæ bonusu (ulepszenie lub iloœæ (np. pocisków))
 	eDirection shot_dir;
 
-	void initControlKeys(short player_no);
 	void jump(float force);
 	void levelUp();
 	void startInviolability();
@@ -141,9 +118,9 @@ public:
 
 	void setAllPositions(sf::Vector2f pos);
 	
+	short getPlayerNo();
 	cPet getPet();
 	b2Body *getBody();
-	sControlKeys getControlKeys();
 	bool hasLife();
 	bool isPetAlive();
 	bool isDead();

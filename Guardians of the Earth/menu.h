@@ -17,6 +17,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab);
 bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter character[], bool *modulators_tab);
 bool menuOptions(sf::RenderWindow &win);
+bool menuControlSettings(sf::RenderWindow &win);
 bool menuProfiles(sf::RenderWindow &win, cProfile &profile);
 
 bool menuBetweenLevels(sf::RenderWindow &win, std::vector <cCharacter*> &player);
