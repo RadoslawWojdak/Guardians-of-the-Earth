@@ -778,6 +778,11 @@ bool cCharacter::isSpecial1()
 	return false;
 }
 
+unsigned int cCharacter::getScore()
+{
+	return this->score;
+}
+
 unsigned int cCharacter::getCash()
 {
 	return this->cash;

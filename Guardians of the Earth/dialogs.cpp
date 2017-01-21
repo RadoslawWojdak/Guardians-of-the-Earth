@@ -207,7 +207,7 @@ std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String descri
 					end_loop = true;
 				}
 				//Dopisywanie tekstu
-				else if (user_text.getString().toAnsiString().length() < 16)
+				if (user_text.getString().toAnsiString().length() < 16)
 				{
 					if (key >= sf::Keyboard::A && key <= sf::Keyboard::Z)
 						user_text.setString(user_text.getString() + keyToStr(key));
@@ -219,7 +219,7 @@ std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String descri
 					}
 				}
 				//Usuwanie tekstu
-				else if (user_text.getString().toAnsiString().length() > 0)
+				if (user_text.getString().toAnsiString().length() > 0)
 				{
 					if (key == sf::Keyboard::BackSpace)
 					{

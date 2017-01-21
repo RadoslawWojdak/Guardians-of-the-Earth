@@ -113,3 +113,10 @@ void cScoreboard::appendScore(std::string name, unsigned int score)
 		this->registry[pos].score = score;
 	}
 }
+
+bool cScoreboard::isSufficientlyHighScore(unsigned int score)
+{
+	if (score > this->registry[g_scoreboard_size - 1].score)
+		return true;
+	return false;
+}

@@ -25,6 +25,8 @@ public:
 
 	sScoreRegistry getScoreRegistry(unsigned short registry_id);
 	void appendScore(std::string name, unsigned int score);
+
+	bool isSufficientlyHighScore(unsigned int score);
 };
 
 #endif //!files_h

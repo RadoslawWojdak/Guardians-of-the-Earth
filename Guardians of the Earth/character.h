@@ -127,6 +127,7 @@ public:
 	bool isInviolability();
 	bool hasMagicShield();
 	bool isSpecial1();
+	unsigned int getScore();
 	unsigned int getCash();
 	unsigned short getLevel();
 	unsigned short getSkillPoints();

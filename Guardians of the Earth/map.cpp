@@ -669,7 +669,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 	delete[] is_npc;
 }
 
-bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard)
 {
 	//MENU PAUZY
 	static bool key_pressed = true;
@@ -785,7 +785,29 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 		}
 
 		if (no_more_life)
+		{
+			//Zapisywanie siê do tabeli wyników
+			for (int i = 0; i < this->player.size(); i++)
+			{
+				win.clear();
+				if (scoreboard.isSufficientlyHighScore(this->player[i]->getScore()))
+				{
+					sf::String description_str = L"Player ";
+					description_str += uIntToStr(i + 1);
+					description_str += " reached a new high score! Enter your name:";
+
+					std::string name = textDialog(win, "New high score!", description_str);
+
+					scoreboard.appendScore(name, this->player[i]->getScore());
+				}
+			}
+
+			std::string path = "hiscores" + uIntToStr(this->player.size()) + ".dat";
+			scoreboard.saveScoreboard(path);
+
+			//Koniec gry
 			return false;
+		}
 
 		this->levelGenerator(win, player.size(), modulators, true, false);
 		return true;

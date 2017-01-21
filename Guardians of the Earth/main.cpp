@@ -95,7 +95,7 @@ int main()
 
 			//DZIALANIA W GRZE
 			//Poruszanie siê obiektów w poziomie
-			if (!map.movements(win, p1, modulators))
+			if (!map.movements(win, p1, modulators, scoreboard[number_of_players - 1]))
 				game_over = true;
 
 			//WYSWIETLANIE OBRAZU NA EKRAN

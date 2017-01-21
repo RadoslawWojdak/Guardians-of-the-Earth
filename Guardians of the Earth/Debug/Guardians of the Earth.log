@@ -1,3 +1,12 @@
-﻿  main.cpp
+﻿  dialogs.cpp
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(12): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(16): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(24): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(80): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(84): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(92): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(164): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(168): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\dialogs.cpp(180): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)
