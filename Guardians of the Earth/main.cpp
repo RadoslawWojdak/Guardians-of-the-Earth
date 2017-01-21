@@ -10,9 +10,6 @@
 #include "dialogs.h"
 #include "profile.h"
 
-#include <iostream>
-#include <cstdlib>
-
 /*
 Errors:
 1 - Graphics not found!
@@ -46,10 +43,7 @@ int main()
 
 	cProfile profile;
 	if (!profile.loadProfile(win, "default"))
-	{
-		system("CLS");
 		profile.newProfile(win, "default");
-	}
 
 	bool modulators[6] = {};
 	

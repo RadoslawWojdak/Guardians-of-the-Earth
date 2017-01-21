@@ -1,6 +1,4 @@
 #include "sector.h"
-#include <cstdlib>
-#include <iostream>
 
 unsigned int how_many_sectors[7];
 
@@ -48,7 +46,7 @@ bool howManySectors()
 	return true;
 }
 
-void cSector::loadRandomSector(sf::RenderWindow &win, eWorld world_type, std::string &id)
+void cSector::loadRandomSector(sf::RenderWindow &win, eWorld world_type)
 {
 	//Dok³adniejsze losowanie liczb (w oparciu o mniejsze liczby od sekund)
 	clock_t t1;
@@ -79,8 +77,6 @@ void cSector::loadRandomSector(sf::RenderWindow &win, eWorld world_type, std::st
 	path += nr + ".sec";
 
 	this->loadSector(win, world_type, path);
-
-	id = nr;
 }
 
 void cSector::loadSector(sf::RenderWindow &win, eWorld world_type, std::string path)

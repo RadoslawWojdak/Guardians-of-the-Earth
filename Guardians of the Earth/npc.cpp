@@ -1,5 +1,5 @@
 #include "npc.h"
-#include <iostream>
+
 cNPC::cNPC(b2World &physics_world, eWorld world_type, bool *modulators, unsigned short id, sf::Vector2f pos, eDirection direction)
 {
 	this->adjustGraphicsParameters(t_npc[id - 1], pos);

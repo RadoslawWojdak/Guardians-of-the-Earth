@@ -1,5 +1,4 @@
 #include "pet.h"
-#include <iostream>
 
 cPet::cPet()
 {

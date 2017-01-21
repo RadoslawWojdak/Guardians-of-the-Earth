@@ -4,7 +4,6 @@
 #include "SFML\Graphics.hpp"
 #include <string>
 #include <fstream>
-#include <iostream>
 #include <Windows.h>
 #include "dialogs.h"
 

@@ -1,5 +1,5 @@
 #include "ground.h"
-#include <iostream>
+
 unsigned int cGround::ground_id = 0;
 b2BodyDef cGround::physics_body_def;
 b2Body *cGround::physics_body = NULL;

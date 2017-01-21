@@ -1,5 +1,4 @@
 #include "map.h"
-#include <iostream>
 
 cMap::cMap(sf::RenderWindow &win, eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
 {
@@ -11,7 +10,6 @@ cMap::cMap(sf::RenderWindow &win, eWorld world, short number_of_players, eCharac
 
 void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
 {
-	system("CLS");
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
 	this->golden_bb_created = false;
@@ -42,12 +40,6 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 		background[i].setTexture(t_background[this->world_type]);
 	}
 
-	//Stworzenie tablicy opisuj¹cej, jak wiele w poziomie jest sektorów o danym ID (w celach debugowania)
-	std::cout << "Ilosc sektorow w tym typie swiata: " << how_many_sectors[this->world_type] << "\n\n\n";
-	int *how_many = new int[how_many_sectors[this->world_type]];
-	for (int i = 0; i < how_many_sectors[this->world_type]; i++)
-		how_many[i] = 0;
-
 	//Wektor zmiennych odpowiedzialnych za pozycje spawnów bonusów
 	std::vector <sf::Vector2f> spawn_pu_pos;
 
@@ -55,25 +47,19 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 	cSector sector;
 
 	//Pêtla tworzenia terenu
-	clock_t time_map = clock();
 	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
 	{
 		if (!refresh)	//Tworzenie poziomu od podstaw
 		{
-			std::cout << i << " ";
-			std::string sector_id;
 			//Pêtla wyszukiwania pasuj¹cego sektora
 			do
 			{
-				sector.loadRandomSector(win, this->world_type, sector_id);
+				sector.loadRandomSector(win, this->world_type);
 				if (i == 0)	//Pierwszy sektor zawsze pasuje
 					break;
 			} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
 
 			reserve_sector.push_back(sector);
-			int s_id = atoi((char*)sector_id.c_str());
-			std::cout << s_id << "\n";
-			how_many[s_id - 1]++;
 
 			//Przypisanie sektora poprzedniemu sektorowi - dziêki temu mo¿na bêdzie znowu wyszukiwaæ pasuj¹cy sektor
 			this->prev_sector = sector;
@@ -129,17 +115,9 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 
 	x_generate += 512;
 	this->width = x_generate;
-	time_map = clock() - time_map;
-
-
-	//Wyœwietlanie na ekranie jak wiele jest sektorów o danym ID (W celach debugowania)
-	std::cout << "\n\n\n";
-	for (unsigned int i = 0; i < how_many_sectors[this->world_type]; i++)
-		std::cout << i + 1 << " = " << how_many[i] << "\n";
 
 
 	//Dostosowywanie obiektów mapy do ustawieñ mapy
-	clock_t time_adjust = clock();
 	for (unsigned int i = 0; i < ground.size(); i++)
 		this->ground[i].adjustObjectToLevel(this->height);
 	for (unsigned int i = 0; i < fluid.size(); i++)
@@ -156,12 +134,10 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 		this->ladder[i].adjustObjectToLevel(this->height);
 	for (unsigned int i = 0; i < spawn_pu_pos.size(); i++)		//Ta sama zasada dzia³ania, co w przypadku poprzednich pêtli
 		spawn_pu_pos[i] = sf::Vector2f(spawn_pu_pos[i].x, spawn_pu_pos[i].y + this->height - g_height);
-	time_adjust = clock() - time_adjust;
 	//!Dostosowywanie obiektów mapy do ustawieñ mapy
 
 
 	//Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
-	clock_t time_optimization = clock();
 	sf::Vector2i grid_size(this->width / 32, this->height / 32);	//Wymiary siatki (wymiary poziomu podzielone przez 32)
 	bool *is_solid = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê sztywny obiekt (grunt, blok, ...) - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
 	bool *is_ground = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê grunt - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
@@ -234,20 +210,15 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 		if (pos.y == grid_size.y - 1)
 			this->fluid_tab[(pos.y + 1) * grid_size.x + pos.x] = true;
 	}
-	time_optimization = clock() - time_optimization;
 	//!Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
 	
 
 	//Algorytm wzajemnej grafiki gruntu (postawiony na samym koñcu - po wszystkich dzia³aniach na gruncie)
-	clock_t time_graph = clock();
 	for (int i = 0; i < this->ground.size(); i++)
 		this->ground[i].graphicsCustomize(sf::Vector2u(this->width, this->height), is_ground, grid_size);
 	//Pozosta³e algorytmy wzajemnej grafiki
 	for (int i = 0; i < this->fluid.size(); i++)
 		this->fluid[i].graphicsCustomize(this->world_type, sf::Vector2u(this->width, this->height), to_fluid, grid_size);
-
-	delete[] how_many;
-	time_graph = clock() - time_graph;
 	
 
 	//GENERATOR POZIOMU (POWER-UP'Y, T£O I NPC)
@@ -258,19 +229,16 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 	if (spawn_pu_pos.size() < pu_count)
 		pu_count = spawn_pu_pos.size();
 	//Pêtla tworzenia power-up'ów
-	clock_t time_pu = clock();
 	for (int i = 0; i < pu_count; i++)
 	{
 		unsigned short spawn = rand() % spawn_pu_pos.size();
 		this->power_up.push_back(spawn_pu_pos[spawn]);
 		spawn_pu_pos.erase(spawn_pu_pos.begin() + spawn);
 	}
-	time_pu = clock() - time_pu;
 
 
 	//NPC-Y
 	//Pêtla tworzenia NPC-ów
-	clock_t time_npc = clock();
 	int number_of_npcs = (float)(50 + 5.5f * (this->level_number - 1)) * ((float)(modulators[0] ? rand() % 16 + 5 : 10) / 10);
 	for (int i = 0; i < number_of_npcs; i++)
 	{
@@ -358,11 +326,9 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 		
 		this->npc.push_back(temp_npc);
 	}
-	time_npc = clock() - time_npc;
 	
 	//OBIEKTY W TLE
 	//Pêtla tworzenia obiektów w tle
-	clock_t time_background = clock();
 	for (int i = 0; i < 100; i++)
 	{
 		eBackgroundType type;
@@ -614,7 +580,6 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 		}
 		this->background_obj.push_back(temp_bg_obj);
 	}
-	time_background = clock() - time_background;
 
 	//Generowanie graczy
 	if (player.size() == 0)
@@ -692,15 +657,6 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 		}
 	}
 	//!Generowanie graczy
-
-	std::cout << "\n\n";
-	std::cout << "Czas generowania terenu: " << time_map << "\n";
-	std::cout << "Czas dostosowywania obiektow do terenu: " << time_adjust << "\n";
-	std::cout << "Czas dzialania algorytmu wzajemnej grafiki gruntu: " << time_graph << "\n";
-	std::cout << "Czas tworzenia tablic optymalizacyjnych: " << time_optimization << "\n";
-	std::cout << "Czas rozstawiania power-up'ow na mapie: " << time_pu << "\n";
-	std::cout << "Czas rozstawiania NPC na mapie: " << time_npc << "\n";
-	std::cout << "Czas rozstawiania obiektow w tle na mapie: " << time_background << "\n";
 
 	//Tworzenie zmiennych startowych
 	this->initial_bbs_size = this->bonus_block.size();

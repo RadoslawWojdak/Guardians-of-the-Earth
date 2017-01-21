@@ -1,6 +1,4 @@
 #include "treasure.h"
-#include <iostream>
-#include <cstdlib>
 
 cTreasure::cTreasure(b2World &physics_world, eWorld world_type, sf::Vector2f pos, bool physics, float speed_x, float speed_y)
 {
