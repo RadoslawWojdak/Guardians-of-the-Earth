@@ -49,6 +49,7 @@ int main()
 	
 	sf::View p1;
 	sf::Event ev;
+
 	while (win.isOpen())
 	{
 		short number_of_players;

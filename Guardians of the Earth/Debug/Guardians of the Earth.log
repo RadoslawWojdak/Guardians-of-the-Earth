@@ -59,5 +59,7 @@ c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\menu.cpp(98
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\menu.cpp(990): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\menu.cpp(991): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
 c:\users\ptyni\desktop\guardians of the earth\guardians of the earth\menu.cpp(992): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+  main.cpp
+  Generating Code...
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.exe
   Guardians of the Earth.vcxproj -> C:\Users\ptyni\Desktop\Guardians of the Earth\Debug\Guardians of the Earth.pdb (Partial PDB)
