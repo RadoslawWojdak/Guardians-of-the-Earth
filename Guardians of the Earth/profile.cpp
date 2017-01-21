@@ -6,7 +6,7 @@ cProfile::cProfile()
 	this->cash = 0;
 }
 
-bool cProfile::newProfile(std::string name)
+bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
 {
 	this->name = name;
 	
@@ -23,13 +23,13 @@ bool cProfile::newProfile(std::string name)
 	}
 	else
 	{
-		std::cout << "ERROR: Can't create profile file!";
+		okDialog(win, "Error 4", "Can't create profile file!");
 		return false;
 	}
 	return true;
 }
 
-bool cProfile::loadProfile(std::string name)
+bool cProfile::loadProfile(sf::RenderWindow &win, std::string name)
 {
 	this->name = name;
 
@@ -41,7 +41,7 @@ bool cProfile::loadProfile(std::string name)
 	}
 	else
 	{
-		std::cout << "ERROR: Can't load profile file!";
+		okDialog(win, "Error 5", "Can't Load profile file!");
 		return false;
 	}
 	return true;

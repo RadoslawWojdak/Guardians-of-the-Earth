@@ -679,7 +679,7 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 					std::string name = textDialog(win, "New Profile", "Enter the player's name.");
 					
 					if (name != "")
-						profile.newProfile(name);
+						profile.newProfile(win, name);
 					break;
 				}
 				case 1:
@@ -687,7 +687,7 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 					std::string name = textDialog(win, "Load Profile", "Enter the player's name.");
 
 					if (name != "")
-						profile.loadProfile(name);
+						profile.loadProfile(win, name);
 					break;
 				}
 				case 2:

@@ -13,6 +13,15 @@
 #include <iostream>
 #include <cstdlib>
 
+/*
+Errors:
+1 - Graphics not found!
+2 - Font not found!
+3 - Sector not found!
+4 - Can't create profile file!
+5 - Can't load profile file!
+*/
+
 int main()
 {
 	sf::RenderWindow win(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", (g_fullscreen ? sf::Style::Fullscreen : sf::Style::Close));
@@ -20,29 +29,26 @@ int main()
 
 	if (!initGraph())
 	{
-		std::cout << "Blad wczytywania grafik!\n";
-		system("PAUSE");
+		okDialog(win, "Error 1", "Graphics not found!");
 		return 1;
 	}
 	if (!initFonts())
 	{
-		std::cout << "Blad wczytywania czcionek!\n";
-		system("PAUSE");
-		return 4;
+		okDialog(win, "Error 2", "Font not found!");
+		return 2;
 	}
 	if (!howManySectors())
 	{
-		std::cout << "Blad wczytywania sektorow!\n";
-		system("PAUSE");
-		return 2;
+		okDialog(win, "Error 3", "Sector not found!");
+		return 3;
 	}
 	initControlKeys();
 
 	cProfile profile;
-	if (!profile.loadProfile("default"))
+	if (!profile.loadProfile(win, "default"))
 	{
 		system("CLS");
-		profile.newProfile("default");
+		profile.newProfile(win, "default");
 	}
 
 	bool modulators[6] = {};
@@ -60,7 +66,7 @@ int main()
 		win.clear();
 		win.display();
 
-		cMap map(WORLD_OVERWORLD, number_of_players, character, modulators);
+		cMap map(win, WORLD_OVERWORLD, number_of_players, character, modulators);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));

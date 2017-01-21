@@ -1,15 +1,15 @@
 #include "map.h"
 #include <iostream>
 
-cMap::cMap(eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(sf::RenderWindow &win, eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(number_of_players, modulators, false, false, character);
+	levelGenerator(win, number_of_players, modulators, false, false, character);
 }
 
-void cMap::levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
+void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
 {
 	system("CLS");
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
@@ -65,7 +65,7 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 			//Pêtla wyszukiwania pasuj¹cego sektora
 			do
 			{
-				sector.loadRandomSector(this->world_type, sector_id);
+				sector.loadRandomSector(win, this->world_type, sector_id);
 				if (i == 0)	//Pierwszy sektor zawsze pasuje
 					break;
 			} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
@@ -807,7 +807,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 					return true;
 				}
 
-				this->levelGenerator(player.size(), modulators, false, true);
+				this->levelGenerator(win, player.size(), modulators, false, true);
 				
 				return true;
 			}
@@ -831,7 +831,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 		if (no_more_life)
 			return false;
 
-		this->levelGenerator(player.size(), modulators, true, false);
+		this->levelGenerator(win, player.size(), modulators, true, false);
 		return true;
 	}
 

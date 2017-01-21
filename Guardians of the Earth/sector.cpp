@@ -48,7 +48,7 @@ bool howManySectors()
 	return true;
 }
 
-void cSector::loadRandomSector(eWorld world_type, std::string &id)
+void cSector::loadRandomSector(sf::RenderWindow &win, eWorld world_type, std::string &id)
 {
 	//Dok³adniejsze losowanie liczb (w oparciu o mniejsze liczby od sekund)
 	clock_t t1;
@@ -78,12 +78,12 @@ void cSector::loadRandomSector(eWorld world_type, std::string &id)
 
 	path += nr + ".sec";
 
-	this->loadSector(world_type, path);
+	this->loadSector(win, world_type, path);
 
 	id = nr;
 }
 
-void cSector::loadSector(eWorld world_type, std::string path)
+void cSector::loadSector(sf::RenderWindow &win, eWorld world_type, std::string path)
 {
 	bool state[9];		//czy dany stan istnienia ma byc wlaczony? (dane po kropce w sektorze)
 	for (int i = 0; i < 9; i++)
@@ -256,8 +256,9 @@ void cSector::loadSector(eWorld world_type, std::string path)
 		case WORLD_DESERT: {world_str = "Desert";	break;}
 		}
 
-		std::cout << "Brak sektorow dla: " << world_str << "!\n";
-		system("PAUSE");
+		sf::String error = L"Not found sector for level ";
+		error += world_str;
+		okDialog(win, L"Error 3", error);
 		exit(3);
 	}
 }
