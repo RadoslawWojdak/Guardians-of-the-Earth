@@ -669,7 +669,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 	delete[] is_npc;
 }
 
-bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard, cProfile &profile)
 {
 	//MENU PAUZY
 	static bool key_pressed = true;
@@ -804,6 +804,23 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 
 			std::string path = "hiscores" + uIntToStr(this->player.size()) + ".dat";
 			scoreboard.saveScoreboard(path);
+
+			//Nagroda za grê
+			unsigned int cash = 0;
+
+			unsigned int allScore = 0;
+			for (int i = 0; i < this->player.size(); i++)
+				allScore += this->player[i]->getScore();
+			cash = allScore / 1000;
+
+			sf::String description_str = "You get ";
+			description_str += uIntToStr(cash);
+			description_str += " cash for the game.";
+
+			okDialog(win, "Award for the game", description_str);
+
+			profile.addCash(cash);
+			profile.saveProfile(win);
 
 			//Koniec gry
 			return false;

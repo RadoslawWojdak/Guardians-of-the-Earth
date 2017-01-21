@@ -19,7 +19,7 @@ cScoreboard::cScoreboard(sf::RenderWindow &win, std::string path)
 
 		if (!saveScoreboard(path))
 		{
-			okDialog(win, "Error 6", "Can't save or create hiscore file!");
+			okDialog(win, "Error 7", "Can't save or create hiscore file!");
 			exit(6);
 		}
 	}

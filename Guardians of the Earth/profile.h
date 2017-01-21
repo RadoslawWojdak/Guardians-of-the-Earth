@@ -16,7 +16,10 @@ public:
 	cProfile();
 
 	bool newProfile(sf::RenderWindow &win, std::string name);
+	bool saveProfile(sf::RenderWindow &win);
 	bool loadProfile(sf::RenderWindow &win, std::string name);
+
+	void addCash(unsigned int extra_cash);
 
 	unsigned int getCash();
 	std::string getName();

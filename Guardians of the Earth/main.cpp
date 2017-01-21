@@ -18,9 +18,10 @@ Errors:
 2 - Font not found!
 3 - Sector not found!
 4 - Can't create profile file!
-5 - Can't load profile file!
-6 - Can't save or create hiscore file!
-7 - Can't load hiscore file!
+5 - Can't save profile file!
+7 - Can't load profile file!
+8 - Can't save or create hiscore file!
+9 - Can't load hiscore file!
 */
 
 int main()
@@ -95,7 +96,7 @@ int main()
 
 			//DZIALANIA W GRZE
 			//Poruszanie siê obiektów w poziomie
-			if (!map.movements(win, p1, modulators, scoreboard[number_of_players - 1]))
+			if (!map.movements(win, p1, modulators, scoreboard[number_of_players - 1], profile))
 				game_over = true;
 
 			//WYSWIETLANIE OBRAZU NA EKRAN

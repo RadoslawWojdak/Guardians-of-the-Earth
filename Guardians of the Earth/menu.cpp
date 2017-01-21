@@ -21,6 +21,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 	sf::Text profile_name(profile.getName(), font[1], 30);
 	profile_name.setOrigin(0, profile_name.getGlobalBounds().height / 2);
 	profile_name.setPosition(g_width - profile_button.getTextureRect().width - 40 - profile_name.getGlobalBounds().width, profile_button.getPosition().y - 8);
+	sf::Text profile_cash(uIntToStr(profile.getCash()), font[1], 30);
+	profile_cash.setOrigin(0, profile_cash.getGlobalBounds().height / 2);
+	profile_cash.setPosition(32, profile_button.getPosition().y - 8);
+	profile_cash.setFillColor(sf::Color(255, 215, 0));
 
 	sf::Event ev;
 	do
@@ -45,7 +49,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 			}
 		}
 		if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && profile_button.isMouseOver(win))
-			option = 4;
+			option = 5;
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			click = true;
@@ -91,6 +95,10 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 			profile_name.setOrigin(0, profile_name.getGlobalBounds().height / 2);
 			profile_name.setPosition(g_width - profile_button.getTextureRect().width - 40 - profile_name.getGlobalBounds().width, profile_button.getPosition().y - 8);
 
+			profile_name.setString(uIntToStr(profile.getCash()));
+			profile_name.setOrigin(0, profile_cash.getGlobalBounds().height / 2);
+			profile_name.setPosition(32, profile_button.getPosition().y - 8);
+
 			break;
 		}
 		}
@@ -103,6 +111,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 			button[i].draw(win);
 		profile_button.draw(win);
 		win.draw(profile_name);
+		win.draw(profile_cash);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
