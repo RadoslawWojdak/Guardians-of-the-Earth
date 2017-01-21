@@ -4,7 +4,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 	sf::Sprite background(t_background[0]);
-
+	
 	bool click = true;
 	bool end_loop = false;
 	short option = -1;
@@ -397,7 +397,247 @@ bool menuOptions(sf::RenderWindow &win)
 
 bool menuControlSettings(sf::RenderWindow &win)
 {
-	return true;
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+
+	cButton *button = new cButton[4 * 8 + 2];
+	for (int i = 0; i < 4; i++)	//Gracze
+	{
+		if (g_key[i].is_pad == true)
+		{
+			sf::String pad = "PAD " + (char)(g_key[i].pad + 48);
+			unsigned int pad_no = g_key[i].pad;
+
+			button[i * 8] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * 4.5), pad, t_button, sf::Color(0, 128, 0));
+
+			button[i * 8 + 1] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (3.5)), "Up");
+			button[i * 8 + 2] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (2.5)), "Down");
+			button[i * 8 + 3] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (1.5)), "Left");
+			button[i * 8 + 4] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (0.5)), "Right");
+			button[i * 8 + 5] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-0.5)), (char)(g_key[i].jump.button + 48));
+			button[i * 8 + 6] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-1.5)), (char)(g_key[i].fire.button + 48));
+			button[i * 8 + 7] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-2.5)), (char)(g_key[i].special1.button + 48));
+		}
+		else
+		{
+			button[i * 8] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (4.5)), "KEYBOARD", t_button, sf::Color(0, 128, 0));
+
+			button[i * 8 + 1] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (3.5)), keyToStr(g_key[i].up.key));
+			button[i * 8 + 2] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (2.5)), keyToStr(g_key[i].down.key));
+			button[i * 8 + 3] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (1.5)), keyToStr(g_key[i].left.key));
+			button[i * 8 + 4] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (0.5)), keyToStr(g_key[i].right.key));
+			button[i * 8 + 5] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-0.5)), keyToStr(g_key[i].jump.key));
+			button[i * 8 + 6] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-1.5)), keyToStr(g_key[i].fire.key));
+			button[i * 8 + 7] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-2.5)), keyToStr(g_key[i].special1.key));
+		}
+	}
+	button[4 * 8] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48 * (-3.5)), "Back");
+	button[4 * 8 + 1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48 * (-4.5)), "Default");
+
+
+	sf::Event ev;
+	do
+	{
+		for (int i = 0; i < 4; i++)	//Gracze
+		{
+			if (g_key[i].is_pad == true)
+			{
+				std::string button_text("PAD ");
+				button_text += (char)(g_key[i].pad + 48);
+				button[i * 8].setText(button_text);
+
+				button_text = (g_key[i].jump.button / 10 > 0 ? (char)((g_key[i].jump.button / 10) + 48) : ' ');
+				button_text += (char)((g_key[i].jump.button % 10) + 48);
+				button[i * 8 + 5].setText(button_text);
+				
+				button_text = (g_key[i].fire.button / 10 > 0 ? (char)((g_key[i].fire.button / 10) + 48) : ' ');
+				button_text += (char)((g_key[i].fire.button % 10) + 48);
+				button[i * 8 + 6].setText(button_text);
+				
+				button_text = (g_key[i].special1.button / 10 > 0 ? (char)((g_key[i].special1.button / 10) + 48) : ' ');
+				button_text += (char)((g_key[i].special1.button % 10) + 48);
+				button[i * 8 + 7].setText(button_text);
+			}
+			else
+			{
+				button[i * 8].setText("KEYBOARD");
+
+				button[i * 8 + 1].setText(keyToStr(g_key[i].up.key));
+				button[i * 8 + 2].setText(keyToStr(g_key[i].down.key));
+				button[i * 8 + 3].setText(keyToStr(g_key[i].left.key));
+				button[i * 8 + 4].setText(keyToStr(g_key[i].right.key));
+				button[i * 8 + 5].setText(keyToStr(g_key[i].jump.key));
+				button[i * 8 + 6].setText(keyToStr(g_key[i].fire.key));
+				button[i * 8 + 7].setText(keyToStr(g_key[i].special1.key));
+			}
+		}
+
+
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				bool is_mouse_over = button[i * 8 + j].isMouseOver(win);
+				button[i * 8 + j].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+				{
+					switch (j)
+					{
+					case 0:	//Wybieranie urz¹dzenia na którym gracz bêdzie graæ (Klawiatura / Joystick)
+					{
+						bool selected_device = false;
+						do
+						{
+							win.pollEvent(ev);
+
+							if (ev.type == sf::Event::Closed)
+							{
+								if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+								{
+									win.close();
+									break;
+								}
+							}
+							if (ev.type == sf::Event::KeyPressed)
+							{
+								selected_device = true;
+								if (g_key[i].is_pad)
+								{
+									g_key[i].is_pad = false;
+
+									g_key[i].jump.button = -1;
+									g_key[i].fire.button = -1;
+									g_key[i].special1.button = -1;
+								}
+							}
+
+							unsigned int i = 0;
+							while (sf::Joystick::isConnected(i))
+							{
+								unsigned int j = 0;
+								while (j < sf::Joystick::getButtonCount(i))
+								{
+									if (sf::Joystick::isButtonPressed(i, j))
+									{
+										selected_device = true;
+										g_key[i].pad = i;
+
+										if (!g_key[i].is_pad)
+										{
+											g_key[i].is_pad = true;
+											g_key[i].up.button = -1;
+											g_key[i].down.button = -1;
+											g_key[i].left.button = -1;
+											g_key[i].right.button = -1;
+											g_key[i].jump.button = -1;
+											g_key[i].fire.button = -1;
+											g_key[i].special1.button = -1;
+										}
+									}
+									j++;
+								}
+								i++;
+							}
+						} while (!selected_device);
+
+						break;
+					}		//!Wybieranie urz¹dzenia na którym gracz bêdzie graæ (Klawiatura / Joystick)
+					default:	//Wybieranie przycisku za pomoc¹ którego gracz bêdzie wykonywa³ dan¹ czynnoœæ
+					{
+						bool selected_button = false;
+						if (g_key[i].is_pad && (j == 1 || j == 2 || j == 3 || j == 4))	//Na joysticku mo¿na siê poruszaæ jedynie za pomoc¹ osi
+							selected_button = true;
+
+						while (!selected_button)
+						{
+							win.pollEvent(ev);
+
+							if (ev.type == sf::Event::Closed)
+							{
+								if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+								{
+									win.close();
+									break;
+								}
+							}
+
+							if (ev.type == sf::Event::KeyPressed && !g_key[i].is_pad)
+							{
+								selected_button = true;
+
+								switch (j)
+								{
+								case 1: {g_key[i].up.key = ev.key.code; break;}
+								case 2: {g_key[i].down.key = ev.key.code; break;}
+								case 3: {g_key[i].left.key = ev.key.code; break;}
+								case 4: {g_key[i].right.key = ev.key.code; break;}
+								case 5: {g_key[i].jump.key = ev.key.code; break;}
+								case 6: {g_key[i].fire.key = ev.key.code; break;}
+								case 7: {g_key[i].special1.key = ev.key.code; break;}
+								}
+							}
+							else if (ev.type == sf::Event::JoystickButtonPressed && ev.joystickButton.joystickId == g_key[i].pad && g_key[i].is_pad)
+							{
+								selected_button = true;
+
+								switch (j)
+								{
+								case 5: {g_key[i].jump.button = ev.joystickButton.button; break;}
+								case 6: {g_key[i].fire.button = ev.joystickButton.button; break;}
+								case 7: {g_key[i].special1.button = ev.joystickButton.button; break;}
+								}
+							}
+						}
+
+						break;
+					}	//!Wybieranie przycisku za pomoc¹ którego gracz bêdzie wykonywa³ dan¹ czynnoœæ
+					}
+				}
+			}
+		}
+		//Przycisk wstecz
+		for (int i = 0; i < 2; i++)
+		{
+			bool is_mouse_over = button[4 * 8 + i].isMouseOver(win);
+			button[4 * 8 + i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				switch (i)
+				{
+				case 0: {end_loop = true; break;}
+				case 1: {initControlKeys(); break;}
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+		for (int i = 0; i < 4 * 8 + 2; i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
 }
 
 bool menuProfiles(sf::RenderWindow &win, cProfile &profile)

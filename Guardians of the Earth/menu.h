@@ -3,6 +3,7 @@
 
 #include "SFML\Graphics.hpp"
 #include <vector>
+#include <string>
 #include "button.h"
 #include "global_variables.h"
 #include "character.h"
