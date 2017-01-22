@@ -8,7 +8,7 @@ sf::Texture t_treasure[8];
 sf::Texture t_power_up[2];
 sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
-sf::Texture t_npc[5];
+sf::Texture t_npc[g_all_npcs];
 sf::Texture t_object[8];
 sf::Texture t_character[g_number_of_characters];
 sf::Texture t_characters_bonus[g_number_of_characters][2];
@@ -202,7 +202,7 @@ bool initGraph()
 	}
 
 	//NPC-Y
-	for (unsigned int i = 0; i < 5; i++)
+	for (unsigned int i = 0; i < g_all_npcs; i++)
 	{
 		std::string nr;
 		std::stringstream ss;

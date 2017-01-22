@@ -102,7 +102,8 @@ enum eFluidType
 
 enum eUnlockedType	//NIE ZMIENIAÆ WARTOŒCI (S¥ W KOLEJNOŒCI ZAPISYWANIA DO PLIKU)
 {
-	UNLOCKED_MODULATOR = 0
+	UNLOCKED_MODULATOR = 0,
+	UNLOCKED_NPC = 1
 };
 
 enum eModulatorType

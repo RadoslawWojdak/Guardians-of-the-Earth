@@ -13,7 +13,7 @@ extern sf::Texture t_treasure[8];
 extern sf::Texture t_power_up[2];
 extern sf::Texture t_background[5];
 extern sf::Texture *t_background_obj[5];
-extern sf::Texture t_npc[5];
+extern sf::Texture t_npc[g_all_npcs];
 extern sf::Texture t_object[8];
 extern sf::Texture t_character[g_number_of_characters];
 extern sf::Texture t_characters_bonus[g_number_of_characters][2];

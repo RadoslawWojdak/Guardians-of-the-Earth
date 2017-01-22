@@ -1,14 +1,14 @@
 #include "map.h"
 
-cMap::cMap(sf::RenderWindow &win, eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(sf::RenderWindow &win, cProfile &profile, eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(win, number_of_players, modulators, false, false, character);
+	levelGenerator(win, profile, number_of_players, modulators, false, false, character);
 }
 
-void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
+void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
 {
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
@@ -243,7 +243,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, short number_of_players, bool *
 	for (int i = 0; i < number_of_npcs; i++)
 	{
 		//Losowanie ID NPC-a
-		int random = randomNPCID(this->world_type);
+		int random = randomNPCID(this->world_type, profile);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
 		cNPC temp_npc(this->physics_world, this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
@@ -763,7 +763,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 					return true;
 				}
 
-				this->levelGenerator(win, player.size(), modulators, false, true);
+				this->levelGenerator(win, profile, player.size(), modulators, false, true);
 				
 				return true;
 			}
@@ -826,7 +826,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 			return false;
 		}
 
-		this->levelGenerator(win, player.size(), modulators, true, false);
+		this->levelGenerator(win, profile, player.size(), modulators, true, false);
 		return true;
 	}
 

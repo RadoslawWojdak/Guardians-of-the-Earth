@@ -52,7 +52,7 @@ cNPC::cNPC(b2World &physics_world, eWorld world_type, bool *modulators, unsigned
 	body->CreateFixture(&fd);
 }
 
-unsigned short randomNPCID(eWorld world_type)
+unsigned short randomNPCID(eWorld world_type, cProfile &profile)
 {
 	switch (world_type)
 	{
@@ -61,14 +61,26 @@ unsigned short randomNPCID(eWorld world_type)
 	case WORLD_ICE_LAND:
 	case WORLD_DESERT:
 	{
-		short random = rand() % 4 + 1;
-		switch (random)
+		bool is_available = false;
+
+		while (!is_available)
 		{
-		case 1: {return 1; break;}
-		case 2: {return 2; break;}
-		case 3: {return 3; break;}
-		case 4: {return 5; break;}
+			short random = rand() % 5 + 1;
+			switch (random)
+			{
+			case 1: {return 1; break;}
+			case 2: {return 2; break;}
+			case 3: {return 3; break;}
+			case 4: {return 5; break;}
+			case 5: 
+			{
+				if (profile.isContentUnlocked(UNLOCKED_NPC, 0))
+					return 6;
+				break;
+			}
+			}
 		}
+		
 		break;
 	}
 	case WORLD_UNDERWATER:
@@ -95,12 +107,14 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->hp = 1;
+		this->exp = 8;
 
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 		
 		this->features.motion = true;
 		this->features.chase = false;
+		this->features.roaming = false;
 		this->speed = 1.5f;
 		this->features.max_speed = 1.5f;
 
@@ -115,12 +129,14 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->hp = 1;
+		this->exp = 25;
 
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
+		this->features.roaming = false;
 		this->speed = 1.5f;
 		this->features.max_speed = 1.5f;
 
@@ -135,12 +151,14 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->hp = 1;
+		this->exp = 15;
 
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
+		this->features.roaming = true;
 		this->speed = 2.5f;
 		this->features.max_speed = 2.5f;
 
@@ -155,12 +173,14 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->hp = 1;
+		this->exp = 15;
 
 		this->features.friendly = false;
 		this->features.top_hurts = false;
 
 		this->features.motion = true;
 		this->features.chase = false;
+		this->features.roaming = false;
 		this->speed = 2.5f;
 		this->features.max_speed = 2.5f;
 
@@ -175,16 +195,40 @@ void cNPC::setFeatures(unsigned short id)
 		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
 
 		this->hp = 1;
+		this->exp = 40;
 
 		this->features.friendly = false;
 		this->features.top_hurts = true;
 
 		this->features.motion = true;
 		this->features.chase = false;
+		this->features.roaming = false;
 		this->speed = 1.5f;
 		this->features.max_speed = 1.5f;
 
 		this->features.flying = false;
+		this->features.swimming = false;
+		this->features.jumping = false;
+
+		break;
+	}
+	case 6:
+	{
+		this->setTextureRect(sf::IntRect(0, 0, 32, 32));
+
+		this->hp = 1;
+		this->exp = 20;
+
+		this->features.friendly = false;
+		this->features.top_hurts = false;
+
+		this->features.motion = true;
+		this->features.chase = false;
+		this->features.roaming = false;
+		this->speed = 2.5f;
+		this->features.max_speed = 2.5f;
+
+		this->features.flying = true;
 		this->features.swimming = false;
 		this->features.jumping = false;
 
@@ -225,8 +269,8 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 	}
 	if (this->start && this->features.motion)
 	{
-		//Je¿eli NPC ani nie lata, ani nie œciga, to znaczy ¿e ma prêdkoœæ sta³¹ i wystarczy sprawdziæ tylko, czy zosta³a ona w jakikolwiek sposób zmieniona, aby oceniæ, czy NPC w coœ uderzy³
-		if (!this->features.flying && !this->features.chase)
+		//Je¿eli NPC ani nie kr¹¿y, ani nie œciga, to znaczy ¿e ma prêdkoœæ sta³¹ i wystarczy sprawdziæ tylko, czy zosta³a ona w jakikolwiek sposób zmieniona, aby oceniæ, czy NPC w coœ uderzy³
+		if (!this->features.roaming && !this->features.chase)
 		{
 			//Je¿eli prêdkoœæ pozioma NPC-a siê zmieni³a to znaczy, ¿e musia³ w coœ uderzyæ swoim bokiem, czyli teraz zmienia siê jego prêdkoœæ na odwrotn¹
 			if (this->last_speed.x != this->body->GetLinearVelocity().x)
@@ -244,11 +288,9 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 			}
 		}
 
-		//Je¿eli NPC lata, ale nie œciga postaci graczy, to po jakimœ czasie siê zatrzymuje i leci w drug¹ stronê
-		else if (this->features.flying && !this->features.chase)
+		//Je¿eli NPC kr¹¿y, to po jakimœ czasie siê zatrzymuje i leci w drug¹ stronê
+		else if (this->features.roaming)
 		{
-			this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50, this->last_position.y));	//Pozycja nie bêdzie siê zmienia³a, co naprawia bug dotycz¹cy opadania NPC-a, gdy coœ na niego spadnie
-
 			if (this->dir == DIR_LEFT)
 			{
 				this->speed -= 0.02f * speed_multipler;
@@ -270,6 +312,13 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 		{
 			if (this->last_speed.y >= 0 && this->body->GetLinearVelocity().y <= 0)
 				this->body->SetLinearVelocity(b2Vec2(body->GetLinearVelocity().x, -7));
+		}
+
+		//Je¿eli NPC potrafi lataæ, to ma sta³¹ prêdkoœæ pionow¹
+		if (this->features.flying)
+		{
+			this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
+			this->setAllPositions(sf::Vector2f(this->body->GetPosition().x * 50, this->last_position.y));	//Pozycja nie bêdzie siê zmienia³a, co naprawia bug dotycz¹cy opadania NPC-a, gdy coœ na niego spadnie
 		}
 
 		//Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
@@ -334,7 +383,7 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 			if (!this->features.flying)
 			this->body->SetGravityScale(1.0f);
 
-			if (!this->features.chase && !this->features.flying)	//Je¿eli porusza siê ze sta³¹ prêdkoœci¹
+			if (!this->features.chase && !this->features.roaming)	//Je¿eli porusza siê ze sta³¹ prêdkoœci¹
 			{
 				if (this->dir == DIR_LEFT)
 					this->body->SetLinearVelocity(b2Vec2(-this->features.max_speed, this->body->GetLinearVelocity().y));
@@ -387,14 +436,7 @@ sFeatures cNPC::getFeatures()
 
 unsigned short cNPC::getExperience()
 {
-	switch (this->id)
-	{
-	case 1: {return 8; break;}
-	case 2: {return 25; break;}
-	case 3: {return 15; break;}
-	case 4: {return 15; break;}
-	case 5: {return 40; break;}
-	}
+	return this->exp;
 }
 
 sf::Vector2f cNPC::getLastPosition()

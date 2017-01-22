@@ -6,9 +6,11 @@
 const int g_number_of_characters = 4;
 const int g_scoreboard_size = 20;
 
-const int g_unlocked_types = 1;	//Typy mo¿liwych do odblokowania przedmiotów (modulatory, NPC-y, itd.)
+const int g_unlocked_types = 2;	//Typy mo¿liwych do odblokowania przedmiotów (modulatory, NPC-y, itd.)
 const int g_unlocked_modulators = 2;	//Iloœæ mo¿liwych do odblokowania modulatorów
 const int g_all_modulators = 6 + g_unlocked_modulators;
+const int g_unlocked_npcs = 1;
+const int g_all_npcs = 5 + g_unlocked_npcs;
 
 extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
 extern bool g_fullscreen;	//Czy jest w³¹czony tryb pe³noekranowy

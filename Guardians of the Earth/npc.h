@@ -6,6 +6,7 @@
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"
+#include "profile.h"
 
 struct sFeatures
 {
@@ -14,6 +15,7 @@ struct sFeatures
 
 	bool motion;		//Czy NPC bêdzie siê poruszaæ?
 	bool chase;			//Czy NPC bêdzie goni³ postacie graczy?
+	bool roaming;		//Czy NPC bêdzie siê porusza³ w t¹ i z powrotem?
 	float max_speed;	//Maksymalna prêdkoœæ NPC (w przypadku chase prêdkoœæ nie jest sta³a)
 	
 	bool flying;		//Czy NPC bêdzie móg³ lataæ?
@@ -21,7 +23,7 @@ struct sFeatures
 	bool jumping;		//Czy NPC bêdzie podskakiwaæ?
 };
 
-unsigned short randomNPCID(eWorld world_type);
+unsigned short randomNPCID(eWorld world_type, cProfile &profile);
 
 class cNPC :public cObjectLevel
 {
@@ -37,6 +39,7 @@ class cNPC :public cObjectLevel
 
 	//CECHY NPC-ÓW
 	float hp;
+	short exp;			//Iloœæ doœwiadczenia otrzymywanego za NPC-a
 	sFeatures features;
 
 	float speed;		//Prêdkoœæ NPC

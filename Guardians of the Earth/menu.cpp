@@ -906,12 +906,14 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 	int first_displayed = 0;	//Pierwszy przedmiot w sklepie
 	const int DISPLAY = 8;		//Ile przedmiotów ma byæ wyœwietlonych
 	const int SHOP_MODULATORS = g_unlocked_modulators;
+	const int SHOP_NPCS = g_unlocked_npcs;
 	const int SHOP_ITEMS = SHOP_MODULATORS;	//Wszystkie przedmioty w sklepie
 
 	std::vector <cButton> button;
 	std::vector <cShopItem> item;
 
 	int available_modulators = 0;
+	int available_npcs = 0;
 
 	for (int i = 0; i < SHOP_MODULATORS; i++)
 	{
@@ -920,6 +922,15 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 			item.push_back(cShopItem(UNLOCKED_MODULATOR, i));
 			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
 			available_modulators++;
+		}
+	}
+	for (int i = 0; i < SHOP_NPCS; i++)
+	{
+		if (!profile.isContentUnlocked(UNLOCKED_NPC, i))
+		{
+			item.push_back(cShopItem(UNLOCKED_NPC, i));
+			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
+			available_npcs++;
 		}
 	}
 
@@ -971,6 +982,21 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 					button.erase(button.begin() + option);
 					item.erase(item.begin() + option);
 					available_modulators--;
+				}
+			}
+		}
+		if (option >= available_modulators && option < available_modulators + available_npcs)	//Modulatory
+		{
+			if (item[option].viewPurchase(win))
+			{
+				if (profile.subractractCash(item[option].getPrice()))
+				{
+					profile.unlockContent(UNLOCKED_NPC, item[option].getFeatures().id);
+					profile.saveProfile(win);
+
+					button.erase(button.begin() + option);
+					item.erase(item.begin() + option);
+					available_npcs--;
 				}
 			}
 		}

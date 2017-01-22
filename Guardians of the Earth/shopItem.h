@@ -16,6 +16,7 @@ struct sModulator
 union uShopItemFeatures
 {
 	sModulator modulator;
+	int id;
 };
 
 class cShopItem

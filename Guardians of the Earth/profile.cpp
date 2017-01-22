@@ -3,13 +3,15 @@
 cProfile::cProfile()
 {
 	this->name = "";
-	this->cash = 0;
 
 	unlocked_content = new bool*[g_unlocked_types];
 	unlocked_content[UNLOCKED_MODULATOR] = new bool[g_unlocked_modulators];
+	unlocked_content[UNLOCKED_NPC] = new bool[g_unlocked_npcs];
 
 	for (int i = 0; i < g_unlocked_modulators; i++)
 		unlocked_content[UNLOCKED_MODULATOR][i] = false;
+	for (int i = 0; i < g_unlocked_npcs; i++)
+		unlocked_content[UNLOCKED_NPC][i] = false;
 }
 
 bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
@@ -58,6 +60,17 @@ bool cProfile::saveProfile(sf::RenderWindow &win)
 		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
 			if (this->unlocked_content[UNLOCKED_MODULATOR][i] == true)	//Zapisywanie ID modulatorów (od 0)
 				profile_file.write((char*)&i, sizeof(i));
+
+		//ODBLOKOWANE NPC-y
+		int unlocked_npcs = 0;	//Iloœæ odblokowanych przez gracza NPC-ów
+		for (unsigned int i = 0; i < g_unlocked_npcs; i++)
+			if (this->unlocked_content[UNLOCKED_NPC][i] == true)
+				unlocked_npcs++;
+		profile_file.write((char*)&unlocked_npcs, sizeof(int));
+
+		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
+			if (this->unlocked_content[UNLOCKED_NPC][i] == true)	//Zapisywanie ID modulatorów (od 0)
+				profile_file.write((char*)&i, sizeof(i));
 	}
 	else
 	{
@@ -90,6 +103,19 @@ bool cProfile::loadProfile(sf::RenderWindow &win, std::string name)
 				unsigned int modulator_id;
 				profile_file.read((char*)&modulator_id, sizeof(unsigned int));	//Wczytywanie ID posiadanych przez profil modulatorów
 				this->unlocked_content[UNLOCKED_MODULATOR][modulator_id] = true;
+			}
+		}
+
+		//WCZYTYWANIE ODBLOKOWANYCH NPC-ów
+		if (unlocked_types >= 2)
+		{
+			int unlocked_npcs;
+			profile_file.read((char*)&unlocked_npcs, sizeof(unsigned int));
+			for (unsigned int i = 0; i < unlocked_npcs; i++)
+			{
+				unsigned int npc_id;
+				profile_file.read((char*)&npc_id, sizeof(unsigned int));	//Wczytywanie ID posiadanych przez profil NPC-ów
+				this->unlocked_content[UNLOCKED_NPC][npc_id] = true;
 			}
 		}
 	}
