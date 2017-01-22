@@ -10,7 +10,11 @@ cNPC::cNPC(b2World &physics_world, eWorld world_type, bool *modulators, unsigned
 	if (modulators[3])
 		this->hp *= 2;
 	if (modulators[5])
-		this->features.max_speed *= 2;
+		this->features.max_speed *= 2.0f;
+	if (modulators[6])
+		this->features.jumping = true;
+	if (modulators[7])
+		this->features.max_speed *= 0.5f;
 
 	if (direction == DIR_LEFT)
 		this->last_speed = b2Vec2(-this->speed, 0.5f);	//Poprzednia szybkoœæ pionowa musi byæ wiêksza od zero - wymagane do wyeliminowania bugów dotycz¹cych skakania NPC-ów, które dopiero powsta³y; prêdkoœæ pozioma - wymagana w celu sprawdzenia, czy prêdkoœæ zosta³a zmieniona

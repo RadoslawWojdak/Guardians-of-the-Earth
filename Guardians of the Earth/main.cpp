@@ -84,7 +84,6 @@ int main()
 		bool game_over = false;
 		while (win.isOpen() && !game_over)
 		{
-			profile.addCash(1);
 			//WYDARZENIA
 			while (win.pollEvent(ev))
 			{

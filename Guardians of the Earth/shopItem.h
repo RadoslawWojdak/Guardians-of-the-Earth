@@ -6,8 +6,22 @@
 #include "dialogs.h"
 #include "actionOnText.h"
 
+struct sModulator
+{
+	eModulatorType type;
+	float score_multipler;
+	int id;
+};
+
+union uShopItemFeatures
+{
+	sModulator modulator;
+};
+
 class cShopItem
 {
+	uShopItemFeatures features;
+
 	sf::String name, description;
 	eUnlockedType type;
 	unsigned short price;
@@ -23,6 +37,7 @@ public:
 	sf::String getDescription();
 	eUnlockedType getType();
 	unsigned short getPrice();
+	uShopItemFeatures getFeatures();
 };
 
 #endif //!shopItem_h

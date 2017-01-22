@@ -23,7 +23,7 @@ public:
 	bool loadProfile(sf::RenderWindow &win, std::string name);
 
 	void addCash(unsigned int extra_cash);
-	bool subractrCash(unsigned int subtracted_cash);	//Czy gotówka zosta³a odjêta? (nie zostanie, je¿eli jest jej za ma³o)
+	bool subractractCash(unsigned int subtracted_cash);	//Czy gotówka zosta³a odjêta? (nie zostanie, je¿eli jest jej za ma³o)
 
 	void unlockContent(eUnlockedType type, unsigned int ID);
 	bool isContentUnlocked(eUnlockedType type, unsigned int ID);

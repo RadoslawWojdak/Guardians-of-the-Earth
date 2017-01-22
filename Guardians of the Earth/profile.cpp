@@ -110,7 +110,7 @@ void cProfile::addCash(unsigned int extra_cash)
 		this->cash = 4294967295;	//Maksymalna wartoœæ dla unsigned int
 }
 
-bool cProfile::subractrCash(unsigned int subtracted_cash)
+bool cProfile::subractractCash(unsigned int subtracted_cash)
 {
 	if (this->cash >= subtracted_cash)
 	{

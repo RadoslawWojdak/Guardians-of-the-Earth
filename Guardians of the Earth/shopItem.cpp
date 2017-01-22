@@ -21,16 +21,33 @@ cShopItem::cShopItem(eUnlockedType item_type, unsigned int ID)
 	{
 	case UNLOCKED_MODULATOR:
 	{
+		sModulator modulator;
+		modulator.id = ID;
+
 		switch (ID)
 		{
 		case 0:
 		{
-			this->name = L"Little NPCs";
-			this->description = L"Size of NPCs is twice reduced.";
+			this->name = L"Jumping NPCs";
+			this->description = L"All NPCs are jumping";
 			this->price = 50;
+			modulator.score_multipler = 0.5f;
+			modulator.type = MODULATOR_OBSTRUCTING;
+			break;
+		}
+		case 1:
+		{
+			this->name = L"NPCs slow-down";
+			this->description = L"Speed NPCs /2";
+			this->price = 25;
+			modulator.score_multipler = -0.2f;
+			modulator.type = MODULATOR_FACILIATING;
 			break;
 		}
 		}
+
+		this->features.modulator = modulator;
+
 		break;
 	}
 	}
@@ -69,4 +86,9 @@ eUnlockedType cShopItem::getType()
 unsigned short cShopItem::getPrice()
 {
 	return this->price;
+}
+
+uShopItemFeatures cShopItem::getFeatures()
+{
+	return this->features;
 }

@@ -144,18 +144,40 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "4");
 	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Back");
 
-	cCheckbox mod_checkbox[7];	//Checkbox'y - dla modulator
+	cCheckbox mod_checkbox[g_all_modulators];	//Checkbox'y - dla modulator
+	float mod_score_multipler[g_all_modulators];
 	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 0, 255), modulators_tab[0]);
 	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(0, 255, 0), modulators_tab[1]);
 	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(0, 255, 0), modulators_tab[2]);
 	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 0, 0), modulators_tab[3]);
 	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 0, 0), modulators_tab[4]);
 	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 0, 0), modulators_tab[5]);
-	
+
+	mod_score_multipler[0] = 0.0f;
+	mod_score_multipler[1] = -0.2f;
+	mod_score_multipler[2] = -0.3f;
+	mod_score_multipler[3] = 0.5f;
+	mod_score_multipler[4] = 0.3f;
+	mod_score_multipler[5] = 0.2f;
+
 	for (int i = 0; i < g_unlocked_modulators; i++)
 	{
 		cShopItem item(UNLOCKED_MODULATOR, i);
-		mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription(), (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(0, 0, 255) : sf::Color(128, 128, 128)), modulators_tab[6 + i]);
+		sModulator modulator = item.getFeatures().modulator;
+		
+		std::string mulitipler_str;
+		std::stringstream ss;
+		ss << modulator.score_multipler;
+		mulitipler_str = ss.str();
+		
+		switch (modulator.type)
+		{
+		case MODULATOR_FACILIATING: {mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription() + " (score multipler: " + mulitipler_str + ")", (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(0, 255, 0) : sf::Color(128, 128, 128)), modulators_tab[6 + i]); break;}
+		case MODULATOR_NEUTRAL: {mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription() + " (score multipler: no change)", (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(0, 0, 255) : sf::Color(128, 128, 128)), modulators_tab[6 + i]); break;}
+		case MODULATOR_OBSTRUCTING: {mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription() + " (score multipler: +" + mulitipler_str + ")", (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(255, 0, 0) : sf::Color(128, 128, 128)), modulators_tab[6 + i]); break;}
+		}
+
+		mod_score_multipler[6 + i] = modulator.score_multipler;
 	}
 
 	sf::Event ev;
@@ -232,18 +254,10 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	} while (win.isOpen() && !end_loop);
 
 	g_score_multipler = 1.0f;
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < g_all_modulators; i++)
 	{
 		modulators_tab[i] = mod_checkbox[i].isChecked();
-		
-		switch (i)
-		{
-		case 1: {g_score_multipler -= modulators_tab[i] * 0.2f; break;}
-		case 2: {g_score_multipler -= modulators_tab[i] * 0.3f; break;}
-		case 3: {g_score_multipler += modulators_tab[i] * 0.5f; break;}
-		case 4: {g_score_multipler += modulators_tab[i] * 0.3f; break;}
-		case 5: {g_score_multipler += modulators_tab[i] * 0.2f; break;}
-		}
+		g_score_multipler += modulators_tab[i] * mod_score_multipler[i];
 	}
 
 	if (win.isOpen() && !back_pressed)
@@ -891,7 +905,7 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 
 	int first_displayed = 0;	//Pierwszy przedmiot w sklepie
 	const int DISPLAY = 8;		//Ile przedmiotów ma byæ wyœwietlonych
-	const int SHOP_MODULATORS = 1;
+	const int SHOP_MODULATORS = g_unlocked_modulators;
 	const int SHOP_ITEMS = SHOP_MODULATORS;	//Wszystkie przedmioty w sklepie
 
 	std::vector <cButton> button;
@@ -904,7 +918,7 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 		if (!profile.isContentUnlocked(UNLOCKED_MODULATOR, i))
 		{
 			item.push_back(cShopItem(UNLOCKED_MODULATOR, i));
-			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (i - (float)DISPLAY / 2 + 0.5f) * 48), item[i].getName()));
+			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
 			available_modulators++;
 		}
 	}
@@ -949,9 +963,9 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 		{
 			if (item[option].viewPurchase(win))
 			{
-				if (profile.subractrCash(item[option].getPrice()))
+				if (profile.subractractCash(item[option].getPrice()))
 				{
-					profile.unlockContent(UNLOCKED_MODULATOR, option);
+					profile.unlockContent(UNLOCKED_MODULATOR, item[option].getFeatures().modulator.id);
 					profile.saveProfile(win);
 
 					button.erase(button.begin() + option);
