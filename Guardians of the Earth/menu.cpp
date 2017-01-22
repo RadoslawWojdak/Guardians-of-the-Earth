@@ -61,10 +61,14 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		{
 		case 0:	//Nowa gra
 		{
-			if (menuChooseNumberOfPlayers(win, players, modulators_tab, profile))
+			while (menuChooseNumberOfPlayers(win, players, modulators_tab, profile))
 			{
-				if (menuSelectCharacters(win, players, character, modulators_tab))
-					end_loop = true;
+				while (menuSelectCharacters(win, players, character, modulators_tab))
+				{
+					std::string save_slot_name = textDialog(win, L"New Game", "Write your new save slot's name:");
+					if (save_slot_name != "")
+						end_loop = true;
+				}
 			}
 			break;
 		}

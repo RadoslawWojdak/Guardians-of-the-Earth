@@ -14,8 +14,6 @@ cProfile::cProfile()
 		unlocked_content[UNLOCKED_NPC][i] = false;
 
 	this->save_name.clear();
-	this->save_name.push_back("ABC");
-	this->save_name.push_back("DEF");
 }
 
 bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
