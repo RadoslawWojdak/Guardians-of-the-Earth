@@ -59,7 +59,7 @@ int main()
 		
 		scoreboard[i] = cScoreboard(win, path);
 	}
-	bool modulators[6] = {};
+	bool modulators[g_all_modulators] = {};
 	
 	sf::View p1;
 	sf::Event ev;
@@ -84,6 +84,7 @@ int main()
 		bool game_over = false;
 		while (win.isOpen() && !game_over)
 		{
+			profile.addCash(1);
 			//WYDARZENIA
 			while (win.pollEvent(ev))
 			{

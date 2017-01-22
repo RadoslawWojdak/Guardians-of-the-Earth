@@ -61,7 +61,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		{
 		case 0:	//Nowa gra
 		{
-			if (menuChooseNumberOfPlayers(win, players, modulators_tab))
+			if (menuChooseNumberOfPlayers(win, players, modulators_tab, profile))
 			{
 				if (menuSelectCharacters(win, players, character, modulators_tab))
 					end_loop = true;
@@ -80,6 +80,8 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		case 3: //Sklep
 		{
 			menuShop(win, profile);
+			profile_cash.setString(uIntToStr(profile.getCash()));
+			
 			break;
 		}
 		case 4:	//Opcje
@@ -126,7 +128,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 	return false;
 }
 
-bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab)
+bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab, cProfile &profile)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 	sf::Sprite background(t_background[0]);
@@ -142,7 +144,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "4");
 	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Back");
 
-	cCheckbox mod_checkbox[6];	//Checkbox'y - dla modulator
+	cCheckbox mod_checkbox[7];	//Checkbox'y - dla modulator
 	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 0, 255), modulators_tab[0]);
 	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(0, 255, 0), modulators_tab[1]);
 	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(0, 255, 0), modulators_tab[2]);
@@ -150,6 +152,12 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 0, 0), modulators_tab[4]);
 	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 0, 0), modulators_tab[5]);
 	
+	for (int i = 0; i < g_unlocked_modulators; i++)
+	{
+		cShopItem item(UNLOCKED_MODULATOR, i);
+		mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription(), (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(0, 0, 255) : sf::Color(128, 128, 128)), modulators_tab[6 + i]);
+	}
+
 	sf::Event ev;
 	do
 	{
@@ -185,13 +193,24 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		}
 
 		//Dzia³ania na checkbox'ach
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < g_all_modulators - g_unlocked_modulators; i++)
 		{
 			if (mod_checkbox[i].isMouseOver(win))
 			{
 				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 				{
 					mod_checkbox[i].clicked();
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < g_unlocked_modulators; i++)
+		{
+			if (mod_checkbox[i + (g_all_modulators - g_unlocked_modulators)].isMouseOver(win) && profile.isContentUnlocked(UNLOCKED_MODULATOR, i))
+			{
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+				{
+					mod_checkbox[i + (g_all_modulators - g_unlocked_modulators)].clicked();
 					break;
 				}
 			}
@@ -207,7 +226,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		win.draw(background);
 		for (int i = 0; i < 5; i++)
 			button[i].draw(win);
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < g_all_modulators; i++)
 			mod_checkbox[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);

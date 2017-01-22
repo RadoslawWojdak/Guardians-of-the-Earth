@@ -8,6 +8,7 @@ const int g_scoreboard_size = 20;
 
 const int g_unlocked_types = 1;	//Typy mo¿liwych do odblokowania przedmiotów (modulatory, NPC-y, itd.)
 const int g_unlocked_modulators = 1;	//Iloœæ mo¿liwych do odblokowania modulatorów
+const int g_all_modulators = 7;
 
 extern unsigned int g_width, g_height;	//Wysokoœæ i szerokoœæ okna
 extern bool g_fullscreen;	//Czy jest w³¹czony tryb pe³noekranowy
