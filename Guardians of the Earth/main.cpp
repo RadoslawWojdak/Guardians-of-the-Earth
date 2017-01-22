@@ -68,7 +68,8 @@ int main()
 	{
 		short number_of_players;
 		eCharacter character[4];
-		if (!mainMenu(win, profile, number_of_players, character, modulators, scoreboard))
+		std::string loaded_game;
+		if (!mainMenu(win, profile, number_of_players, character, modulators, scoreboard, loaded_game))
 			return 0;
 
 		win.clear();

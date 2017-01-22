@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab, cScoreboard scoreboard[4])
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab, cScoreboard scoreboard[4], std::string &loaded_game)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 	sf::Sprite background(t_background[0]);
@@ -70,6 +70,9 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		}
 		case 1:	//Wczytaj grê
 		{
+			loaded_game = menuLoadGame(win, profile);
+			if (loaded_game != "")
+				end_loop = true;
 			break;
 		}
 		case 2:	//Najwy¿sze wyniki
@@ -914,6 +917,7 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 
 	int available_modulators = 0;
 	int available_npcs = 0;
+	int available_items = 0;
 
 	for (int i = 0; i < SHOP_MODULATORS; i++)
 	{
@@ -922,6 +926,7 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 			item.push_back(cShopItem(UNLOCKED_MODULATOR, i));
 			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
 			available_modulators++;
+			available_items++;
 		}
 	}
 	for (int i = 0; i < SHOP_NPCS; i++)
@@ -931,6 +936,7 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 			item.push_back(cShopItem(UNLOCKED_NPC, i));
 			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
 			available_npcs++;
+			available_items++;
 		}
 	}
 
@@ -953,7 +959,7 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 		//DZIA£ANIA NA MENU
 		for (int i = 0; i < button.size(); i++)
 		{
-			if (i > item.size() || (i >= first_displayed && i < first_displayed + DISPLAY))
+			if (i > item.size() || (i >= first_displayed && i < first_displayed + DISPLAY - (DISPLAY > available_items ? (DISPLAY - available_items) : 0)))
 			{
 				bool is_mouse_over = button[i].isMouseOver(win);
 				button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
@@ -1051,6 +1057,118 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 	if (win.isOpen())
 		return true;
 	return false;
+}
+
+std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+	short option = -1;
+
+	int first_displayed = 0;	//Pierwszy przedmiot w sklepie
+	const int DISPLAY = 8;		//Ile przedmiotów ma byæ wyœwietlonych
+	
+	std::vector <cButton> button;
+
+	for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+	{
+		std::fstream save_file;
+		save_file.open("profiles/" + profile.getName() + "/" + profile.getSaveSlotName(i) + ".dat");
+		
+		button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (i - (float)DISPLAY / 2 + 0.5f) * 48), profile.getSaveSlotName(i)));
+	}
+
+	button.push_back(cButton(sf::Vector2f(g_width / 2, 48), "Load game"));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 - ((float)DISPLAY / 2 + 0.25f) * 48), "", t_up_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + ((float)DISPLAY / 2 + 0.25f) * 48), "", t_down_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back"));
+	
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 0; i < button.size(); i++)
+		{
+			if (i > profile.getNumberOfSaveSlots() || (i >= first_displayed && i < first_displayed + DISPLAY - (DISPLAY > profile.getNumberOfSaveSlots() ? (DISPLAY- profile.getNumberOfSaveSlots()) : 0)))
+			{
+				bool is_mouse_over = button[i].isMouseOver(win);
+				button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+				{
+					option = i;
+					break;
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		if (option >= 0 && option < profile.getNumberOfSaveSlots())	//Przyciski slotów zapisu
+		{
+			return profile.getSaveSlotName(option);
+		}
+
+		if (option == profile.getNumberOfSaveSlots() + 1)	//Strza³ka w górê
+		{
+			first_displayed--;
+			if (first_displayed < 0)
+				first_displayed = 0;
+			else
+			{
+				for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y + 48);
+			}
+		}
+		else if (option == profile.getNumberOfSaveSlots() + 2)	//Strza³ka w dó³
+		{
+			first_displayed++;
+			if (first_displayed + DISPLAY > profile.getNumberOfSaveSlots())
+				first_displayed = first_displayed--;
+			else
+			{
+				for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y - 48);
+			}
+		}
+		else if (option == profile.getNumberOfSaveSlots() + 3)	//Wstecz
+		{
+			return "";
+		}
+		option = -1;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+
+		//Wyœwietlanie przedmiotów w sklepie
+		for (int i = first_displayed; i < first_displayed + DISPLAY; i++)
+		{
+			if (i >= profile.getNumberOfSaveSlots())
+				break;
+			else
+				button[i].draw(win);
+		}
+
+		for (int i = profile.getNumberOfSaveSlots(); i < button.size(); i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	return "";
 }
 
 

@@ -12,6 +12,10 @@ cProfile::cProfile()
 		unlocked_content[UNLOCKED_MODULATOR][i] = false;
 	for (int i = 0; i < g_unlocked_npcs; i++)
 		unlocked_content[UNLOCKED_NPC][i] = false;
+
+	this->save_name.clear();
+	this->save_name.push_back("ABC");
+	this->save_name.push_back("DEF");
 }
 
 bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
@@ -28,12 +32,17 @@ bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
 	if (profile_file.is_open())
 	{
 		profile_file.write((char*)&this->cash, sizeof(this->cash));
+		
+		int zero = 0;
+		profile_file.write((char*)&zero, sizeof(int));	//Zero przedmiotów do odblokowania
+		profile_file.write((char*)&zero, sizeof(int));	//Zero slotów zapisu
 	}
 	else
 	{
 		okDialog(win, "Error 4", "Can't create profile file!");
 		return false;
 	}
+	profile_file.close();
 	return true;
 }
 
@@ -71,12 +80,24 @@ bool cProfile::saveProfile(sf::RenderWindow &win)
 		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
 			if (this->unlocked_content[UNLOCKED_NPC][i] == true)	//Zapisywanie ID modulatorów (od 0)
 				profile_file.write((char*)&i, sizeof(i));
+
+		//NAZWY SLOTÓW ZAPISU
+		int number_of_save_slots = this->save_name.size();
+		profile_file.write((char*)&number_of_save_slots, sizeof(int));
+		for (unsigned int i = 0; i < number_of_save_slots; i++)
+		{
+			int name_length = this->save_name[i].size();
+			profile_file.write((char*)&name_length, sizeof(int));
+			for (int j = 0; j < name_length; j++)
+				profile_file.write((char*)&this->save_name[i][j], sizeof(char));
+		}
 	}
 	else
 	{
 		okDialog(win, "Error 5", "Can't save profile file!");
 		return false;
 	}
+	profile_file.close();
 	return true;
 }
 
@@ -118,12 +139,31 @@ bool cProfile::loadProfile(sf::RenderWindow &win, std::string name)
 				this->unlocked_content[UNLOCKED_NPC][npc_id] = true;
 			}
 		}
+
+		//NAZWY SLOTÓW ZAPISU
+		int number_of_save_slots;
+		profile_file.read((char*)&number_of_save_slots, sizeof(int));
+		for (unsigned int i = 0; i < number_of_save_slots; i++)
+		{
+			int name_length;
+			profile_file.read((char*)&name_length, sizeof(int));
+
+			std::string name = "";
+			for (int j = 0; j < name_length; j++)
+			{
+				char character;
+				profile_file.read((char*)&character, sizeof(char));
+				name += character;
+			}
+			this->save_name.push_back(name);
+		}
 	}
 	else
 	{
 		okDialog(win, "Error 6", "Can't Load profile file!");
 		return false;
 	}
+	profile_file.close();
 	return true;
 }
 
@@ -166,4 +206,14 @@ unsigned int cProfile::getCash()
 std::string cProfile::getName()
 {
 	return this->name;
+}
+
+std::string cProfile::getSaveSlotName(unsigned int id)
+{
+	return this->save_name[id];
+}
+
+unsigned int cProfile::getNumberOfSaveSlots()
+{
+	return this->save_name.size();
 }
