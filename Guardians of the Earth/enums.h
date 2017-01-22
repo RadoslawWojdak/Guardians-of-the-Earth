@@ -100,4 +100,9 @@ enum eFluidType
 	FLUID_QUICKSAND = 3
 };
 
+enum eUnlockedType	//NIE ZMIENIAÆ WARTOŒCI (S¥ W KOLEJNOŒCI ZAPISYWANIA DO PLIKU)
+{
+	UNLOCKED_MODULATOR = 0
+};
+
 #endif //!enums_h

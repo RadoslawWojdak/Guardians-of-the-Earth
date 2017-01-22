@@ -25,6 +25,8 @@ sf::Texture t_taser;
 sf::Texture t_experience_bar;
 sf::Texture t_discount_sign;
 sf::Texture t_button;
+sf::Texture t_up_arrow;
+sf::Texture t_down_arrow;
 sf::Texture t_left_arrow;
 sf::Texture t_right_arrow;
 sf::Texture t_checkbox;
@@ -304,6 +306,10 @@ bool initGraph()
 	if (!t_discount_sign.loadFromFile("graphics\\others\\discount_sign.png"))
 		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
+		return false;
+	if (!t_up_arrow.loadFromFile("graphics\\others\\up_arrow.png"))
+		return false;
+	if (!t_down_arrow.loadFromFile("graphics\\others\\down_arrow.png"))
 		return false;
 	if (!t_left_arrow.loadFromFile("graphics\\others\\left_arrow.png"))
 		return false;

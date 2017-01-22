@@ -151,7 +151,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scoreboard.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="shopItem.cpp">
+      <Filter>Source Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -258,7 +261,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scoreboard.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="shopItem.h">
+      <Filter>Header Files\Classes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

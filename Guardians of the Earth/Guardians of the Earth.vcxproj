@@ -136,6 +136,7 @@
     <ClCompile Include="powerup.cpp" />
     <ClCompile Include="profile.cpp" />
     <ClCompile Include="shop.cpp" />
+    <ClCompile Include="shopItem.cpp" />
     <ClCompile Include="sorceress.cpp" />
     <ClCompile Include="spy.cpp" />
     <ClCompile Include="trampoline.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="powerup.h" />
     <ClInclude Include="profile.h" />
     <ClInclude Include="shop.h" />
+    <ClInclude Include="shopItem.h" />
     <ClInclude Include="sorceress.h" />
     <ClInclude Include="spy.h" />
     <ClInclude Include="trampoline.h" />

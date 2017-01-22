@@ -9,12 +9,13 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 	bool end_loop = false;
 	short option = -1;
 
-	cButton button[5];
-	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 96), "New game");
-	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Load game");
-	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "High scores");
-	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Options");
-	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Quit");
+	cButton button[6];
+	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 120), "New game");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 72), "Load game");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "High scores");
+	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Shop");
+	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 72), "Options");
+	button[5] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 120), "Quit");
 
 	cButton profile_button;
 	profile_button = cButton(sf::Vector2f(g_width - profile_button.getTextureRect().width - 32, 32), "", t_profile_button);
@@ -38,7 +39,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		}
 
 		//DZIA£ANIA NA MENU
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 6; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
 			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
@@ -49,7 +50,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 			}
 		}
 		if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && profile_button.isMouseOver(win))
-			option = 5;
+			option = 6;
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			click = true;
@@ -76,18 +77,23 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 			menuHighScores(win, scoreboard);
 			break;
 		}
-		case 3:	//Opcje
+		case 3: //Sklep
+		{
+			menuShop(win, profile);
+			break;
+		}
+		case 4:	//Opcje
 		{
 			menuOptions(win);
 			break;
 		}
-		case 4: //Wyjœcie
+		case 5: //Wyjœcie
 		{
 			if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
 				return false;
 			break;
 		}
-		case 5:
+		case 6:
 		{
 			menuProfiles(win, profile);
 			
@@ -107,7 +113,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
 		win.draw(background);
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 6; i++)
 			button[i].draw(win);
 		profile_button.draw(win);
 		win.draw(profile_name);
@@ -847,6 +853,139 @@ bool menuHighScores(sf::RenderWindow &win, cScoreboard scoreboard[4])
 			win.draw(name[i]);
 			win.draw(score[i]);
 		}
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
+
+bool menuShop(sf::RenderWindow &win, cProfile &profile)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+	short option = -1;
+
+	int first_displayed = 0;	//Pierwszy przedmiot w sklepie
+	const int DISPLAY = 8;		//Ile przedmiotów ma byæ wyœwietlonych
+	const int SHOP_MODULATORS = 1;
+	const int SHOP_ITEMS = SHOP_MODULATORS;	//Wszystkie przedmioty w sklepie
+
+	std::vector <cButton> button;
+	std::vector <cShopItem> item;
+
+	int available_modulators = 0;
+
+	for (int i = 0; i < SHOP_MODULATORS; i++)
+	{
+		if (!profile.isContentUnlocked(UNLOCKED_MODULATOR, i))
+		{
+			item.push_back(cShopItem(UNLOCKED_MODULATOR, i));
+			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (i - (float)DISPLAY / 2 + 0.5f) * 48), item[i].getName()));
+			available_modulators++;
+		}
+	}
+
+	button.push_back(cButton(sf::Vector2f(g_width / 2, 48), "Shop"));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 - ((float)DISPLAY / 2 + 0.25f) * 48), "", t_up_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + ((float)DISPLAY / 2 + 0.25f) * 48), "", t_down_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back"));
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 0; i < button.size(); i++)
+		{
+			if (i > item.size() || (i >= first_displayed && i < first_displayed + DISPLAY))
+			{
+				bool is_mouse_over = button[i].isMouseOver(win);
+				button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+				{
+					option = i;
+					break;
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		if (option >= 0 && option < available_modulators)	//Modulatory
+		{
+			if (item[option].viewPurchase(win))
+			{
+				if (profile.subractrCash(item[option].getPrice()))
+				{
+					profile.unlockContent(UNLOCKED_MODULATOR, option);
+					profile.saveProfile(win);
+
+					button.erase(button.begin() + option);
+					item.erase(item.begin() + option);
+					available_modulators--;
+				}
+			}
+		}
+
+
+		if (option == item.size() + 1)	//Strza³ka w górê
+		{
+			first_displayed--;
+			if (first_displayed < 0)
+				first_displayed = 0;
+			else
+			{
+				for (int i = 0; i < item.size(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y + 48);
+			}
+		}
+		else if (option == item.size() + 2)	//Strza³ka w dó³
+		{
+			first_displayed++;
+			if (first_displayed + DISPLAY > SHOP_ITEMS)
+				first_displayed = first_displayed--;
+			else
+			{
+				for (int i = 0; i < item.size(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y - 48);
+			}
+		}
+		else if (option == item.size() + 3)	//Wstecz
+		{
+			return false;
+		}
+		option = -1;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+
+		//Wyœwietlanie przedmiotów w sklepie
+		for (int i = first_displayed; i < first_displayed + DISPLAY; i++)
+		{
+			if (i >= item.size())
+				break;
+			else
+				button[i].draw(win);
+		}
+
+		for (int i = item.size(); i < button.size(); i++)
+			button[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 

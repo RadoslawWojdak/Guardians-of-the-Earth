@@ -1,6 +1,6 @@
 #include "dialogs.h"
 
-void okDialog(sf::RenderWindow &win, sf::String head, sf::String description)
+void okDialog(sf::RenderWindow &win, sf::String head, sf::String description, sf::String ok)
 {
 	//Przechwycenie obrazu z rozgrywki (b璠zie robi這 za t這 wok馧 Menu Pauzy)
 	sf::Texture texture_background;
@@ -22,7 +22,7 @@ void okDialog(sf::RenderWindow &win, sf::String head, sf::String description)
 	text_description.setPosition(dial_win.getPosition().x + 4, dial_win.getPosition().y + 32);
 
 	cButton close_button(sf::Vector2f((int)(dial_win.getPosition().x + dial_win.getTextureRect().width - t_close_button.getSize().x / 2 - 4), (int)(dial_win.getPosition().y + t_close_button.getSize().y / 2 + 4)), "", t_close_button);
-	cButton ok_button(sf::Vector2f(dial_win.getPosition().x + (int)dial_win.getTextureRect().width / 2, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), "OK");
+	cButton ok_button(sf::Vector2f(dial_win.getPosition().x + (int)dial_win.getTextureRect().width / 2, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), ok);
 	
 	//Zmienne do p皻li
 	sf::Event ev;
@@ -68,7 +68,7 @@ void okDialog(sf::RenderWindow &win, sf::String head, sf::String description)
 	} while (!end_loop && win.isOpen());
 }
 
-bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description)
+bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description, sf::String yes, sf::String no)
 {
 	//Przechwycenie obrazu z rozgrywki (b璠zie robi這 za t這 wok馧 Menu Pauzy)
 	sf::Texture texture_background;
@@ -90,8 +90,8 @@ bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description)
 	text_description.setPosition(dial_win.getPosition().x + 4, dial_win.getPosition().y + 32);
 
 	cButton close_button(sf::Vector2f((int)(dial_win.getPosition().x + dial_win.getTextureRect().width - t_close_button.getSize().x / 2 - 4), (int)(dial_win.getPosition().y + t_close_button.getSize().y / 2 + 4)), "", t_close_button);
-	cButton yes_button(sf::Vector2f(dial_win.getPosition().x + t_button.getSize().x / 2 + 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), "YES");
-	cButton no_button(sf::Vector2f(dial_win.getPosition().x + dial_win.getTextureRect().width - t_button.getSize().x / 2 - 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), "NO");
+	cButton yes_button(sf::Vector2f(dial_win.getPosition().x + t_button.getSize().x / 2 + 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), yes);
+	cButton no_button(sf::Vector2f(dial_win.getPosition().x + dial_win.getTextureRect().width - t_button.getSize().x / 2 - 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), no);
 
 	//Zmienne do p皻li
 	sf::Event ev;
@@ -152,7 +152,7 @@ bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description)
 		return true;
 }
 
-std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String description)
+std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String description, sf::String ok, sf::String cancel)
 {
 	//Przechwycenie obrazu z rozgrywki (b璠zie robi這 za t這 wok馧 Menu Pauzy)
 	sf::Texture texture_background;
@@ -178,8 +178,8 @@ std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String descri
 	user_text.setPosition(dial_win.getPosition().x + dial_win.getTextureRect().width / 2, dial_win.getPosition().y + 96);
 
 	cButton close_button(sf::Vector2f((int)(dial_win.getPosition().x + dial_win.getTextureRect().width - t_close_button.getSize().x / 2 - 4), (int)(dial_win.getPosition().y + t_close_button.getSize().y / 2 + 4)), "", t_close_button);
-	cButton ok_button(sf::Vector2f(dial_win.getPosition().x + t_button.getSize().x / 2 + 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), "OK");
-	cButton cancel_button(sf::Vector2f(dial_win.getPosition().x + dial_win.getTextureRect().width - t_button.getSize().x / 2 - 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), "CANCEL");
+	cButton ok_button(sf::Vector2f(dial_win.getPosition().x + t_button.getSize().x / 2 + 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), ok);
+	cButton cancel_button(sf::Vector2f(dial_win.getPosition().x + dial_win.getTextureRect().width - t_button.getSize().x / 2 - 16, dial_win.getPosition().y + dial_win.getTextureRect().height - t_button.getSize().y / 2 - 16), cancel);
 
 	//Zmienne do p皻li
 	sf::Event ev;

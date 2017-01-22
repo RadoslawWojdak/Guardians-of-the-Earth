@@ -6,11 +6,14 @@
 #include <fstream>
 #include <Windows.h>
 #include "dialogs.h"
+#include "enums.h"
 
 class cProfile
 {
 	std::string name;
 	unsigned int cash;
+
+	bool **unlocked_content;
 	
 public:
 	cProfile();
@@ -20,6 +23,10 @@ public:
 	bool loadProfile(sf::RenderWindow &win, std::string name);
 
 	void addCash(unsigned int extra_cash);
+	bool subractrCash(unsigned int subtracted_cash);	//Czy gotówka zosta³a odjêta? (nie zostanie, je¿eli jest jej za ma³o)
+
+	void unlockContent(eUnlockedType type, unsigned int ID);
+	bool isContentUnlocked(eUnlockedType type, unsigned int ID);
 
 	unsigned int getCash();
 	std::string getName();

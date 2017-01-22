@@ -8,8 +8,8 @@
 #include "global_variables.h"
 #include "actionOnText.h"
 
-void okDialog(sf::RenderWindow &win, sf::String head, sf::String description);
-bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description);
-std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String description);
+void okDialog(sf::RenderWindow &win, sf::String head, sf::String description, sf::String ok = "OK");
+bool yesNoDialog(sf::RenderWindow &win, sf::String head, sf::String description, sf::String yes = "YES", sf::String no = "NO");
+std::string textDialog(sf::RenderWindow &win, sf::String head, sf::String description, sf::String ok = "OK", sf::String cancel = "CANCEL");
 
 #endif //!dialogs_h
