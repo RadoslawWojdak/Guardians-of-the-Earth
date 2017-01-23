@@ -1077,8 +1077,8 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 	bool end_loop = false;
 	short option = -1;
 
-	int first_displayed = 0;	//Pierwszy przedmiot w sklepie
-	const int DISPLAY = 8;		//Ile przedmiotów ma byæ wyœwietlonych
+	int first_displayed = 0;	//Pierwszy slot zapisu
+	const int DISPLAY = 8;		//Ile slotów zapisu ma byæ wyœwietlonych
 	
 	std::vector <cButton> button;
 
@@ -1089,7 +1089,13 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 - ((float)DISPLAY / 2 + 0.25f) * 48), "", t_up_arrow));
 	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + ((float)DISPLAY / 2 + 0.25f) * 48), "", t_down_arrow));
 	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back"));
-	
+
+	bool delete_slot;
+	int delete_id = 0;
+	cButton delete_button(sf::Vector2f(0.0f, 0.0f), "", t_close_button);	//Przycisk usuwania slotu zapisu
+	if (profile.getNumberOfSaveSlots() > 0)
+		delete_button.setPosition(button[first_displayed].getPosition().x + button[first_displayed].getTextureRect().width / 2 + delete_button.getTextureRect().width / 2 + 8, button[first_displayed].getPosition().y);
+
 	sf::Event ev;
 	do
 	{
@@ -1102,17 +1108,38 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 		}
 
 		//DZIA£ANIA NA MENU
+		delete_slot = false;
+
 		for (int i = 0; i < button.size(); i++)
 		{
 			if (i > profile.getNumberOfSaveSlots() || (i >= first_displayed && i < first_displayed + DISPLAY - (DISPLAY > profile.getNumberOfSaveSlots() ? (DISPLAY- profile.getNumberOfSaveSlots()) : 0)))
 			{
 				bool is_mouse_over = button[i].isMouseOver(win);
 				button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
-				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+				if (is_mouse_over)
 				{
-					option = i;
-					break;
+					//Przycisk usuwania slotu zapisu
+					if (i < profile.getNumberOfSaveSlots())
+					{
+						delete_button.setPosition(button[i].getPosition().x + button[i].getTextureRect().width / 2 + delete_button.getTextureRect().width / 2 + 8, button[i].getPosition().y);
+						delete_id = i;
+					}
+
+					if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+					{
+						option = i;
+						break;
+					}
 				}
+			}
+		}
+
+		if (delete_button.isMouseOver(win))
+		{
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			{
+				option = delete_id;
+				delete_slot = true;
 			}
 		}
 
@@ -1123,7 +1150,18 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 
 		if (option >= 0 && option < profile.getNumberOfSaveSlots())	//Przyciski slotów zapisu
 		{
-			return profile.getSaveSlotName(option);
+			if (delete_slot)
+			{
+				if (yesNoDialog(win, "Removal save slot", "Are you sure you want to delete " + profile.getSaveSlotName(option)))
+				{
+					profile.deleteSaveSlot(win, profile.getSaveSlotName(option));
+					profile.saveProfile(win);
+
+					button.erase(button.begin() + option);
+				}
+			}
+			else
+				return profile.getSaveSlotName(option);
 		}
 
 		if (option == profile.getNumberOfSaveSlots() + 1)	//Strza³ka w górê
@@ -1169,6 +1207,9 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 
 		for (int i = profile.getNumberOfSaveSlots(); i < button.size(); i++)
 			button[i].draw(win);
+
+		if (profile.getNumberOfSaveSlots() > 0)
+			delete_button.draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
