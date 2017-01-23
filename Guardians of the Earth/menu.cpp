@@ -1,6 +1,6 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab, cScoreboard scoreboard[4], std::string &loaded_game)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab, cScoreboard scoreboard[4], std::string &new_slot, std::string &loaded_slot)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
 	sf::Sprite background(t_background[0]);
@@ -8,6 +8,8 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 	bool click = true;
 	bool end_loop = false;
 	short option = -1;
+	new_slot = "";
+	loaded_slot = "";
 
 	cButton button[6];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 120), "New game");
@@ -61,21 +63,24 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		{
 		case 0:	//Nowa gra
 		{
-			while (menuChooseNumberOfPlayers(win, players, modulators_tab, profile))
+			while (!end_loop && menuChooseNumberOfPlayers(win, players, modulators_tab, profile))
 			{
-				while (menuSelectCharacters(win, players, character, modulators_tab))
+				while (!end_loop && menuSelectCharacters(win, players, character, modulators_tab))
 				{
-					std::string save_slot_name = textDialog(win, L"New Game", "Write your new save slot's name:");
-					if (save_slot_name != "")
+					new_slot = textDialog(win, L"New Game", "Write your new save slot's name:");
+					if (new_slot != "")
+					{
+						profile.addSaveSlot(win, new_slot);
 						end_loop = true;
+					}
 				}
 			}
 			break;
 		}
 		case 1:	//Wczytaj grê
 		{
-			loaded_game = menuLoadGame(win, profile);
-			if (loaded_game != "")
+			loaded_slot = menuLoadGame(win, profile);
+			if (loaded_slot != "")
 				end_loop = true;
 			break;
 		}
@@ -1078,12 +1083,7 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 	std::vector <cButton> button;
 
 	for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
-	{
-		std::fstream save_file;
-		save_file.open("profiles/" + profile.getName() + "/" + profile.getSaveSlotName(i) + ".dat");
-		
 		button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (i - (float)DISPLAY / 2 + 0.5f) * 48), profile.getSaveSlotName(i)));
-	}
 
 	button.push_back(cButton(sf::Vector2f(g_width / 2, 48), "Load game"));
 	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 - ((float)DISPLAY / 2 + 0.25f) * 48), "", t_up_arrow));

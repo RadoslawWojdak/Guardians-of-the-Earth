@@ -69,6 +69,33 @@ cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f p
 	this->body->CreateFixture(&fd);
 }
 
+void cCharacter::loadParameters(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	this->lvl = lvl;
+	this->exp = exp;
+	this->skill_points = skill_point;
+
+	for (int i = 0; i < 4; i++)
+		this->number_of_skill[i] = number_of_skill[i];
+
+	pet.kill();
+	for (int i = 0; i < pet_hp; i++)
+		this->addHP();
+
+	for (int i = 0; i < 2; i++)
+		this->bonus[i] = bonus[i];
+
+	this->life = life;
+	this->score = score;
+	this->cash = cash;
+	this->has_taser = has_taser;
+}
+
+void cCharacter::loadCharacter(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	;
+}
+
 void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
 {
 	//BOX2D
@@ -778,6 +805,21 @@ bool cCharacter::isSpecial1()
 	return false;
 }
 
+eCharacter cCharacter::getCharacterType()
+{
+	return this->character_type;
+}
+
+unsigned short cCharacter::getLife()
+{
+	return this->life;
+}
+
+unsigned short cCharacter::getHP()
+{
+	return this->pet.getHP();
+}
+
 unsigned int cCharacter::getScore()
 {
 	return this->score;
@@ -788,9 +830,19 @@ unsigned int cCharacter::getCash()
 	return this->cash;
 }
 
+unsigned int cCharacter::getBonus(short bonus_id)
+{
+	return this->bonus[bonus_id];
+}
+
 unsigned short cCharacter::getLevel()
 {
 	return this->lvl;
+}
+
+unsigned int cCharacter::getExperience()
+{
+	return this->exp;
 }
 
 unsigned short cCharacter::getSkillPoints()
@@ -798,7 +850,17 @@ unsigned short cCharacter::getSkillPoints()
 	return this->skill_points;
 }
 
+unsigned short cCharacter::getNumberOfSkill(short skill_id)
+{
+	return this->number_of_skill[skill_id];
+}
+
 unsigned int cCharacter::requiredExpToLevelUp()
 {
 	return pow(75.0, 1.0 + (this->lvl - 1) * 0.05);
+}
+
+bool cCharacter::hasTaser()
+{
+	return this->has_taser;
 }

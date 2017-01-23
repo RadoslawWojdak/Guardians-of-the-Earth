@@ -22,6 +22,8 @@ Errors:
 7 - Can't load profile file!
 8 - Can't save or create hiscore file!
 9 - Can't load hiscore file!
+10 - Can't save the game!
+11 - Can't load the game!
 */
 
 int main()
@@ -68,14 +70,15 @@ int main()
 	{
 		short number_of_players;
 		eCharacter character[4];
-		std::string loaded_game;
-		if (!mainMenu(win, profile, number_of_players, character, modulators, scoreboard, loaded_game))
+		std::string new_slot, loaded_slot;
+		if (!mainMenu(win, profile, number_of_players, character, modulators, scoreboard, new_slot, loaded_slot))
 			return 0;
+		std::string slot_name = new_slot == "" ? loaded_slot : new_slot;
 
 		win.clear();
 		win.display();
 
-		cMap map(win, profile, WORLD_OVERWORLD, number_of_players, character, modulators);
+		cMap map(win, profile, WORLD_OVERWORLD, number_of_players, character, modulators, new_slot, loaded_slot);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
@@ -97,13 +100,14 @@ int main()
 
 			//DZIALANIA W GRZE
 			//Poruszanie siê obiektów w poziomie
-			if (!map.movements(win, p1, modulators, scoreboard[number_of_players - 1], profile))
+			if (!map.movements(win, p1, modulators, scoreboard[number_of_players - 1], profile, slot_name))
 				game_over = true;
 
 			//WYSWIETLANIE OBRAZU NA EKRAN
 			win.clear(sf::Color(0, 0, 0));
 
 			map.draw(win, p1);
+
 			win.display();
 		}
 

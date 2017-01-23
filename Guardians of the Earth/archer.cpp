@@ -22,6 +22,22 @@ cArcher::cArcher(b2World &physics_world, eWorld world_type, sf::Vector2f pos, sh
 	}
 }
 
+void cArcher::loadCharacter(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	this->loadParameters(lvl, exp, skill_point, number_of_skill, pet_hp, bonus, life, score, cash, has_taser);
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < number_of_skill[i]; j++)
+		{
+			this->addSkill(i + 1);
+
+			this->number_of_skill[i - 1]--;
+			this->skill_points++;
+		}
+	}
+}
+
 void cArcher::extraShotCountdown()
 {
 	if (this->extra_shot_timer > 1)

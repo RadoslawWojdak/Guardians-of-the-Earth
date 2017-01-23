@@ -86,6 +86,12 @@ protected:
 public:
 	cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators);
 
+	//S³u¿y do wczytywania wartoœci, które s¹ wspólne dla wszystkich klas dziedzicz¹cych
+	void loadParameters(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser);
+
+	//S³u¿y tylko do wczytywania pewnych wartoœci, a nie tworzenia ca³ej klasy
+	virtual void loadCharacter(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser);
+
 	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
 
 	void initPet();	//Inicjalizacja pet'a powinna siê odbywaæ przy ka¿dym utworzeniu obiektu klasy cCharacter (chyba ¿e jest to obiekt tymczasowy)
@@ -127,11 +133,19 @@ public:
 	bool isInviolability();
 	bool hasMagicShield();
 	bool isSpecial1();
+
+	eCharacter getCharacterType();
+	unsigned short getLife();
+	unsigned short getHP();
 	unsigned int getScore();
 	unsigned int getCash();
+	unsigned int getBonus(short bonus_id);
 	unsigned short getLevel();
+	unsigned int getExperience();
 	unsigned short getSkillPoints();
+	unsigned short getNumberOfSkill(short skill_id);
 	unsigned int requiredExpToLevelUp();
+	bool hasTaser();
 };
 
 #endif character_h

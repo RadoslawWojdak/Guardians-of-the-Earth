@@ -304,7 +304,7 @@ void cNPC::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab, sf:
 					this->dir = DIR_LEFT;
 			}
 
-			this->body->SetLinearVelocity(b2Vec2(this->speed, 0));
+			this->body->SetLinearVelocity(b2Vec2(this->speed, this->body->GetLinearVelocity().y));
 		}
 
 		//Je¿eli NPC bêdzie mia³ wczeœniej prêdkoœæ Y mniejsz¹ lub równ¹ od zero, a teraz równ¹ zero, to podskoczy

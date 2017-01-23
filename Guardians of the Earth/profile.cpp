@@ -165,6 +165,33 @@ bool cProfile::loadProfile(sf::RenderWindow &win, std::string name)
 	return true;
 }
 
+void cProfile::addSaveSlot(sf::RenderWindow &win, std::string slot_name)
+{
+	bool slots_name_exists = false;
+	for (int i = 0; i < this->save_name.size(); i++)
+		if (this->save_name[i] == slot_name)
+			slots_name_exists = true;
+
+	if (!slots_name_exists)
+	{
+		this->save_name.push_back(slot_name);
+		this->saveProfile(win);
+	}
+}
+
+void cProfile::deleteSaveSlot(sf::RenderWindow &win, std::string slot_name)
+{
+	for (int i = 0; i < this->save_name.size(); i++)
+		if (this->save_name[i] == slot_name)
+		{
+			this->save_name.erase(this->save_name.begin() + i);
+			
+			std::string path = "profiles/" + this->name + "/saves/" + slot_name + ".dat";
+			remove((char*)path.c_str());
+			break;
+		}
+}
+
 void cProfile::addCash(unsigned int extra_cash)
 {
 	unsigned int last_cash = this->cash;

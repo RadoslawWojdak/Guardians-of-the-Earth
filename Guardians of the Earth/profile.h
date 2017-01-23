@@ -23,6 +23,9 @@ public:
 	bool saveProfile(sf::RenderWindow &win);
 	bool loadProfile(sf::RenderWindow &win, std::string name);
 
+	void addSaveSlot(sf::RenderWindow &win, std::string slot_name);
+	void deleteSaveSlot(sf::RenderWindow &win, std::string slot_name);
+
 	void addCash(unsigned int extra_cash);
 	bool subractractCash(unsigned int subtracted_cash);	//Czy gotówka zosta³a odjêta? (nie zostanie, je¿eli jest jej za ma³o)
 

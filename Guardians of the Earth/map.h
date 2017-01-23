@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <Windows.h>
 #include "graphics.h"
 #include "sector.h"
 #include "block.h"
@@ -70,13 +72,18 @@ class cMap
 	bool *fluid_tab;	//Tablica p³ynów (Dopasowana do siatki 32x32 - sprawdza, czy w danym polu siatki znajduje siê p³yn)
 
 public:
-	cMap(sf::RenderWindow &win, cProfile &profile, eWorld world, short number_of_players, eCharacter character[], bool *modulators);				//Tworzenie mapy za pomoca funkcji generate()
+	cMap(sf::RenderWindow &win, cProfile &profile, eWorld world, short &number_of_players, eCharacter character[], bool *modulators, std::string &new_slot, std::string &loaded_slot);				//Tworzenie mapy za pomoca funkcji generate()
 	
-	void levelGenerator(sf::RenderWindow &win, cProfile &profile, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[] = {});	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
+	void levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string &slot_name, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[] = {});	//Generator ca³ego poziomu;	refresh - czy poziom ma byæ odœwie¿ony? (Je¿eli tak to korzysta z gotowych sektorów. W przeciwnym razie tworzy poziom od podstaw.)
 	
-	bool movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard, cProfile &profile);	//Ruch œwiata (Box2D + ewentualne dodatkowe) (w przypdaku œmierci wsyzstkich graczy zwraca FALSE)
-	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran
+	bool movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard, cProfile &profile, std::string &slot_name);	//Ruch œwiata (Box2D + ewentualne dodatkowe) (w przypdaku œmierci wsyzstkich graczy zwraca FALSE)
+	
+	bool saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators);
+	bool loadGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators);
+	bool deleteGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators);
 
+	void draw(sf::RenderWindow &win, sf::View &view);	//Wyœwietlanie mapy na ekran
+	
 	unsigned int getWidth();
 	unsigned int getHeight();
 

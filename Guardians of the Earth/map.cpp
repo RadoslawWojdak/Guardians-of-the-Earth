@@ -1,14 +1,23 @@
 #include "map.h"
 
-cMap::cMap(sf::RenderWindow &win, cProfile &profile, eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(sf::RenderWindow &win, cProfile &profile, eWorld world, short &number_of_players, eCharacter character[], bool *modulators, std::string &new_slot, std::string &loaded_slot)
+	:physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(win, profile, number_of_players, modulators, false, false, character);
+
+	if (loaded_slot != "")
+	{
+		this->loadGame(win, profile, loaded_slot, modulators);
+		number_of_players = this->player_number;
+		this->levelGenerator(win, profile, loaded_slot, this->player_number, modulators, false, false, character);
+	}
+	else
+		this->levelGenerator(win, profile, new_slot, number_of_players, modulators, false, false, character);
 }
 
-void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
+void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string &slot_name, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
 {
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
@@ -31,7 +40,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, short number
 	this->height = 600;
 	
 	this->x_generate = 0;
-
+	
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
@@ -590,6 +599,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, short number
 			cArcher *archer = new cArcher(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cSpy *spy = new cSpy(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			
 			cCharacter *temp_player = NULL;
 			switch (character[i])
 			{
@@ -667,9 +677,11 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, short number
 	delete[] is_fluid;
 	delete[] to_fluid;
 	delete[] is_npc;
+
+	this->saveGame(win, profile, slot_name, modulators);
 }
 
-bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard, cProfile &profile)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard, cProfile &profile, std::string &slot_name)
 {
 	//MENU PAUZY
 	static bool key_pressed = true;
@@ -763,7 +775,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 					return true;
 				}
 
-				this->levelGenerator(win, profile, player.size(), modulators, false, true);
+				this->levelGenerator(win, profile, slot_name, player.size(), modulators, false, true);
 				
 				return true;
 			}
@@ -786,6 +798,9 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 
 		if (no_more_life)
 		{
+			//Usuwanie slotu zapisu
+			profile.deleteSaveSlot(win, slot_name);
+
 			//Zapisywanie siê do tabeli wyników
 			for (int i = 0; i < this->player.size(); i++)
 			{
@@ -826,7 +841,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 			return false;
 		}
 
-		this->levelGenerator(win, profile, player.size(), modulators, true, false);
+		this->levelGenerator(win, profile, slot_name, player.size(), modulators, true, false);
 		return true;
 	}
 
@@ -835,6 +850,163 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 			this->npc.erase(this->npc.begin() + i);
 	
 	this->physics_world.Step((float)1 / 60, 8, 3);
+	return true;
+}
+
+bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators)
+{
+	//Tworzenie katalogu na save'y
+	std::string path = "profiles/" + profile.getName() + "/saves";
+	CreateDirectory(path.c_str(), 0);
+
+	//Tworzenie pliku zapisu
+	std::fstream save_file;
+	save_file.open("profiles/" + profile.getName() + "/saves/" + slot_name + ".dat", std::ios::out | std::ios::trunc | std::ios::binary);
+
+	if (save_file.is_open())
+	{
+		save_file.write((char*)&this->level_number, sizeof(unsigned int));
+		save_file.write((char*)&this->world_type, sizeof(eWorld));
+
+		//Modulatory
+		save_file.write((char*)&g_all_modulators, sizeof(int));
+		for (int i = 0; i < g_all_modulators; i++)
+			save_file.write((char*)&modulators[i], sizeof(bool));
+
+		//Postacie graczy
+		save_file.write((char*)&this->player_number, sizeof(int));
+		
+		for (int i = 0; i < this->player_number; i++)
+		{
+			eCharacter character_type = this->player[i]->getCharacterType();
+			unsigned short lvl = this->player[i]->getLevel();
+			unsigned int exp = this->player[i]->getExperience();
+			unsigned short skill_points = this->player[i]->getSkillPoints();
+			
+			int skills_number = 4;
+			unsigned short number_of_skill[4];
+			for (int j = 0; j < 4; j++)
+				number_of_skill[j] = this->player[i]->getNumberOfSkill(j);
+
+			int bonus_number = 2;
+			unsigned int bonus[2];
+			for (int j = 0; j < 2; j++)
+				bonus[j] = this->player[i]->getBonus(j);
+			
+			unsigned short life = this->player[i]->getLife();
+			unsigned short hp = this->player[i]->getHP();
+			unsigned int score = this->player[i]->getScore();
+			unsigned int cash = this->player[i]->getCash();
+			bool has_taser = this->player[i]->hasTaser();
+
+
+			save_file.write((char*)&character_type, sizeof(eCharacter));
+			save_file.write((char*)&lvl, sizeof(unsigned short));
+			save_file.write((char*)&exp, sizeof(unsigned int));
+			save_file.write((char*)&skill_points, sizeof(unsigned short));
+			
+			save_file.write((char*)&skills_number, sizeof(int));
+			for (int j = 0; j < skills_number; j++)
+				save_file.write((char*)&number_of_skill[j], sizeof(unsigned short));
+			
+			save_file.write((char*)&bonus_number, sizeof(int));
+			for (int j = 0; j < bonus_number; j++)
+				save_file.write((char*)&bonus[j], sizeof(unsigned int));
+			
+			save_file.write((char*)&life, sizeof(unsigned short));
+			save_file.write((char*)&hp, sizeof(unsigned short));
+			save_file.write((char*)&score, sizeof(unsigned int));
+			save_file.write((char*)&cash, sizeof(unsigned int));
+			save_file.write((char*)&has_taser, sizeof(bool));
+		}
+	}
+	else
+	{
+		okDialog(win, "Error 10", "Can't save the game!");
+		return false;
+	}
+	save_file.close();
+	return true;
+}
+
+bool cMap::loadGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators)
+{
+	this->player.clear();
+	this->reserve_sector.clear();
+
+	std::fstream load_file;
+	load_file.open("profiles/" + profile.getName() + "/saves/" + slot_name + ".dat", std::ios::in | std::ios::binary);
+
+	if (load_file.is_open())
+	{
+		load_file.read((char*)&this->level_number, sizeof(unsigned int));
+		load_file.read((char*)&this->world_type, sizeof(eWorld));
+
+		//Modulatory
+		int modulators_size;
+		load_file.read((char*)&modulators_size, sizeof(int));
+		for (int i = 0; i < modulators_size; i++)
+			load_file.read((char*)&modulators[i], sizeof(bool));
+
+		//Postacie graczy
+		load_file.read((char*)&this->player_number, sizeof(int));
+
+		for (int i = 0; i < this->player_number; i++)
+		{
+			eCharacter character_type;
+			unsigned short lvl, skill_points, number_of_skill[4], life, pet_hp;
+			unsigned int exp, bonus[2], score, cash;
+			int skills_number, bonus_number;
+			bool has_taser;
+
+			load_file.read((char*)&character_type, sizeof(eCharacter));
+			load_file.read((char*)&lvl, sizeof(unsigned short));
+			load_file.read((char*)&exp, sizeof(unsigned int));
+			load_file.read((char*)&skill_points, sizeof(unsigned short));
+
+			load_file.read((char*)&skills_number, sizeof(int));
+			for (int i = 0; i < skills_number; i++)
+				load_file.read((char*)&number_of_skill[i], sizeof(unsigned short));
+			for (int i = skills_number; i < 2; i++)
+				number_of_skill[i] = 0;
+
+			load_file.read((char*)&bonus_number, sizeof(int));
+			for (int i = 0; i < bonus_number; i++)
+				load_file.read((char*)&bonus[i], sizeof(unsigned int));
+			for (int i = bonus_number; i < 2; i++)
+				bonus[i] = 0;
+
+			load_file.read((char*)&life, sizeof(unsigned short));
+			load_file.read((char*)&pet_hp, sizeof(unsigned short));
+			load_file.read((char*)&score, sizeof(unsigned int));
+			load_file.read((char*)&cash, sizeof(unsigned int));
+			load_file.read((char*)&has_taser, sizeof(bool));
+
+			cKnight *knight = new cKnight(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			cArcher *archer = new cArcher(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			cSpy *spy = new cSpy(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			
+			cCharacter *temp_player = NULL;
+			switch (character_type)
+			{
+			case CHARACTER_KNIGHT: {temp_player = knight; break;}
+			case CHARACTER_ARCHER: {temp_player = archer; break;}
+			case CHARACTER_SPY: {temp_player = spy; break;}
+			case CHARACTER_SORCERESS: {temp_player = sorceress; break;}
+			}
+
+			this->player.push_back(temp_player);
+			this->player[i]->initPet();
+			this->player[i]->loadCharacter(lvl, exp, skill_points, number_of_skill, pet_hp, bonus, life, score, cash, has_taser);
+		}
+	}
+	else
+	{
+		okDialog(win, "Error 10", "Can't save the game!");
+		return false;
+	}
+	load_file.close();
 	return true;
 }
 
