@@ -55,8 +55,17 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 	//Utworzenie zmiennej sektor
 	cSector sector;
 
+	//Tworzenie p³askiego sektora przed map¹
+	for (unsigned short i = 0; i < 16; i++)
+		ground.push_back(cGround(sf::Vector2f(x_generate + i * 32 + 16, this->height - 16), this->world_type));
+
+	x_generate += 512;
+	this->width = x_generate;
+
+	this->prev_sector.clear();
+
 	//Pêtla tworzenia terenu
-	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
+	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie
 	{
 		if (!refresh)	//Tworzenie poziomu od podstaw
 		{
@@ -64,8 +73,6 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			do
 			{
 				sector.loadRandomSector(win, this->world_type);
-				if (i == 0)	//Pierwszy sektor zawsze pasuje
-					break;
 			} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
 
 			reserve_sector.push_back(sector);
@@ -119,6 +126,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 		this->width = x_generate;
 	}
 
+	//Tworzenie p³askiego sektora za map¹
 	for (unsigned short i = 0; i < 16; i++)
 		ground.push_back(cGround(sf::Vector2f(x_generate + i * 32 + 16, this->height - 16), this->world_type));
 
@@ -1003,7 +1011,7 @@ bool cMap::loadGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 	}
 	else
 	{
-		okDialog(win, "Error 10", "Can't save the game!");
+		okDialog(win, "Error 11", "Can't load the game!");
 		return false;
 	}
 	load_file.close();
@@ -1039,7 +1047,6 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	win.setView(view);
 
 	//Przesuwanie ekranu
-	//(TODO) Przesuwanie ekranu dzia³a poprawnie, jednak jeszcze nie jestem pewien jak - rozszyfrowaæ
 	this->background[0].setPosition((view.getCenter().x - 400) / 1.2 + (((int)((view.getCenter().x - 400) / 1.2 / 5) / this->background[0].getTextureRect().width) * this->background[0].getTextureRect().width), (view.getCenter().y - 300) / 1.2);
 	background[1].setPosition(this->background[0].getPosition().x + this->background[0].getTextureRect().width, this->background[0].getPosition().y);
 	

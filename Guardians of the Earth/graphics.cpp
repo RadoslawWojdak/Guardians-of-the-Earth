@@ -154,18 +154,6 @@ bool initGraph()
 		case 4: {world = "desert";		break;}
 		}
 
-		/*for (int j = 0; j < 1; j++)
-		{
-			std::string nr;
-			std::stringstream ss;
-			ss << j + 1;
-			nr = ss.str();
-			ss.clear();
-
-			std::string path = "graphics\\backgrounds\\" + world + "\\background-" + nr + ".png";
-			if (!t_background[i][j].loadFromFile(path))
-				return false;
-		}*/
 		std::string path = "graphics\\backgrounds\\" + world + "\\background-1.png";
 		if (!t_background[i].loadFromFile(path))
 			return false;

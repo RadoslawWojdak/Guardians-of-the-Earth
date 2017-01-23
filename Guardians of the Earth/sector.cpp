@@ -395,8 +395,10 @@ void cSector::setObject(unsigned short x, unsigned short y, eObjType object)
 void cSector::clear()
 {
 	this->width = 1;
-	this->height = 10;
-	this->object = new eObjType[10];	//wysoki na 10 (wtedy mozna dobierac nowe sektory)
-	for (int i = 0; i < 10; i++)
-		*(this->object + i) = OBJECT_GROUND;
+	this->height = 3;
+	this->object = new eObjType[3];	//wysoki na 3
+	
+	for (int i = 0; i < 2; i++)
+		*(this->object + i) = OBJECT_NONE;
+	*(this->object + 2) = OBJECT_GROUND;
 }

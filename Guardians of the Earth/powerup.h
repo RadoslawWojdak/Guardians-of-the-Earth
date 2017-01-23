@@ -5,7 +5,6 @@
 #include "objectlevel.h"
 #include "graphics.h"
 
-//GOTO Stworzyæ dzia³aj¹ce power upy przy tworzeniu postaci
 class cPowerUp :public cObjectLevel
 {
 	unsigned short power;	//Jaki daje typ mocy

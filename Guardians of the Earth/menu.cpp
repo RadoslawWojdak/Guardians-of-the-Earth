@@ -997,10 +997,13 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 					button.erase(button.begin() + option);
 					item.erase(item.begin() + option);
 					available_modulators--;
+
+					for (int i = 0; i < button.size() - 4; i++)
+						button[i].setPosition(g_width / 2, g_height / 2 + (i - (float)(DISPLAY + first_displayed * 2) / 2 + 0.5f) * 48);
 				}
 			}
 		}
-		if (option >= available_modulators && option < available_modulators + available_npcs)	//Modulatory
+		else if (option >= available_modulators && option < available_modulators + available_npcs)	//NPC-y
 		{
 			if (item[option].viewPurchase(win))
 			{
@@ -1012,6 +1015,9 @@ bool menuShop(sf::RenderWindow &win, cProfile &profile)
 					button.erase(button.begin() + option);
 					item.erase(item.begin() + option);
 					available_npcs--;
+
+					for (int i = 0; i < button.size() - 4; i++)
+						button[i].setPosition(g_width / 2, g_height / 2 + (i - (float)(DISPLAY + first_displayed * 2) / 2 + 0.5f) * 48);
 				}
 			}
 		}
@@ -1152,12 +1158,14 @@ std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
 		{
 			if (delete_slot)
 			{
-				if (yesNoDialog(win, "Removal save slot", "Are you sure you want to delete " + profile.getSaveSlotName(option)))
+				if (yesNoDialog(win, "Removal save slot", "Are you sure you want to delete \"" + profile.getSaveSlotName(option) + "\""))
 				{
 					profile.deleteSaveSlot(win, profile.getSaveSlotName(option));
 					profile.saveProfile(win);
 
 					button.erase(button.begin() + option);
+					for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+						button[i].setPosition(g_width / 2, g_height / 2 + (i - (float)(DISPLAY + first_displayed * 2) / 2 + 0.5f) * 48);
 				}
 			}
 			else
