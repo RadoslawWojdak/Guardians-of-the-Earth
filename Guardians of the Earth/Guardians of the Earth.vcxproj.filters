@@ -144,6 +144,18 @@
     <ClCompile Include="spy.cpp">
       <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
     </ClCompile>
+    <ClCompile Include="sorceress.cpp">
+      <Filter>Source Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
+    </ClCompile>
+    <ClCompile Include="actionOnText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scoreboard.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="shopItem.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -241,6 +253,18 @@
     </ClInclude>
     <ClInclude Include="spy.h">
       <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="sorceress.h">
+      <Filter>Header Files\Classes\cObjectLevel-&gt;\cAnimatedObjectLevel-&gt;\cCharacterAnimation-&gt;\cCharacter-&gt;</Filter>
+    </ClInclude>
+    <ClInclude Include="actionOnText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scoreboard.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="shopItem.h">
+      <Filter>Header Files\Classes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

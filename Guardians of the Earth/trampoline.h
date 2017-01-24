@@ -18,7 +18,7 @@ class cTrampoline :public cObjectLevel
 	float force;	//Si³a z jak¹ wybija postacie graczy / NPC-y(?)
 
 public:
-	cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f pos, float force);
+	cTrampoline(b2World &physics_world, unsigned short id, sf::Vector2f pos, float force);
 
 	b2Body *getBody();
 };

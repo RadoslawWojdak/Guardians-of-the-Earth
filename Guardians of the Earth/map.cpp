@@ -1,17 +1,24 @@
 #include "map.h"
-#include <iostream>
 
-cMap::cMap(eWorld world, short number_of_players, eCharacter character[], bool *modulators) :physics_world(b2Vec2(0.0f, 10.0f))
+cMap::cMap(sf::RenderWindow &win, cProfile &profile, eWorld world, short &number_of_players, eCharacter character[], bool *modulators, std::string &new_slot, std::string &loaded_slot)
+	:physics_world(b2Vec2(0.0f, 10.0f))
 {
 	this->level_number = 1;
 	this->world_type = world;
 	this->prev_sector.clear();
-	levelGenerator(number_of_players, modulators, false, false, character);
+
+	if (loaded_slot != "")
+	{
+		this->loadGame(win, profile, loaded_slot, modulators);
+		number_of_players = this->player_number;
+		this->levelGenerator(win, profile, loaded_slot, this->player_number, modulators, false, false, character);
+	}
+	else
+		this->levelGenerator(win, profile, new_slot, number_of_players, modulators, false, false, character);
 }
 
-void cMap::levelGenerator(short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
+void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string &slot_name, short number_of_players, bool *modulators, bool refresh, bool next_level, eCharacter character[])
 {
-	system("CLS");
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
 	this->golden_bb_created = false;
@@ -26,14 +33,14 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	if (!refresh)
 		this->reserve_sector.clear();
 
-	groundsInit(&(this->physics_world));
-	fluidInit(&(this->physics_world));
+	groundsInit(this->physics_world);
+	fluidInit(this->physics_world);
 
 	this->width = 0;
 	this->height = 600;
 	
 	this->x_generate = 0;
-
+	
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
@@ -42,38 +49,33 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		background[i].setTexture(t_background[this->world_type]);
 	}
 
-	//Stworzenie tablicy opisuj¹cej, jak wiele w poziomie jest sektorów o danym ID (w celach debugowania)
-	std::cout << "Ilosc sektorow w tym typie swiata: " << how_many_sectors[this->world_type] << "\n\n\n";
-	int *how_many = new int[how_many_sectors[this->world_type]];
-	for (int i = 0; i < how_many_sectors[this->world_type]; i++)
-		how_many[i] = 0;
-
 	//Wektor zmiennych odpowiedzialnych za pozycje spawnów bonusów
 	std::vector <sf::Vector2f> spawn_pu_pos;
 
 	//Utworzenie zmiennej sektor
 	cSector sector;
 
+	//Tworzenie p³askiego sektora przed map¹
+	for (unsigned short i = 0; i < 16; i++)
+		ground.push_back(cGround(sf::Vector2f(x_generate + i * 32 + 16, this->height - 16), this->world_type));
+
+	x_generate += 512;
+	this->width = x_generate;
+
+	this->prev_sector.clear();
+
 	//Pêtla tworzenia terenu
-	clock_t time_map = clock();
-	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie (GOTO zamieniæ na ogóln¹ d³ugoœæ mapy (¿eby poziomy by³y podobnej d³ugoœci))
+	for (int i = 0; i < 50 + (this->level_number - 1); i++)	//Iloœæ sektorów znajduj¹cych siê na mapie
 	{
 		if (!refresh)	//Tworzenie poziomu od podstaw
 		{
-			std::cout << i << " ";
-			std::string sector_id;
 			//Pêtla wyszukiwania pasuj¹cego sektora
 			do
 			{
-				sector.loadRandomSector(this->world_type, sector_id);
-				if (i == 0)	//Pierwszy sektor zawsze pasuje
-					break;
+				sector.loadRandomSector(win, this->world_type);
 			} while (!sector.isSectorFitted(this->world_type, this->prev_sector, this->getHeight()));
 
 			reserve_sector.push_back(sector);
-			int s_id = atoi((char*)sector_id.c_str());
-			std::cout << s_id << "\n";
-			how_many[s_id - 1]++;
 
 			//Przypisanie sektora poprzedniemu sektorowi - dziêki temu mo¿na bêdzie znowu wyszukiwaæ pasuj¹cy sektor
 			this->prev_sector = sector;
@@ -104,16 +106,16 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 				switch (sector.getObject(j, i))
 				{
 				case eObjType::OBJECT_GROUND: {ground.push_back(cGround(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), this->world_type)); break;}
-				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(&(this->physics_world), t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
-				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(&(this->physics_world), t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
+				case eObjType::OBJECT_BLOCK: {block.push_back(cBlock(this->physics_world, t_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
+				case eObjType::OBJECT_BONUS_BLOCK: {bonus_block.push_back(cBonusBlock(this->physics_world, t_bonus_block[0], sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
 				case eObjType::OBJECT_FLUID:
 				{
 					if (this->world_type != WORLD_UNDERWATER)	//Œwiat podwodny jest ju¿ wype³niony wod¹, a obiekty wody tylko by niepotrzebnie spowalnia³y program (przy okazji teraz mo¿na dodaæ t³o)
 						fluid.push_back(cFluid(this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));
 					break;
 				}
-				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(&(this->physics_world), this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
-				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(&(this->physics_world), 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
+				case eObjType::OBJECT_TREASURE: {treasure.push_back(cTreasure(this->physics_world, this->world_type, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down)));	break;}
+				case eObjType::OBJECT_TRAMPOLINE: {trampoline.push_back(cTrampoline(this->physics_world, 1, sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down), 5.0f));	break;}
 				case eObjType::OBJECT_POWER_UP: {spawn_pu_pos.push_back(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down));	break;}
 				case eObjType::OBJECT_LADDER: {ladder.push_back(cLadder(sf::Vector2f(x_generate + j * 32 + 16, i * 32 + 16 + to_down))); break;}
 				}
@@ -124,22 +126,15 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		this->width = x_generate;
 	}
 
+	//Tworzenie p³askiego sektora za map¹
 	for (unsigned short i = 0; i < 16; i++)
 		ground.push_back(cGround(sf::Vector2f(x_generate + i * 32 + 16, this->height - 16), this->world_type));
 
 	x_generate += 512;
 	this->width = x_generate;
-	time_map = clock() - time_map;
-
-
-	//Wyœwietlanie na ekranie jak wiele jest sektorów o danym ID (W celach debugowania)
-	std::cout << "\n\n\n";
-	for (unsigned int i = 0; i < how_many_sectors[this->world_type]; i++)
-		std::cout << i + 1 << " = " << how_many[i] << "\n";
 
 
 	//Dostosowywanie obiektów mapy do ustawieñ mapy
-	clock_t time_adjust = clock();
 	for (unsigned int i = 0; i < ground.size(); i++)
 		this->ground[i].adjustObjectToLevel(this->height);
 	for (unsigned int i = 0; i < fluid.size(); i++)
@@ -156,12 +151,10 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		this->ladder[i].adjustObjectToLevel(this->height);
 	for (unsigned int i = 0; i < spawn_pu_pos.size(); i++)		//Ta sama zasada dzia³ania, co w przypadku poprzednich pêtli
 		spawn_pu_pos[i] = sf::Vector2f(spawn_pu_pos[i].x, spawn_pu_pos[i].y + this->height - g_height);
-	time_adjust = clock() - time_adjust;
 	//!Dostosowywanie obiektów mapy do ustawieñ mapy
 
 
 	//Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
-	clock_t time_optimization = clock();
 	sf::Vector2i grid_size(this->width / 32, this->height / 32);	//Wymiary siatki (wymiary poziomu podzielone przez 32)
 	bool *is_solid = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê sztywny obiekt (grunt, blok, ...) - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
 	bool *is_ground = new bool[grid_size.x * grid_size.y];	//Tablica odpowiadaj¹ca za to, czy w danym punkcie znajduje siê grunt - dziêki temu mo¿na zoptymalizowaæ generowanie obiektów w poziomie
@@ -234,20 +227,15 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		if (pos.y == grid_size.y - 1)
 			this->fluid_tab[(pos.y + 1) * grid_size.x + pos.x] = true;
 	}
-	time_optimization = clock() - time_optimization;
 	//!Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
 	
 
 	//Algorytm wzajemnej grafiki gruntu (postawiony na samym koñcu - po wszystkich dzia³aniach na gruncie)
-	clock_t time_graph = clock();
 	for (int i = 0; i < this->ground.size(); i++)
 		this->ground[i].graphicsCustomize(sf::Vector2u(this->width, this->height), is_ground, grid_size);
 	//Pozosta³e algorytmy wzajemnej grafiki
 	for (int i = 0; i < this->fluid.size(); i++)
 		this->fluid[i].graphicsCustomize(this->world_type, sf::Vector2u(this->width, this->height), to_fluid, grid_size);
-
-	delete[] how_many;
-	time_graph = clock() - time_graph;
 	
 
 	//GENERATOR POZIOMU (POWER-UP'Y, T£O I NPC)
@@ -258,27 +246,24 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	if (spawn_pu_pos.size() < pu_count)
 		pu_count = spawn_pu_pos.size();
 	//Pêtla tworzenia power-up'ów
-	clock_t time_pu = clock();
 	for (int i = 0; i < pu_count; i++)
 	{
 		unsigned short spawn = rand() % spawn_pu_pos.size();
 		this->power_up.push_back(spawn_pu_pos[spawn]);
 		spawn_pu_pos.erase(spawn_pu_pos.begin() + spawn);
 	}
-	time_pu = clock() - time_pu;
 
 
 	//NPC-Y
 	//Pêtla tworzenia NPC-ów
-	clock_t time_npc = clock();
 	int number_of_npcs = (float)(50 + 5.5f * (this->level_number - 1)) * ((float)(modulators[0] ? rand() % 16 + 5 : 10) / 10);
 	for (int i = 0; i < number_of_npcs; i++)
 	{
 		//Losowanie ID NPC-a
-		int random = randomNPCID(this->world_type);
+		int random = randomNPCID(this->world_type, profile);
 		
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
-		cNPC temp_npc(&(this->physics_world), this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
+		cNPC temp_npc(this->physics_world, this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
 		bool end = false;	//Nie przydzielono pozycji
 
@@ -358,11 +343,9 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		
 		this->npc.push_back(temp_npc);
 	}
-	time_npc = clock() - time_npc;
 	
 	//OBIEKTY W TLE
 	//Pêtla tworzenia obiektów w tle
-	clock_t time_background = clock();
 	for (int i = 0; i < 100; i++)
 	{
 		eBackgroundType type;
@@ -614,21 +597,23 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 		}
 		this->background_obj.push_back(temp_bg_obj);
 	}
-	time_background = clock() - time_background;
 
 	//Generowanie graczy
 	if (player.size() == 0)
 	{
 		for (int i = 0; i < number_of_players; i++)
 		{
-			cKnight *knight = new cKnight(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			cArcher *archer = new cArcher(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			cSpy *spy = new cSpy(&(this->physics_world), this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cKnight *knight = new cKnight(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cArcher *archer = new cArcher(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cSpy *spy = new cSpy(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
+			
 			cCharacter *temp_player = NULL;
 			switch (character[i])
 			{
 			case 1: {temp_player = archer; break;}
 			case 2: {temp_player = spy; break;}
+			case 3: {temp_player = sorceress; break;}
 			default: {temp_player = knight; break;}
 			}
 
@@ -691,15 +676,6 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	}
 	//!Generowanie graczy
 
-	std::cout << "\n\n";
-	std::cout << "Czas generowania terenu: " << time_map << "\n";
-	std::cout << "Czas dostosowywania obiektow do terenu: " << time_adjust << "\n";
-	std::cout << "Czas dzialania algorytmu wzajemnej grafiki gruntu: " << time_graph << "\n";
-	std::cout << "Czas tworzenia tablic optymalizacyjnych: " << time_optimization << "\n";
-	std::cout << "Czas rozstawiania power-up'ow na mapie: " << time_pu << "\n";
-	std::cout << "Czas rozstawiania NPC na mapie: " << time_npc << "\n";
-	std::cout << "Czas rozstawiania obiektow w tle na mapie: " << time_background << "\n";
-
 	//Tworzenie zmiennych startowych
 	this->initial_bbs_size = this->bonus_block.size();
 
@@ -709,9 +685,11 @@ void cMap::levelGenerator(short number_of_players, bool *modulators, bool refres
 	delete[] is_fluid;
 	delete[] to_fluid;
 	delete[] is_npc;
+
+	this->saveGame(win, profile, slot_name, modulators);
 }
 
-bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
+bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cScoreboard &scoreboard, cProfile &profile, std::string &slot_name)
 {
 	//MENU PAUZY
 	static bool key_pressed = true;
@@ -732,7 +710,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 	if (this->bonus_block.size() == 0 && !this->golden_bb_created)
 	{
 		this->golden_bb_created = true;
-		this->bonus_block.push_back(cBonusBlock(&(this->physics_world), t_gold_bonus_block[0], sf::Vector2f(this->width - 160 - 16, this->height - 128 - 16), 40, 55));
+		this->bonus_block.push_back(cBonusBlock(this->physics_world, t_gold_bonus_block[0], sf::Vector2f(this->width - 160 - 16, this->height - 128 - 16), 40, 55));
 	}
 
 	//SKARBY
@@ -749,7 +727,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 	for (int i = this->bullet.size() - 1; i >= 0; i--)
 	{
 		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
-		this->bullet[i].specialCollisions(&(this->physics_world), this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
+		this->bullet[i].specialCollisions(this->physics_world, this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
 		
 		if (this->bullet[i].isDestroyed())
 		{
@@ -785,10 +763,10 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 		{
 			are_all_players_dead = false;
 			
-			this->player[i]->control(&(this->physics_world), this->world_type, this->bullet);
-			this->player[i]->specialCollisions(&(this->physics_world), this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
+			this->player[i]->control(this->physics_world, this->world_type, this->bullet);
+			this->player[i]->specialCollisions(this->physics_world, this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i]->applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
-			this->player[i]->checkIndicators(&(this->physics_world), this->world_type, this->bullet);
+			this->player[i]->checkIndicators(this->physics_world, this->world_type, this->player, this->bullet);
 			this->player[i]->move(win, sf::Vector2f(this->width, this->height));
 			
 			//Rozpoczêcie nastêpnego poziomu
@@ -805,7 +783,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 					return true;
 				}
 
-				this->levelGenerator(player.size(), modulators, false, true);
+				this->levelGenerator(win, profile, slot_name, player.size(), modulators, false, true);
 				
 				return true;
 			}
@@ -827,9 +805,51 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 		}
 
 		if (no_more_life)
-			return false;
+		{
+			//Usuwanie slotu zapisu
+			profile.deleteSaveSlot(win, slot_name);
 
-		this->levelGenerator(player.size(), modulators, true, false);
+			//Zapisywanie siê do tabeli wyników
+			for (int i = 0; i < this->player.size(); i++)
+			{
+				win.clear();
+				if (scoreboard.isSufficientlyHighScore(this->player[i]->getScore()))
+				{
+					sf::String description_str = L"Player ";
+					description_str += uIntToStr(i + 1);
+					description_str += " reached a new high score! Enter your name:";
+
+					std::string name = textDialog(win, "New high score!", description_str);
+
+					scoreboard.appendScore(name, this->player[i]->getScore());
+				}
+			}
+
+			std::string path = "hiscores" + uIntToStr(this->player.size()) + ".dat";
+			scoreboard.saveScoreboard(path);
+
+			//Nagroda za grê
+			unsigned int cash = 0;
+
+			unsigned int allScore = 0;
+			for (int i = 0; i < this->player.size(); i++)
+				allScore += this->player[i]->getScore();
+			cash = allScore / 1000;
+
+			sf::String description_str = "You get ";
+			description_str += uIntToStr(cash);
+			description_str += " cash for the game.";
+
+			okDialog(win, "Award for the game", description_str);
+
+			profile.addCash(cash);
+			profile.saveProfile(win);
+
+			//Koniec gry
+			return false;
+		}
+
+		this->levelGenerator(win, profile, slot_name, player.size(), modulators, true, false);
 		return true;
 	}
 
@@ -838,6 +858,163 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators)
 			this->npc.erase(this->npc.begin() + i);
 	
 	this->physics_world.Step((float)1 / 60, 8, 3);
+	return true;
+}
+
+bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators)
+{
+	//Tworzenie katalogu na save'y
+	std::string path = "profiles/" + profile.getName() + "/saves";
+	CreateDirectory(path.c_str(), 0);
+
+	//Tworzenie pliku zapisu
+	std::fstream save_file;
+	save_file.open("profiles/" + profile.getName() + "/saves/" + slot_name + ".dat", std::ios::out | std::ios::trunc | std::ios::binary);
+
+	if (save_file.is_open())
+	{
+		save_file.write((char*)&this->level_number, sizeof(unsigned int));
+		save_file.write((char*)&this->world_type, sizeof(eWorld));
+
+		//Modulatory
+		save_file.write((char*)&g_all_modulators, sizeof(int));
+		for (int i = 0; i < g_all_modulators; i++)
+			save_file.write((char*)&modulators[i], sizeof(bool));
+
+		//Postacie graczy
+		save_file.write((char*)&this->player_number, sizeof(int));
+		
+		for (int i = 0; i < this->player_number; i++)
+		{
+			eCharacter character_type = this->player[i]->getCharacterType();
+			unsigned short lvl = this->player[i]->getLevel();
+			unsigned int exp = this->player[i]->getExperience();
+			unsigned short skill_points = this->player[i]->getSkillPoints();
+			
+			int skills_number = 4;
+			unsigned short number_of_skill[4];
+			for (int j = 0; j < 4; j++)
+				number_of_skill[j] = this->player[i]->getNumberOfSkill(j);
+
+			int bonus_number = 2;
+			unsigned int bonus[2];
+			for (int j = 0; j < 2; j++)
+				bonus[j] = this->player[i]->getBonus(j);
+			
+			unsigned short life = this->player[i]->getLife();
+			unsigned short hp = this->player[i]->getHP();
+			unsigned int score = this->player[i]->getScore();
+			unsigned int cash = this->player[i]->getCash();
+			bool has_taser = this->player[i]->hasTaser();
+
+
+			save_file.write((char*)&character_type, sizeof(eCharacter));
+			save_file.write((char*)&lvl, sizeof(unsigned short));
+			save_file.write((char*)&exp, sizeof(unsigned int));
+			save_file.write((char*)&skill_points, sizeof(unsigned short));
+			
+			save_file.write((char*)&skills_number, sizeof(int));
+			for (int j = 0; j < skills_number; j++)
+				save_file.write((char*)&number_of_skill[j], sizeof(unsigned short));
+			
+			save_file.write((char*)&bonus_number, sizeof(int));
+			for (int j = 0; j < bonus_number; j++)
+				save_file.write((char*)&bonus[j], sizeof(unsigned int));
+			
+			save_file.write((char*)&life, sizeof(unsigned short));
+			save_file.write((char*)&hp, sizeof(unsigned short));
+			save_file.write((char*)&score, sizeof(unsigned int));
+			save_file.write((char*)&cash, sizeof(unsigned int));
+			save_file.write((char*)&has_taser, sizeof(bool));
+		}
+	}
+	else
+	{
+		okDialog(win, "Error 10", "Can't save the game!");
+		return false;
+	}
+	save_file.close();
+	return true;
+}
+
+bool cMap::loadGame(sf::RenderWindow &win, cProfile &profile, std::string slot_name, bool *modulators)
+{
+	this->player.clear();
+	this->reserve_sector.clear();
+
+	std::fstream load_file;
+	load_file.open("profiles/" + profile.getName() + "/saves/" + slot_name + ".dat", std::ios::in | std::ios::binary);
+
+	if (load_file.is_open())
+	{
+		load_file.read((char*)&this->level_number, sizeof(unsigned int));
+		load_file.read((char*)&this->world_type, sizeof(eWorld));
+
+		//Modulatory
+		int modulators_size;
+		load_file.read((char*)&modulators_size, sizeof(int));
+		for (int i = 0; i < modulators_size; i++)
+			load_file.read((char*)&modulators[i], sizeof(bool));
+
+		//Postacie graczy
+		load_file.read((char*)&this->player_number, sizeof(int));
+
+		for (int i = 0; i < this->player_number; i++)
+		{
+			eCharacter character_type;
+			unsigned short lvl, skill_points, number_of_skill[4], life, pet_hp;
+			unsigned int exp, bonus[2], score, cash;
+			int skills_number, bonus_number;
+			bool has_taser;
+
+			load_file.read((char*)&character_type, sizeof(eCharacter));
+			load_file.read((char*)&lvl, sizeof(unsigned short));
+			load_file.read((char*)&exp, sizeof(unsigned int));
+			load_file.read((char*)&skill_points, sizeof(unsigned short));
+
+			load_file.read((char*)&skills_number, sizeof(int));
+			for (int i = 0; i < skills_number; i++)
+				load_file.read((char*)&number_of_skill[i], sizeof(unsigned short));
+			for (int i = skills_number; i < 2; i++)
+				number_of_skill[i] = 0;
+
+			load_file.read((char*)&bonus_number, sizeof(int));
+			for (int i = 0; i < bonus_number; i++)
+				load_file.read((char*)&bonus[i], sizeof(unsigned int));
+			for (int i = bonus_number; i < 2; i++)
+				bonus[i] = 0;
+
+			load_file.read((char*)&life, sizeof(unsigned short));
+			load_file.read((char*)&pet_hp, sizeof(unsigned short));
+			load_file.read((char*)&score, sizeof(unsigned int));
+			load_file.read((char*)&cash, sizeof(unsigned int));
+			load_file.read((char*)&has_taser, sizeof(bool));
+
+			cKnight *knight = new cKnight(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			cArcher *archer = new cArcher(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			cSpy *spy = new cSpy(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
+			
+			cCharacter *temp_player = NULL;
+			switch (character_type)
+			{
+			case CHARACTER_KNIGHT: {temp_player = knight; break;}
+			case CHARACTER_ARCHER: {temp_player = archer; break;}
+			case CHARACTER_SPY: {temp_player = spy; break;}
+			case CHARACTER_SORCERESS: {temp_player = sorceress; break;}
+			}
+
+			this->player.push_back(temp_player);
+			this->player[i]->initPet();
+			this->player[i]->loadCharacter(lvl, exp, skill_points, number_of_skill, pet_hp, bonus, life, score, cash, has_taser);
+		}
+	}
+	else
+	{
+		okDialog(win, "Error 11", "Can't load the game!");
+		return false;
+	}
+	load_file.close();
 	return true;
 }
 
@@ -870,7 +1047,6 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	win.setView(view);
 
 	//Przesuwanie ekranu
-	//(TODO) Przesuwanie ekranu dzia³a poprawnie, jednak jeszcze nie jestem pewien jak - rozszyfrowaæ
 	this->background[0].setPosition((view.getCenter().x - 400) / 1.2 + (((int)((view.getCenter().x - 400) / 1.2 / 5) / this->background[0].getTextureRect().width) * this->background[0].getTextureRect().width), (view.getCenter().y - 300) / 1.2);
 	background[1].setPosition(this->background[0].getPosition().x + this->background[0].getTextureRect().width, this->background[0].getPosition().y);
 	
@@ -903,7 +1079,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	for (unsigned short i = 0; i < this->player.size(); i++)
 		if (!this->player[i]->isDead())
 		{
-			win.draw(*(this->player[i]));
+			this->player[i]->draw(win);
 			if (this->player[i]->isPetAlive())
 				win.draw(this->player[i]->getPet());
 		}

@@ -48,6 +48,12 @@ void cCharacterAnimation::animationSpecial1(short time_between_frames)
 	this->animation();
 }
 
+void cCharacterAnimation::animationSpecial2(short time_between_frames)
+{
+	this->setAnimationStartPosition(sf::Vector2f(0.0f, 192.0f), time_between_frames);
+	this->animation();
+}
+
 eCharacterAnimationType cCharacterAnimation::getAnimationType()
 {
 	return (eCharacterAnimationType)((short)(this->getAnimationStartPosition().y) / 32);

@@ -1,6 +1,6 @@
 #include "bullet.h"
 
-cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, short player_id)
+cBullet::cBullet(b2World &physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, bool wall_penetration, short player_id)
 {
 	this->adjustGraphicsParameters(texture, pos);
 
@@ -23,7 +23,7 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 	body_def.type = b2_dynamicBody;
 	body_def.allowSleep = true;
 
-	this->body = physics_world->CreateBody(&body_def);
+	this->body = physics_world.CreateBody(&body_def);
 	if (!this->gravity)
 		this->body->SetGravityScale(0.0f);
 	this->body->SetBullet(true);
@@ -39,7 +39,10 @@ cBullet::cBullet(b2World *physics_world, eWorld world_type, sf::Texture &texture
 		fd.restitution = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_BULLET);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	if (!wall_penetration)
+		fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));
+	else
+		fd.filter.maskBits = CATEGORY(CAT_EMPTY);
 
 	this->body->CreateFixture(&fd);
 
@@ -119,12 +122,14 @@ void cBullet::step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab)
 		{
 			if (this->gravity)
 				this->body->SetGravityScale(1.0f);
+			else
+				this->body->SetLinearVelocity(this->speed);
 		}
 		//!Kolizje z p³ynami (zmiana grawitacji, oraz prêdkoœci)
 	}
 }
 
-void cBullet::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
+void cBullet::specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cCharacter*> &character, std::vector <cNPC> &npc, std::vector <cTreasure> &treasure, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->stop)
 	{

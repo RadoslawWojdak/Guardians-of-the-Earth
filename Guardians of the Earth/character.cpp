@@ -1,95 +1,6 @@
 #include "character.h"
 
-sControlKeys g_player_control_keys[4];
-
-void cCharacter::initControlKeys(short player_no)
-{
-	switch (player_no)
-	{
-	case 1:
-	{
-		this->key.is_pad = false;
-		this->key.pad = -1;
-
-		this->key.up.key = sf::Keyboard::Key::Up;
-		this->key.down.key = sf::Keyboard::Key::Down;
-		this->key.left.key = sf::Keyboard::Key::Left;
-		this->key.right.key = sf::Keyboard::Key::Right;
-		this->key.jump.key = sf::Keyboard::Key::Space;
-		this->key.fire.key = sf::Keyboard::Key::LControl;
-		this->key.special1.key = sf::Keyboard::Key::RShift;
-		break;
-	}
-	case 2:
-	{
-		this->key.is_pad = false;
-		this->key.pad = -1;
-
-		this->key.up.key = sf::Keyboard::Key::W;
-		this->key.down.key = sf::Keyboard::Key::S;
-		this->key.left.key = sf::Keyboard::Key::A;
-		this->key.right.key = sf::Keyboard::Key::D;
-		this->key.jump.key = sf::Keyboard::Key::E;
-		this->key.fire.key = sf::Keyboard::Key::Q;
-		this->key.special1.key = sf::Keyboard::Key::F;
-		break;
-	}
-	case 3:
-	{
-		if (sf::Joystick::isConnected(0))
-		{
-			this->key.is_pad = true;
-			this->key.pad = 0;
-
-			this->key.jump.button = 2;
-			this->key.fire.button = 3;
-			this->key.special1.button = 5;
-		}
-		else
-		{
-			this->key.is_pad = false;
-			this->key.pad = -1;
-
-			this->key.up.key = sf::Keyboard::Key::U;
-			this->key.down.key = sf::Keyboard::Key::J;
-			this->key.left.key = sf::Keyboard::Key::H;
-			this->key.right.key = sf::Keyboard::Key::K;
-			this->key.jump.key = sf::Keyboard::Key::I;
-			this->key.fire.key = sf::Keyboard::Key::Y;
-			this->key.special1.key = sf::Keyboard::Key::L;
-		}
-		break;
-	}
-	case 4:
-	{
-		if (sf::Joystick::isConnected(1))
-		{
-			this->key.is_pad = true;
-			this->key.pad = 1;
-
-			this->key.jump.button = 2;
-			this->key.fire.button = 3;
-			this->key.special1.button = 5;
-		}
-		else
-		{
-			this->key.is_pad = false;
-			this->key.pad = -1;
-
-			this->key.up.key = sf::Keyboard::Key::Numpad8;
-			this->key.down.key = sf::Keyboard::Key::Numpad2;
-			this->key.left.key = sf::Keyboard::Key::Numpad4;
-			this->key.right.key = sf::Keyboard::Key::Numpad6;
-			this->key.jump.key = sf::Keyboard::Key::Numpad9;
-			this->key.fire.key = sf::Keyboard::Key::Numpad7;
-			this->key.special1.key = sf::Keyboard::Key::Numpad1;
-		}
-		break;
-	}
-	}
-}
-
-cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cCharacter::cCharacter(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacterAnimation(t_character[0], pos)
 {
 	this->animationStanding();
@@ -108,9 +19,13 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	this->heart.setTexture(t_heart);
 	this->heart.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
 	this->taser.setTexture(t_taser);
-	this->taser.setColor(sf::Color(this->heart.getColor().g, this->heart.getColor().b, this->heart.getColor().a, 192));
+	this->taser.setColor(sf::Color(this->taser.getColor().g, this->taser.getColor().b, this->taser.getColor().a, 192));
+	this->magic_shield.setTexture(t_magic_shield);
+	this->magic_shield.setColor(sf::Color(this->magic_shield.getColor().g, this->magic_shield.getColor().b, this->magic_shield.getColor().a, 0));
+	this->magic_shield.setOrigin(this->magic_shield.getTextureRect().width / 2, this->magic_shield.getTextureRect().height / 2);
 
 	this->immunity_time = 0;
+	this->magic_shield_time = 0;
 	this->special1_time = 0;
 	this->life = 3;
 	this->score = 0;
@@ -124,8 +39,6 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	if (modulators[1])
 		this->extra_jump++;
 	this->last_position = this->getPosition();
-
-	this->initControlKeys(player_no);
 
 	this->is_immersed_in = FLUID_NONE;
 	this->is_on_ice = false;
@@ -141,7 +54,7 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	body_def.fixedRotation = true;
 	body_def.allowSleep = false;
 
-	this->body = physics_world->CreateBody(&body_def);
+	this->body = physics_world.CreateBody(&body_def);
 	
 	b2PolygonShape shape;
 	shape.SetAsBox(a / 2.0f, b / 2.0f - 0.06f);
@@ -151,9 +64,36 @@ cCharacter::cCharacter(b2World *physics_world, eWorld world_type, sf::Vector2f p
 	fd.density = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_CHARACTER);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));
 
 	this->body->CreateFixture(&fd);
+}
+
+void cCharacter::loadParameters(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	this->lvl = lvl;
+	this->exp = exp;
+	this->skill_points = skill_point;
+
+	for (int i = 0; i < 4; i++)
+		this->number_of_skill[i] = number_of_skill[i];
+
+	pet.kill();
+	for (int i = 0; i < pet_hp; i++)
+		this->addHP();
+
+	for (int i = 0; i < 2; i++)
+		this->bonus[i] = bonus[i];
+
+	this->life = life;
+	this->score = score;
+	this->cash = cash;
+	this->has_taser = has_taser;
+}
+
+void cCharacter::loadCharacter(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	;
 }
 
 void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
@@ -177,7 +117,7 @@ void cCharacter::bodyRecreate(b2World &physics_world, eWorld world_type)
 	fd.density = 1.0f;
 
 	fd.filter.categoryBits = CATEGORY(CAT_CHARACTER);
-	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : NULL);
+	fd.filter.maskBits = CATEGORY(CAT_GROUND) | CATEGORY(CAT_BLOCK) | CATEGORY(CAT_BONUS_BLOCK) | (world_type == WORLD_ICE_LAND ? CATEGORY(CAT_FLUID) : CATEGORY(CAT_EMPTY));
 
 	this->body->CreateFixture(&fd);
 }
@@ -234,6 +174,32 @@ void cCharacter::immunityCountdown()
 	}
 }
 
+void cCharacter::useMagicShield(unsigned int time)
+{
+	this->magic_shield_time = time;
+}
+
+void cCharacter::magicShieldCountdown()
+{
+	if (this->hasMagicShield())
+	{
+		this->magic_shield_time--;
+
+		if (this->magic_shield_time == 0)
+			this->turnOffMagicShield();
+		else if (this->magic_shield_time < 240)
+			this->magic_shield.setColor(sf::Color(this->magic_shield.getColor().r, this->magic_shield.getColor().g, this->magic_shield.getColor().b, this->magic_shield_time / 2 + 60));
+		else if (this->magic_shield.getColor().a == 0)
+			this->magic_shield.setColor(sf::Color(this->magic_shield.getColor().r, this->magic_shield.getColor().g, this->magic_shield.getColor().b, 190));
+	}
+}
+
+void cCharacter::turnOffMagicShield()
+{
+	this->magic_shield_time = 0;
+	this->magic_shield.setColor(sf::Color(this->getColor().r, this->getColor().g, this->getColor().b, 0));
+}
+
 void cCharacter::beenHit()
 {
 	if (this->isPetAlive())
@@ -257,12 +223,12 @@ void cCharacter::kill()
 	}
 }
 
-void cCharacter::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cCharacter::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	;	//Funkcja wirtualna
 }
 
-void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cCharacter::specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
@@ -300,7 +266,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 						}
 					}
 
-					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 					{
 						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
@@ -314,7 +280,15 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 				{
 					if (!this->isSpecial1())
 					{
-						if (!this->isInviolability())
+						if (this->hasMagicShield())
+						{
+							this->turnOffMagicShield();
+							
+							npc[i].kill();
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
+						else if (!this->isInviolability())
 							this->beenHit();
 					}
 					else
@@ -373,7 +347,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 		{
 			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
 			{
-				if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+				if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 				{
 					this->jump(-6.0f - this->extra_height_of_jump);
 					this->stop_jump = false;
@@ -394,7 +368,7 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 			{
 				ladder_collision = true;
 				
-				if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) || sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+				if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) || sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 				{
 					this->dir = DIR_UP;
 
@@ -403,16 +377,16 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 					this->stop_jump = true;
 					this->can_jump = true;
 
-					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f))
 					{
 						this->dir = DIR_UP;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -(this->max_speed_x + this->extra_speed) * 0.39f));
 						if (!this->isSpecial1())
 							this->animationClimbing(true);
 					}
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f))
 					{
 						this->dir = DIR_DOWN;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, (this->max_speed_x + this->extra_speed) * 0.39f));
@@ -427,23 +401,23 @@ void cCharacter::specialCollisions(b2World *physics_world, eWorld world_type, bo
 
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
 
-					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (!sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && !sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
 
-					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < -1.0f))
 					{
 						this->dir = DIR_LEFT;
 						this->body->SetLinearVelocity(b2Vec2(-(this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > 1.0f))
 					{
 						this->dir = DIR_RIGHT;
 						this->body->SetLinearVelocity(b2Vec2((this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
 
-					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 					{
 						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
@@ -503,7 +477,7 @@ void cCharacter::applyPhysics(eWorld world_type, bool *fluid, sf::Vector2i grid_
 		}
 		else
 		{
-			if (this->is_immersed_in != FLUID_NONE && ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button))))	//Je¿eli wyskoczy³ z wody
+			if (this->is_immersed_in != FLUID_NONE && ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button))))	//Je¿eli wyskoczy³ z wody
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, -5.0f - this->extra_height_of_jump));
 
 			this->body->SetGravityScale(1.0f);
@@ -539,7 +513,7 @@ void cCharacter::move(sf::RenderWindow &win, sf::Vector2f level_size)
 	}
 }
 
-void cCharacter::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cCharacter::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	;
 }
@@ -553,6 +527,7 @@ void cCharacter::rebirth()
 	this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 
 	this->immunity_time = 0;
+	this->magic_shield_time = 0;
 	this->special1_time = 0;
 	this->setColor(sf::Color(255, 255, 255, 255));
 
@@ -641,6 +616,14 @@ void cCharacter::addSkill(unsigned short skill_id)
 void cCharacter::subtractCash(unsigned int how_many_to_subtract)
 {
 	this->cash -= how_many_to_subtract;
+}
+
+void cCharacter::draw(sf::RenderWindow &win)
+{
+	win.draw(*this);
+
+	this->magic_shield.setPosition(this->getPosition());
+	win.draw(this->magic_shield);
 }
 
 void cCharacter::drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner)
@@ -767,6 +750,11 @@ void cCharacter::setAllPositions(sf::Vector2f pos)
 	this->setPosition(pos);
 }
 
+short cCharacter::getPlayerNo()
+{
+	return this->player_no;
+}
+
 cPet cCharacter::getPet()
 {
 	return this->pet;
@@ -775,11 +763,6 @@ cPet cCharacter::getPet()
 b2Body *cCharacter::getBody()
 {
 	return this->body;
-}
-
-sControlKeys cCharacter::getControlKeys()
-{
-	return this->key;
 }
 
 bool cCharacter::hasLife()
@@ -808,6 +791,13 @@ bool cCharacter::isInviolability()
 	return false;
 }
 
+bool cCharacter::hasMagicShield()
+{
+	if (this->magic_shield_time > 0)
+		return true;
+	return false;
+}
+
 bool cCharacter::isSpecial1()
 {
 	if (this->special1_time > 0)
@@ -815,9 +805,34 @@ bool cCharacter::isSpecial1()
 	return false;
 }
 
+eCharacter cCharacter::getCharacterType()
+{
+	return this->character_type;
+}
+
+unsigned short cCharacter::getLife()
+{
+	return this->life;
+}
+
+unsigned short cCharacter::getHP()
+{
+	return this->pet.getHP();
+}
+
+unsigned int cCharacter::getScore()
+{
+	return this->score;
+}
+
 unsigned int cCharacter::getCash()
 {
 	return this->cash;
+}
+
+unsigned int cCharacter::getBonus(short bonus_id)
+{
+	return this->bonus[bonus_id];
 }
 
 unsigned short cCharacter::getLevel()
@@ -825,12 +840,27 @@ unsigned short cCharacter::getLevel()
 	return this->lvl;
 }
 
+unsigned int cCharacter::getExperience()
+{
+	return this->exp;
+}
+
 unsigned short cCharacter::getSkillPoints()
 {
 	return this->skill_points;
 }
 
+unsigned short cCharacter::getNumberOfSkill(short skill_id)
+{
+	return this->number_of_skill[skill_id];
+}
+
 unsigned int cCharacter::requiredExpToLevelUp()
 {
 	return pow(75.0, 1.0 + (this->lvl - 1) * 0.05);
+}
+
+bool cCharacter::hasTaser()
+{
+	return this->has_taser;
 }

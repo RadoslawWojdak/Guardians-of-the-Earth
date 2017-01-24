@@ -8,7 +8,7 @@ sf::Texture t_treasure[8];
 sf::Texture t_power_up[2];
 sf::Texture t_background[5];
 sf::Texture *t_background_obj[5];
-sf::Texture t_npc[5];
+sf::Texture t_npc[g_all_npcs];
 sf::Texture t_object[8];
 sf::Texture t_character[g_number_of_characters];
 sf::Texture t_characters_bonus[g_number_of_characters][2];
@@ -25,6 +25,10 @@ sf::Texture t_taser;
 sf::Texture t_experience_bar;
 sf::Texture t_discount_sign;
 sf::Texture t_button;
+sf::Texture t_up_arrow;
+sf::Texture t_down_arrow;
+sf::Texture t_left_arrow;
+sf::Texture t_right_arrow;
 sf::Texture t_checkbox;
 sf::Texture t_profile_button;
 sf::Texture t_button_rebirth;
@@ -33,6 +37,7 @@ sf::Texture t_button_extra_hp;
 sf::Texture t_close_button;
 sf::Texture t_selected_character;
 sf::Texture t_passive_text;
+sf::Texture t_magic_shield;
 
 bool initGraph()
 {
@@ -149,18 +154,6 @@ bool initGraph()
 		case 4: {world = "desert";		break;}
 		}
 
-		/*for (int j = 0; j < 1; j++)
-		{
-			std::string nr;
-			std::stringstream ss;
-			ss << j + 1;
-			nr = ss.str();
-			ss.clear();
-
-			std::string path = "graphics\\backgrounds\\" + world + "\\background-" + nr + ".png";
-			if (!t_background[i][j].loadFromFile(path))
-				return false;
-		}*/
 		std::string path = "graphics\\backgrounds\\" + world + "\\background-1.png";
 		if (!t_background[i].loadFromFile(path))
 			return false;
@@ -197,7 +190,7 @@ bool initGraph()
 	}
 
 	//NPC-Y
-	for (unsigned int i = 0; i < 5; i++)
+	for (unsigned int i = 0; i < g_all_npcs; i++)
 	{
 		std::string nr;
 		std::stringstream ss;
@@ -233,6 +226,7 @@ bool initGraph()
 		case 0: {character = "knight"; break;}
 		case 1: {character = "archer"; break;}
 		case 2: {character = "spy"; break;}
+		case 3: {character = "sorceress"; break;}
 		}
 
 		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
@@ -301,6 +295,14 @@ bool initGraph()
 		return false;
 	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
 		return false;
+	if (!t_up_arrow.loadFromFile("graphics\\others\\up_arrow.png"))
+		return false;
+	if (!t_down_arrow.loadFromFile("graphics\\others\\down_arrow.png"))
+		return false;
+	if (!t_left_arrow.loadFromFile("graphics\\others\\left_arrow.png"))
+		return false;
+	if (!t_right_arrow.loadFromFile("graphics\\others\\right_arrow.png"))
+		return false;
 	if (!t_checkbox.loadFromFile("graphics\\others\\checkbox.png"))
 		return false;
 	if (!t_profile_button.loadFromFile("graphics\\others\\profile_button.png"))
@@ -316,6 +318,8 @@ bool initGraph()
 	if (!t_selected_character.loadFromFile("graphics\\others\\selected_character.png"))
 		return false;
 	if (!t_passive_text.loadFromFile("graphics\\others\\passive_text.png"))
+		return false;
+	if (!t_magic_shield.loadFromFile("graphics\\others\\magic_shield.png"))
 		return false;
 
 	return true;

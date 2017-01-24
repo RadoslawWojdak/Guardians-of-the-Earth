@@ -1,22 +1,34 @@
 #include "menu.h"
 
-bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab)
+bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharacter character[], bool *modulators_tab, cScoreboard scoreboard[4], std::string &new_slot, std::string &loaded_slot)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
-
+	sf::Sprite background(t_background[0]);
+	
 	bool click = true;
 	bool end_loop = false;
 	short option = -1;
+	new_slot = "";
+	loaded_slot = "";
 
-	cButton button[4];
-	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 72), "New game");
-	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Load game");
-	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Options");
-	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 72), "Quit");
+	cButton button[6];
+	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 120), "New game");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 72), "Load game");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "High scores");
+	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Shop");
+	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 72), "Options");
+	button[5] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 120), "Quit");
 
 	cButton profile_button;
 	profile_button = cButton(sf::Vector2f(g_width - profile_button.getTextureRect().width - 32, 32), "", t_profile_button);
-	
+	sf::Text profile_name(profile.getName(), font[1], 30);
+	profile_name.setOrigin(0, profile_name.getGlobalBounds().height / 2);
+	profile_name.setPosition(g_width - profile_button.getTextureRect().width - 40 - profile_name.getGlobalBounds().width, profile_button.getPosition().y - 8);
+	sf::Text profile_cash(uIntToStr(profile.getCash()), font[1], 30);
+	profile_cash.setOrigin(0, profile_cash.getGlobalBounds().height / 2);
+	profile_cash.setPosition(32, profile_button.getPosition().y - 8);
+	profile_cash.setFillColor(sf::Color(255, 215, 0));
+
 	sf::Event ev;
 	do
 	{
@@ -24,11 +36,12 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 6; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
 			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
@@ -39,7 +52,7 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 			}
 		}
 		if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && profile_button.isMouseOver(win))
-			option = 4;
+			option = 6;
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			click = true;
@@ -50,29 +63,62 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 		{
 		case 0:	//Nowa gra
 		{
-			if (menuChooseNumberOfPlayers(win, players, modulators_tab))
+			while (!end_loop && menuChooseNumberOfPlayers(win, players, modulators_tab, profile))
 			{
-				if (menuSelectCharacters(win, players, character, modulators_tab))
-					end_loop = true;
+				while (!end_loop && menuSelectCharacters(win, players, character, modulators_tab))
+				{
+					new_slot = textDialog(win, L"New Game", "Write your new save slot's name:");
+					if (new_slot != "")
+					{
+						profile.addSaveSlot(win, new_slot);
+						end_loop = true;
+					}
+				}
 			}
 			break;
 		}
 		case 1:	//Wczytaj grê
 		{
+			loaded_slot = menuLoadGame(win, profile);
+			if (loaded_slot != "")
+				end_loop = true;
 			break;
 		}
-		case 2:	//Opcje
+		case 2:	//Najwy¿sze wyniki
+		{
+			menuHighScores(win, scoreboard);
+			break;
+		}
+		case 3: //Sklep
+		{
+			menuShop(win, profile);
+			profile_cash.setString(uIntToStr(profile.getCash()));
+			
+			break;
+		}
+		case 4:	//Opcje
 		{
 			menuOptions(win);
 			break;
 		}
-		case 3: //Wyjœcie
+		case 5: //Wyjœcie
 		{
-			return false;
+			if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+				return false;
+			break;
 		}
-		case 4:
+		case 6:
 		{
 			menuProfiles(win, profile);
+			
+			profile_name.setString(profile.getName());
+			profile_name.setOrigin(0, profile_name.getGlobalBounds().height / 2);
+			profile_name.setPosition(g_width - profile_button.getTextureRect().width - 40 - profile_name.getGlobalBounds().width, profile_button.getPosition().y - 8);
+
+			profile_name.setString(uIntToStr(profile.getCash()));
+			profile_name.setOrigin(0, profile_cash.getGlobalBounds().height / 2);
+			profile_name.setPosition(32, profile_button.getPosition().y - 8);
+
 			break;
 		}
 		}
@@ -80,9 +126,12 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
-		for (int i = 0; i < 4; i++)
+		win.draw(background);
+		for (int i = 0; i < 6; i++)
 			button[i].draw(win);
 		profile_button.draw(win);
+		win.draw(profile_name);
+		win.draw(profile_cash);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
@@ -91,29 +140,58 @@ bool mainMenu(sf::RenderWindow &win, cProfile &profile, short &players, eCharact
 	return false;
 }
 
-bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab)
+bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modulators_tab, cProfile &profile)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
 	bool back_pressed = false;
 
-	class cButton button[5];
+	cButton button[5];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 96), "1");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "2");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "3");
 	button[3] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "4");
 	button[4] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 96), "Back");
 
-	cCheckbox mod_checkbox[6];	//Checkbox'y - dla modulator
-	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 128, 255), modulators_tab[0]);
-	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(128, 255, 128), modulators_tab[1]);
-	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(128, 255, 128), modulators_tab[2]);
-	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 128, 128), modulators_tab[3]);
-	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 128, 128), modulators_tab[4]);
-	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 128, 128), modulators_tab[5]);
-	
+	cCheckbox mod_checkbox[g_all_modulators];	//Checkbox'y - dla modulator
+	float mod_score_multipler[g_all_modulators];
+	mod_checkbox[0] = cCheckbox(sf::Vector2f(0, 0), L"Random multipler amount of NPCs on the map (score multipler: no change)", sf::Color(0, 0, 255), modulators_tab[0]);
+	mod_checkbox[1] = cCheckbox(sf::Vector2f(0, 24), L"Extra jump (score multipler: -0.2)", sf::Color(0, 255, 0), modulators_tab[1]);
+	mod_checkbox[2] = cCheckbox(sf::Vector2f(0, 48), L"Discount \"-25%\" for a random item in the store (score multipler: -0.3)", sf::Color(0, 255, 0), modulators_tab[2]);
+	mod_checkbox[3] = cCheckbox(sf::Vector2f(0, 72), L"HP NPCs x2 (score multipler: +0.5)", sf::Color(255, 0, 0), modulators_tab[3]);
+	mod_checkbox[4] = cCheckbox(sf::Vector2f(0, 96), L"Treasures from the crates drop in random direction with random speeds (score multipler: +0.3)", sf::Color(255, 0, 0), modulators_tab[4]);
+	mod_checkbox[5] = cCheckbox(sf::Vector2f(0, 120), L"Speed NPCs x2 (score multipler: +0.2)", sf::Color(255, 0, 0), modulators_tab[5]);
+
+	mod_score_multipler[0] = 0.0f;
+	mod_score_multipler[1] = -0.2f;
+	mod_score_multipler[2] = -0.3f;
+	mod_score_multipler[3] = 0.5f;
+	mod_score_multipler[4] = 0.3f;
+	mod_score_multipler[5] = 0.2f;
+
+	for (int i = 0; i < g_unlocked_modulators; i++)
+	{
+		cShopItem item(UNLOCKED_MODULATOR, i);
+		sModulator modulator = item.getFeatures().modulator;
+		
+		std::string mulitipler_str;
+		std::stringstream ss;
+		ss << modulator.score_multipler;
+		mulitipler_str = ss.str();
+		
+		switch (modulator.type)
+		{
+		case MODULATOR_FACILIATING: {mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription() + " (score multipler: " + mulitipler_str + ")", (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(0, 255, 0) : sf::Color(128, 128, 128)), modulators_tab[6 + i]); break;}
+		case MODULATOR_NEUTRAL: {mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription() + " (score multipler: no change)", (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(0, 0, 255) : sf::Color(128, 128, 128)), modulators_tab[6 + i]); break;}
+		case MODULATOR_OBSTRUCTING: {mod_checkbox[6 + i] = cCheckbox(sf::Vector2f(0, 144 + i * 24), item.getDescription() + " (score multipler: +" + mulitipler_str + ")", (profile.isContentUnlocked(UNLOCKED_MODULATOR, i) ? sf::Color(255, 0, 0) : sf::Color(128, 128, 128)), modulators_tab[6 + i]); break;}
+		}
+
+		mod_score_multipler[6 + i] = modulator.score_multipler;
+	}
+
 	sf::Event ev;
 	do
 	{
@@ -121,7 +199,8 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -148,13 +227,24 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 		}
 
 		//Dzia³ania na checkbox'ach
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < g_all_modulators - g_unlocked_modulators; i++)
 		{
 			if (mod_checkbox[i].isMouseOver(win))
 			{
 				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 				{
 					mod_checkbox[i].clicked();
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < g_unlocked_modulators; i++)
+		{
+			if (mod_checkbox[i + (g_all_modulators - g_unlocked_modulators)].isMouseOver(win) && profile.isContentUnlocked(UNLOCKED_MODULATOR, i))
+			{
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+				{
+					mod_checkbox[i + (g_all_modulators - g_unlocked_modulators)].clicked();
 					break;
 				}
 			}
@@ -167,26 +257,19 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < 5; i++)
 			button[i].draw(win);
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < g_all_modulators; i++)
 			mod_checkbox[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
 
 	g_score_multipler = 1.0f;
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < g_all_modulators; i++)
 	{
 		modulators_tab[i] = mod_checkbox[i].isChecked();
-		
-		switch (i)
-		{
-		case 1: {g_score_multipler -= modulators_tab[i] * 0.2f; break;}
-		case 2: {g_score_multipler -= modulators_tab[i] * 0.3f; break;}
-		case 3: {g_score_multipler += modulators_tab[i] * 0.5f; break;}
-		case 4: {g_score_multipler += modulators_tab[i] * 0.3f; break;}
-		case 5: {g_score_multipler += modulators_tab[i] * 0.2f; break;}
-		}
+		g_score_multipler += modulators_tab[i] * mod_score_multipler[i];
 	}
 
 	if (win.isOpen() && !back_pressed)
@@ -197,6 +280,7 @@ bool menuChooseNumberOfPlayers(sf::RenderWindow &win, short &players, bool *modu
 bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter character[], bool *modulators_tab)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
@@ -207,23 +291,21 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 
 	sf::Sprite *selected_character = new sf::Sprite[players];
 
-	class cButton *button = new cButton[NUMBER_OF_BUTTONS];
+	cButton *button = new cButton[NUMBER_OF_BUTTONS];
 	for (int i = 0; i < players; i++)
 	{
 		character[i] = (eCharacter)0;
 
-		float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
-
 		selected_character[i].setTexture(t_selected_character);
 		selected_character[i].setOrigin(selected_character[i].getTextureRect().width / 2, selected_character[i].getTextureRect().height / 2);
-		selected_character[i].setPosition(start_x + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+		selected_character[i].setPosition(g_width / 2 - (float)CHARACTERS / 2 * 48 + 22, g_height / 2 + (i - players) * 48);
 
 		for (int j = 0; j < CHARACTERS; j++)
 		{
 			button[i * CHARACTERS + j] = cButton(sf::Vector2f(0, 0), "", t_character[j]);
 			button[i * CHARACTERS + j].setTextureRect(sf::IntRect(66, 0, 22, 32));
 			button[i * CHARACTERS + j].setOrigin(button[i * CHARACTERS + j].getTextureRect().width / 2, button[i * CHARACTERS + j].getTextureRect().height / 2);
-			button[i * CHARACTERS + j].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+			button[i * CHARACTERS + j].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 48);
 		}
 	}
 	button[NUMBER_OF_BUTTONS - 2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 8), "Start");
@@ -236,7 +318,8 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -249,7 +332,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && button[i * CHARACTERS + j].isMouseOver(win))
 				{
 					float start_x = g_width / 2 - (float)(players / 2) * (22 * CHARACTERS + 32) - 32;
-					selected_character[i].setPosition(start_x + j * 40 + i * (CHARACTERS + 1) * 40, g_height / 2 - 40);
+					selected_character[i].setPosition(g_width / 2 + (float)(j - (float)CHARACTERS / 2) * 48 + 22, g_height / 2 + (i - players) * 48);
 
 					character[i] = (eCharacter)j;
 					selected = true;
@@ -280,6 +363,7 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < players; i++)
 			win.draw(selected_character[i]);
 		for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
@@ -295,16 +379,18 @@ bool menuSelectCharacters(sf::RenderWindow &win, short players, eCharacter chara
 bool menuOptions(sf::RenderWindow &win)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
 
-	class cButton button[2];
+	cButton button[3];
 	if (g_fullscreen)
-		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Fullscreen");
+		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Fullscreen");
 	else
-		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 24), "Windowed");
-	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 24), "Back");
+		button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Windowed");
+	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Control Settings");
+	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Back");
 
 
 	sf::Event ev;
@@ -314,17 +400,20 @@ bool menuOptions(sf::RenderWindow &win)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			bool is_mouse_over = button[i].isMouseOver(win);
 			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
 			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
 			{
-				if (i == 0)
+				switch (i)
+				{
+				case 0:
 				{
 					if (g_fullscreen)
 					{
@@ -340,9 +429,16 @@ bool menuOptions(sf::RenderWindow &win)
 					win.close();
 					win.create(sf::VideoMode(g_width, g_height, 32), "Guardians of the Earth", (g_fullscreen ? sf::Style::Fullscreen : sf::Style::Close));
 					win.setFramerateLimit(g_framerate_limit);
+
+					break;
 				}
-				else if (i == 1)
-					return false;
+				case 1:
+				{
+					menuControlSettings(win);
+					break;
+				}
+				case 2: return false;
+				}
 				break;
 			}
 		}
@@ -354,7 +450,253 @@ bool menuOptions(sf::RenderWindow &win)
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
+		for (int i = 0; i < 3; i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
+
+bool menuControlSettings(sf::RenderWindow &win)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+
+	cButton *button = new cButton[4 * 8 + 2];
+	for (int i = 0; i < 4; i++)	//Gracze
+	{
+		if (g_key[i].is_pad == true)
+		{
+			sf::String pad = "PAD " + (char)(g_key[i].pad + 48);
+			unsigned int pad_no = g_key[i].pad;
+
+			button[i * 8] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * 4.5), pad, t_button, sf::Color(0, 128, 0));
+
+			button[i * 8 + 1] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (3.5)), "Up");
+			button[i * 8 + 2] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (2.5)), "Down");
+			button[i * 8 + 3] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (1.5)), "Left");
+			button[i * 8 + 4] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (0.5)), "Right");
+			button[i * 8 + 5] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-0.5)), (char)(g_key[i].jump.button + 48));
+			button[i * 8 + 6] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-1.5)), (char)(g_key[i].fire.button + 48));
+			button[i * 8 + 7] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-2.5)), (char)(g_key[i].special1.button + 48));
+		}
+		else
+		{
+			button[i * 8] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (4.5)), "KEYBOARD", t_button, sf::Color(0, 128, 0));
+
+			button[i * 8 + 1] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (3.5)), keyToStr(g_key[i].up.key));
+			button[i * 8 + 2] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (2.5)), keyToStr(g_key[i].down.key));
+			button[i * 8 + 3] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (1.5)), keyToStr(g_key[i].left.key));
+			button[i * 8 + 4] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (0.5)), keyToStr(g_key[i].right.key));
+			button[i * 8 + 5] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-0.5)), keyToStr(g_key[i].jump.key));
+			button[i * 8 + 6] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-1.5)), keyToStr(g_key[i].fire.key));
+			button[i * 8 + 7] = cButton(sf::Vector2f(g_width / 2 - 160 * (1.5 - i), g_height / 2 - 48 * (-2.5)), keyToStr(g_key[i].special1.key));
+		}
+	}
+	button[4 * 8] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48 * (-3.5)), "Back");
+	button[4 * 8 + 1] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48 * (-4.5)), "Default");
+
+
+	sf::Event ev;
+	do
+	{
+		for (int i = 0; i < 4; i++)	//Gracze
+		{
+			if (g_key[i].is_pad == true)
+			{
+				std::string button_text("PAD ");
+				button_text += (char)(g_key[i].pad + 48);
+				button[i * 8].setText(button_text);
+
+				button_text = (g_key[i].jump.button / 10 > 0 ? (char)((g_key[i].jump.button / 10) + 48) : ' ');
+				button_text += (char)((g_key[i].jump.button % 10) + 48);
+				button[i * 8 + 5].setText(button_text);
+				
+				button_text = (g_key[i].fire.button / 10 > 0 ? (char)((g_key[i].fire.button / 10) + 48) : ' ');
+				button_text += (char)((g_key[i].fire.button % 10) + 48);
+				button[i * 8 + 6].setText(button_text);
+				
+				button_text = (g_key[i].special1.button / 10 > 0 ? (char)((g_key[i].special1.button / 10) + 48) : ' ');
+				button_text += (char)((g_key[i].special1.button % 10) + 48);
+				button[i * 8 + 7].setText(button_text);
+			}
+			else
+			{
+				button[i * 8].setText("KEYBOARD");
+
+				button[i * 8 + 1].setText(keyToStr(g_key[i].up.key));
+				button[i * 8 + 2].setText(keyToStr(g_key[i].down.key));
+				button[i * 8 + 3].setText(keyToStr(g_key[i].left.key));
+				button[i * 8 + 4].setText(keyToStr(g_key[i].right.key));
+				button[i * 8 + 5].setText(keyToStr(g_key[i].jump.key));
+				button[i * 8 + 6].setText(keyToStr(g_key[i].fire.key));
+				button[i * 8 + 7].setText(keyToStr(g_key[i].special1.key));
+			}
+		}
+
+
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				bool is_mouse_over = button[i * 8 + j].isMouseOver(win);
+				button[i * 8 + j].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+				{
+					switch (j)
+					{
+					case 0:	//Wybieranie urz¹dzenia na którym gracz bêdzie graæ (Klawiatura / Joystick)
+					{
+						bool selected_device = false;
+						do
+						{
+							win.pollEvent(ev);
+
+							if (ev.type == sf::Event::Closed)
+							{
+								if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+								{
+									win.close();
+									break;
+								}
+							}
+							if (ev.type == sf::Event::KeyPressed)
+							{
+								selected_device = true;
+								if (g_key[i].is_pad)
+								{
+									g_key[i].is_pad = false;
+
+									g_key[i].jump.button = -1;
+									g_key[i].fire.button = -1;
+									g_key[i].special1.button = -1;
+								}
+							}
+
+							unsigned int i = 0;
+							while (sf::Joystick::isConnected(i))
+							{
+								unsigned int j = 0;
+								while (j < sf::Joystick::getButtonCount(i))
+								{
+									if (sf::Joystick::isButtonPressed(i, j))
+									{
+										selected_device = true;
+										g_key[i].pad = i;
+
+										if (!g_key[i].is_pad)
+										{
+											g_key[i].is_pad = true;
+											g_key[i].up.button = -1;
+											g_key[i].down.button = -1;
+											g_key[i].left.button = -1;
+											g_key[i].right.button = -1;
+											g_key[i].jump.button = -1;
+											g_key[i].fire.button = -1;
+											g_key[i].special1.button = -1;
+										}
+									}
+									j++;
+								}
+								i++;
+							}
+						} while (!selected_device);
+
+						break;
+					}		//!Wybieranie urz¹dzenia na którym gracz bêdzie graæ (Klawiatura / Joystick)
+					default:	//Wybieranie przycisku za pomoc¹ którego gracz bêdzie wykonywa³ dan¹ czynnoœæ
+					{
+						bool selected_button = false;
+						if (g_key[i].is_pad && (j == 1 || j == 2 || j == 3 || j == 4))	//Na joysticku mo¿na siê poruszaæ jedynie za pomoc¹ osi
+							selected_button = true;
+
+						while (!selected_button)
+						{
+							win.pollEvent(ev);
+
+							if (ev.type == sf::Event::Closed)
+							{
+								if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+								{
+									win.close();
+									break;
+								}
+							}
+
+							if (ev.type == sf::Event::KeyPressed && !g_key[i].is_pad)
+							{
+								selected_button = true;
+
+								switch (j)
+								{
+								case 1: {g_key[i].up.key = ev.key.code; break;}
+								case 2: {g_key[i].down.key = ev.key.code; break;}
+								case 3: {g_key[i].left.key = ev.key.code; break;}
+								case 4: {g_key[i].right.key = ev.key.code; break;}
+								case 5: {g_key[i].jump.key = ev.key.code; break;}
+								case 6: {g_key[i].fire.key = ev.key.code; break;}
+								case 7: {g_key[i].special1.key = ev.key.code; break;}
+								}
+							}
+							else if (ev.type == sf::Event::JoystickButtonPressed && ev.joystickButton.joystickId == g_key[i].pad && g_key[i].is_pad)
+							{
+								selected_button = true;
+
+								switch (j)
+								{
+								case 5: {g_key[i].jump.button = ev.joystickButton.button; break;}
+								case 6: {g_key[i].fire.button = ev.joystickButton.button; break;}
+								case 7: {g_key[i].special1.button = ev.joystickButton.button; break;}
+								}
+							}
+						}
+
+						break;
+					}	//!Wybieranie przycisku za pomoc¹ którego gracz bêdzie wykonywa³ dan¹ czynnoœæ
+					}
+				}
+			}
+		}
+		//Przycisk wstecz
 		for (int i = 0; i < 2; i++)
+		{
+			bool is_mouse_over = button[4 * 8 + i].isMouseOver(win);
+			button[4 * 8 + i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				switch (i)
+				{
+				case 0: {end_loop = true; break;}
+				case 1: {initControlKeys(); break;}
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+		for (int i = 0; i < 4 * 8 + 2; i++)
 			button[i].draw(win);
 		win.display();
 	} while (win.isOpen() && !end_loop);
@@ -367,11 +709,12 @@ bool menuOptions(sf::RenderWindow &win)
 bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 {
 	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
 
 	bool click = true;
 	bool end_loop = false;
 
-	class cButton button[3];
+	cButton button[3];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "New Profile");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Load Profile");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Back");
@@ -384,7 +727,8 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
@@ -398,18 +742,18 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 				{
 				case 0:
 				{
-					std::string name;
-					std::cout << "Write your new profile name: ";
-					std::cin >> name;
-					profile.newProfile(name);
+					std::string name = textDialog(win, "New Profile", "Enter the player's name.");
+					
+					if (name != "")
+						profile.newProfile(win, name);
 					break;
 				}
 				case 1:
 				{
-					std::string name;
-					std::cout << "Write your profile name: ";
-					std::cin >> name;
-					profile.loadProfile(name);
+					std::string name = textDialog(win, "Load Profile", "Enter the player's name.");
+
+					if (name != "")
+						profile.loadProfile(win, name);
 					break;
 				}
 				case 2:
@@ -428,6 +772,7 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 
 		//WYŒWIETLANIE GRAFIKI
 		win.clear();
+		win.draw(background);
 		for (int i = 0; i < 3; i++)
 			button[i].draw(win);
 		win.display();
@@ -436,6 +781,447 @@ bool menuProfiles(sf::RenderWindow &win, cProfile &profile)
 	if (win.isOpen())
 		return true;
 	return false;
+}
+
+bool menuHighScores(sf::RenderWindow &win, cScoreboard scoreboard[4])
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+
+	cButton button[4];
+	button[0] = cButton(sf::Vector2f(g_width / 2, 48), "1 Player");
+	button[1] = cButton(sf::Vector2f(g_width / 2 - t_button.getSize().x / 2 - t_left_arrow.getSize().x / 2 - 8, 48), "", t_left_arrow);
+	button[2] = cButton(sf::Vector2f(g_width / 2 + t_button.getSize().x / 2 + t_right_arrow.getSize().x / 2 + 8, 48), "", t_right_arrow);
+	button[3] = cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back");
+
+
+	short high_score_id = 1;
+
+	sf::Text name[g_scoreboard_size];
+	sf::Text score[g_scoreboard_size];
+
+	for (int i = 0; i < g_scoreboard_size; i++)
+	{
+		name[i].setString(scoreboard[high_score_id - 1].getScoreRegistry(i).name);
+		name[i].setCharacterSize(12);
+		name[i].setFillColor(sf::Color());
+		name[i].setFont(font[1]);
+		name[i].setPosition((int)(g_width / 2 - name[i].getGlobalBounds().width - 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+
+		std::string score_str = uIntToStr(scoreboard[high_score_id - 1].getScoreRegistry(i).score);
+		
+		score[i].setString(score_str);
+		score[i].setCharacterSize(12);
+		score[i].setFillColor(sf::Color());
+		score[i].setFont(font[1]);
+		score[i].setPosition((int)(g_width / 2 + 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+	}
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 1; i < 4; i++)
+		{
+			bool is_mouse_over = button[i].isMouseOver(win);
+			button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+			{
+				switch (i)
+				{
+				case 1:
+				{
+					high_score_id--;
+					if (high_score_id < 1)
+						high_score_id = 4;
+
+					break;
+				}
+				case 2:
+				{
+					high_score_id++;
+					if (high_score_id > 4)
+						high_score_id = 1;
+
+					break;
+				}
+				case 3:
+				{
+					return false;
+				}
+				}
+
+				//Nazwa tabeli wyników
+				sf::String text = (char)(high_score_id + 48);
+				text += " Player";
+				if (high_score_id != 1)
+					text += 's';
+				button[0].setText(text);
+
+				//Dostosowanie wyników (aktualna tabela)
+				for (int i = 0; i < g_scoreboard_size; i++)
+				{
+					name[i].setString(scoreboard[high_score_id - 1].getScoreRegistry(i).name);
+					name[i].setPosition((int)(g_width / 2 - name[i].getGlobalBounds().width - 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+					
+					std::string score_str = uIntToStr(scoreboard[high_score_id - 1].getScoreRegistry(i).score);
+					
+					score[i].setString(score_str);
+					score[i].setPosition((int)(g_width / 2 + 12), (int)((g_height / 2 - (float)g_scoreboard_size / 2 * 22) + i * 22 + name[i].getGlobalBounds().height / 2));
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+		for (int i = 0; i < 4; i++)
+			button[i].draw(win);
+		for (int i = 0; i < g_scoreboard_size; i++)
+		{
+			win.draw(name[i]);
+			win.draw(score[i]);
+		}
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
+
+bool menuShop(sf::RenderWindow &win, cProfile &profile)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+	short option = -1;
+
+	int first_displayed = 0;	//Pierwszy przedmiot w sklepie
+	const int DISPLAY = 8;		//Ile przedmiotów ma byæ wyœwietlonych
+	const int SHOP_MODULATORS = g_unlocked_modulators;
+	const int SHOP_NPCS = g_unlocked_npcs;
+	const int SHOP_ITEMS = SHOP_MODULATORS;	//Wszystkie przedmioty w sklepie
+
+	std::vector <cButton> button;
+	std::vector <cShopItem> item;
+
+	int available_modulators = 0;
+	int available_npcs = 0;
+	int available_items = 0;
+
+	for (int i = 0; i < SHOP_MODULATORS; i++)
+	{
+		if (!profile.isContentUnlocked(UNLOCKED_MODULATOR, i))
+		{
+			item.push_back(cShopItem(UNLOCKED_MODULATOR, i));
+			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
+			available_modulators++;
+			available_items++;
+		}
+	}
+	for (int i = 0; i < SHOP_NPCS; i++)
+	{
+		if (!profile.isContentUnlocked(UNLOCKED_NPC, i))
+		{
+			item.push_back(cShopItem(UNLOCKED_NPC, i));
+			button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (available_modulators - (float)DISPLAY / 2 + 0.5f) * 48), item[available_modulators].getName()));
+			available_npcs++;
+			available_items++;
+		}
+	}
+
+	button.push_back(cButton(sf::Vector2f(g_width / 2, 48), "Shop"));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 - ((float)DISPLAY / 2 + 0.25f) * 48), "", t_up_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + ((float)DISPLAY / 2 + 0.25f) * 48), "", t_down_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back"));
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		for (int i = 0; i < button.size(); i++)
+		{
+			if (i > item.size() || (i >= first_displayed && i < first_displayed + DISPLAY - (DISPLAY > available_items ? (DISPLAY - available_items) : 0)))
+			{
+				bool is_mouse_over = button[i].isMouseOver(win);
+				button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+				if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && is_mouse_over)
+				{
+					option = i;
+					break;
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		if (option >= 0 && option < available_modulators)	//Modulatory
+		{
+			if (item[option].viewPurchase(win))
+			{
+				if (profile.subractractCash(item[option].getPrice()))
+				{
+					profile.unlockContent(UNLOCKED_MODULATOR, item[option].getFeatures().modulator.id);
+					profile.saveProfile(win);
+
+					button.erase(button.begin() + option);
+					item.erase(item.begin() + option);
+					available_modulators--;
+
+					for (int i = 0; i < button.size() - 4; i++)
+						button[i].setPosition(g_width / 2, g_height / 2 + (i - (float)(DISPLAY + first_displayed * 2) / 2 + 0.5f) * 48);
+				}
+			}
+		}
+		else if (option >= available_modulators && option < available_modulators + available_npcs)	//NPC-y
+		{
+			if (item[option].viewPurchase(win))
+			{
+				if (profile.subractractCash(item[option].getPrice()))
+				{
+					profile.unlockContent(UNLOCKED_NPC, item[option].getFeatures().id);
+					profile.saveProfile(win);
+
+					button.erase(button.begin() + option);
+					item.erase(item.begin() + option);
+					available_npcs--;
+
+					for (int i = 0; i < button.size() - 4; i++)
+						button[i].setPosition(g_width / 2, g_height / 2 + (i - (float)(DISPLAY + first_displayed * 2) / 2 + 0.5f) * 48);
+				}
+			}
+		}
+
+
+		if (option == item.size() + 1)	//Strza³ka w górê
+		{
+			first_displayed--;
+			if (first_displayed < 0)
+				first_displayed = 0;
+			else
+			{
+				for (int i = 0; i < item.size(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y + 48);
+			}
+		}
+		else if (option == item.size() + 2)	//Strza³ka w dó³
+		{
+			first_displayed++;
+			if (first_displayed + DISPLAY > SHOP_ITEMS)
+				first_displayed = first_displayed--;
+			else
+			{
+				for (int i = 0; i < item.size(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y - 48);
+			}
+		}
+		else if (option == item.size() + 3)	//Wstecz
+		{
+			return false;
+		}
+		option = -1;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+
+		//Wyœwietlanie przedmiotów w sklepie
+		for (int i = first_displayed; i < first_displayed + DISPLAY; i++)
+		{
+			if (i >= item.size())
+				break;
+			else
+				button[i].draw(win);
+		}
+
+		for (int i = item.size(); i < button.size(); i++)
+			button[i].draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	if (win.isOpen())
+		return true;
+	return false;
+}
+
+std::string menuLoadGame(sf::RenderWindow &win, cProfile &profile)
+{
+	win.setView(sf::View(sf::FloatRect(0, 0, g_width, g_height)));
+	sf::Sprite background(t_background[0]);
+
+	bool click = true;
+	bool end_loop = false;
+	short option = -1;
+
+	int first_displayed = 0;	//Pierwszy slot zapisu
+	const int DISPLAY = 8;		//Ile slotów zapisu ma byæ wyœwietlonych
+	
+	std::vector <cButton> button;
+
+	for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+		button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + (i - (float)DISPLAY / 2 + 0.5f) * 48), profile.getSaveSlotName(i)));
+
+	button.push_back(cButton(sf::Vector2f(g_width / 2, 48), "Load game"));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 - ((float)DISPLAY / 2 + 0.25f) * 48), "", t_up_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height / 2 + ((float)DISPLAY / 2 + 0.25f) * 48), "", t_down_arrow));
+	button.push_back(cButton(sf::Vector2f(g_width / 2, g_height - 48), "Back"));
+
+	bool delete_slot;
+	int delete_id = 0;
+	cButton delete_button(sf::Vector2f(0.0f, 0.0f), "", t_close_button);	//Przycisk usuwania slotu zapisu
+	if (profile.getNumberOfSaveSlots() > 0)
+		delete_button.setPosition(button[first_displayed].getPosition().x + button[first_displayed].getTextureRect().width / 2 + delete_button.getTextureRect().width / 2 + 8, button[first_displayed].getPosition().y);
+
+	sf::Event ev;
+	do
+	{
+		//WYDARZENIA
+		while (win.pollEvent(ev))
+		{
+			if (ev.type == sf::Event::Closed)
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
+		}
+
+		//DZIA£ANIA NA MENU
+		delete_slot = false;
+
+		for (int i = 0; i < button.size(); i++)
+		{
+			if (i > profile.getNumberOfSaveSlots() || (i >= first_displayed && i < first_displayed + DISPLAY - (DISPLAY > profile.getNumberOfSaveSlots() ? (DISPLAY- profile.getNumberOfSaveSlots()) : 0)))
+			{
+				bool is_mouse_over = button[i].isMouseOver(win);
+				button[i].changeGraphics(is_mouse_over, sf::Color(255, 192, 0));
+				if (is_mouse_over)
+				{
+					//Przycisk usuwania slotu zapisu
+					if (i < profile.getNumberOfSaveSlots())
+					{
+						delete_button.setPosition(button[i].getPosition().x + button[i].getTextureRect().width / 2 + delete_button.getTextureRect().width / 2 + 8, button[i].getPosition().y);
+						delete_id = i;
+					}
+
+					if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+					{
+						option = i;
+						break;
+					}
+				}
+			}
+		}
+
+		if (delete_button.isMouseOver(win))
+		{
+			if (!click && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			{
+				option = delete_id;
+				delete_slot = true;
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			click = true;
+		else
+			click = false;
+
+		if (option >= 0 && option < profile.getNumberOfSaveSlots())	//Przyciski slotów zapisu
+		{
+			if (delete_slot)
+			{
+				if (yesNoDialog(win, "Removal save slot", "Are you sure you want to delete \"" + profile.getSaveSlotName(option) + "\""))
+				{
+					profile.deleteSaveSlot(win, profile.getSaveSlotName(option));
+					profile.saveProfile(win);
+
+					button.erase(button.begin() + option);
+					for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+						button[i].setPosition(g_width / 2, g_height / 2 + (i - (float)(DISPLAY + first_displayed * 2) / 2 + 0.5f) * 48);
+				}
+			}
+			else
+				return profile.getSaveSlotName(option);
+		}
+
+		if (option == profile.getNumberOfSaveSlots() + 1)	//Strza³ka w górê
+		{
+			first_displayed--;
+			if (first_displayed < 0)
+				first_displayed = 0;
+			else
+			{
+				for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y + 48);
+			}
+		}
+		else if (option == profile.getNumberOfSaveSlots() + 2)	//Strza³ka w dó³
+		{
+			first_displayed++;
+			if (first_displayed + DISPLAY > profile.getNumberOfSaveSlots())
+				first_displayed = first_displayed--;
+			else
+			{
+				for (int i = 0; i < profile.getNumberOfSaveSlots(); i++)
+					button[i].setPosition(button[i].getPosition().x, button[i].getPosition().y - 48);
+			}
+		}
+		else if (option == profile.getNumberOfSaveSlots() + 3)	//Wstecz
+		{
+			return "";
+		}
+		option = -1;
+
+		//WYŒWIETLANIE GRAFIKI
+		win.clear();
+		win.draw(background);
+
+		//Wyœwietlanie przedmiotów w sklepie
+		for (int i = first_displayed; i < first_displayed + DISPLAY; i++)
+		{
+			if (i >= profile.getNumberOfSaveSlots())
+				break;
+			else
+				button[i].draw(win);
+		}
+
+		for (int i = profile.getNumberOfSaveSlots(); i < button.size(); i++)
+			button[i].draw(win);
+
+		if (profile.getNumberOfSaveSlots() > 0)
+			delete_button.draw(win);
+		win.display();
+	} while (win.isOpen() && !end_loop);
+
+	return "";
 }
 
 
@@ -466,13 +1252,14 @@ bool menuSkillTree(sf::RenderWindow &win, std::vector <cCharacter*> &player)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU
 		for (unsigned short i = 0; i < player.size(); i++)
 		{
-			sControlKeys key = player[i]->getControlKeys();
+			sControlKeys key = g_key[player[i]->getPlayerNo() - 1];
 			if (!key_pressed[i])
 			{
 				if (!key.is_pad)
@@ -706,7 +1493,7 @@ bool menuPause(sf::RenderWindow &win)
 	window.setPosition(sf::Vector2f(g_width / 2, g_height / 2));
 
 	//Tworzenie przycisków
-	class cButton button[3];
+	cButton button[3];
 	button[0] = cButton(sf::Vector2f(g_width / 2, g_height / 2 - 48), "Back to game");
 	button[1] = cButton(sf::Vector2f(g_width / 2, g_height / 2), "Options");
 	button[2] = cButton(sf::Vector2f(g_width / 2, g_height / 2 + 48), "Exit game");
@@ -722,7 +1509,8 @@ bool menuPause(sf::RenderWindow &win)
 		while (win.pollEvent(ev))
 		{
 			if (ev.type == sf::Event::Closed)
-				win.close();
+				if (yesNoDialog(win, L"Exit", L"Do you want to leave the game?"))
+					win.close();
 		}
 
 		//DZIA£ANIA NA MENU

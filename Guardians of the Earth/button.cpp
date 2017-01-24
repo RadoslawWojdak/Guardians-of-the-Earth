@@ -44,8 +44,8 @@ void cButton::setText(sf::String str)
 	this->text.setCharacterSize(14);
 	this->text.setString(str);
 	this->text.setFillColor(this->text_color);
-	this->text.setOrigin(this->text.getGlobalBounds().width / 2, this->text.getGlobalBounds().height / 2);
-	this->text.setPosition(this->getPosition().x, this->getPosition().y);
+	this->text.setOrigin((int)(this->text.getGlobalBounds().width / 2), (int)(this->text.getGlobalBounds().height / 2));
+	this->text.setPosition((int)(this->getPosition().x), (int)(this->getPosition().y - 2));
 }
 
 sf::String cButton::getString()

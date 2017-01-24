@@ -24,7 +24,7 @@ class cTreasure :public cObjectLevel
 	bool physics;	//Czy na skarb dzia³a fizyka? (ruch, grawitacja, itd.)
 
 public:
-	cTreasure(b2World *physics_world, eWorld world_type, sf::Vector2f pos, bool physics = false, float speed_x = 0, float speed_y = 0);
+	cTreasure(b2World &physics_world, eWorld world_type, sf::Vector2f pos, bool physics = false, float speed_x = 0, float speed_y = 0);
 
 	void step(eWorld world_type, sf::Vector2i world_size, bool *fluid_tab);
 

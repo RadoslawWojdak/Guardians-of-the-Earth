@@ -5,6 +5,7 @@
 
 enum eCategory
 {
+	CAT_EMPTY = -1,
 	CAT_GROUND = 0,
 	CAT_BLOCK = 1,
 	CAT_BONUS_BLOCK = 2,
@@ -23,7 +24,8 @@ enum eCharacterAnimationType
 	ANIMATION_JUMPING = 2,
 	ANIMATION_CLIMBING = 3,
 	ANIMATION_SWIMMING = 4,
-	ANIMATION_SPECIAL1 = 5
+	ANIMATION_SPECIAL1 = 5,
+	ANIMATION_SPECIAL2 = 6
 };
 
 enum eBackgroundType
@@ -62,7 +64,8 @@ enum eCharacter
 {
 	CHARACTER_KNIGHT = 0,
 	CHARACTER_ARCHER = 1,
-	CHARACTER_SPY = 2
+	CHARACTER_SPY = 2,
+	CHARACTER_SORCERESS = 3
 };
 
 enum eObjType	//typ objektu znajdujacego sie na sektorze - blok/ziemia/bonus/npc/...
@@ -95,6 +98,19 @@ enum eFluidType
 	FLUID_WATER = 1,
 	FLUID_ICE = 2,
 	FLUID_QUICKSAND = 3
+};
+
+enum eUnlockedType	//NIE ZMIENIAÆ WARTOŒCI (S¥ W KOLEJNOŒCI ZAPISYWANIA DO PLIKU)
+{
+	UNLOCKED_MODULATOR = 0,
+	UNLOCKED_NPC = 1
+};
+
+enum eModulatorType
+{
+	MODULATOR_FACILIATING = 0,
+	MODULATOR_NEUTRAL = 1,
+	MODULATOR_OBSTRUCTING = 2
 };
 
 #endif //!enums_h

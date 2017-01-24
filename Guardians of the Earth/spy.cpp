@@ -1,10 +1,10 @@
 #include "spy.h"
 
-cSpy::cSpy(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cSpy::cSpy(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_SPY;
-	this->setTexture(t_character[2]);
+	this->setTexture(t_character[this->character_type]);
 
 	this->can_crush = false;
 
@@ -20,6 +20,22 @@ cSpy::cSpy(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short pl
 	{
 		this->bonus_sprite[i].setTexture(t_characters_bonus_icon[this->character_type][i]);
 		this->bonus_sprite[i].setColor(sf::Color(this->bonus_sprite[i].getColor().g, this->bonus_sprite[i].getColor().b, this->bonus_sprite[i].getColor().a, 192));
+	}
+}
+
+void cSpy::loadCharacter(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	this->loadParameters(lvl, exp, skill_point, number_of_skill, pet_hp, bonus, life, score, cash, has_taser);
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < number_of_skill[i]; j++)
+		{
+			this->addSkill(i + 1);
+
+			this->number_of_skill[i - 1]--;
+			this->skill_points++;
+		}
 	}
 }
 
@@ -106,7 +122,7 @@ bool cSpy::canUseTaser()
 	return false;
 }
 
-void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cSpy::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (!this->isDead())
 	{
@@ -133,7 +149,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 				this->animationSwimming();
 		}
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > 1.0f))
 		{
 			this->dir = DIR_RIGHT;
 
@@ -149,7 +165,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < -1.0f))
 		{
 			this->dir = DIR_LEFT;
 
@@ -165,13 +181,13 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.up.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].up.button)))
 			this->dir = DIR_UP;
-		else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.down.button)))
+		else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].down.button)))
 			this->dir = DIR_DOWN;
 
 		//Gdy nie jest naciœniêty ¿aden z klawiszy (lewo, prawo), to postaæ zaczyna siê zatrzymywaæ
-		if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.right.key) && !sf::Keyboard::isKeyPressed(this->key.left.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > -1.0f)))
+		if ((!g_key[this->player_no - 1].is_pad && (!sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key) && !sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > -1.0f)))
 		{
 			if (this->can_jump && !this->is_on_ladder && !this->isShooting())
 				this->animationStanding();
@@ -189,7 +205,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 			}
 		}
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 		{
 			if (!stop_jump)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
@@ -206,7 +222,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 		else
 			this->stop_jump = true;
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.fire.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.fire.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].fire.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].fire.button)))
 		{
 			if (!this->fire)
 			{
@@ -220,7 +236,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 		else
 			this->fire = false;
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.special1.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.special1.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].special1.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].special1.button)))
 		{
 			if (this->bonus[1] > 0 && !this->isInvisibility())
 			{
@@ -231,7 +247,7 @@ void cSpy::control(b2World *physics_world, eWorld world_type, std::vector <cBull
 	}
 }
 
-void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
+void cSpy::specialCollisions(b2World &physics_world, eWorld world_type, bool *modulators, std::vector <cNPC> &npc, std::vector <cPowerUp> &power_up, std::vector <cTreasure> &treasure, std::vector <cFluid> &fluid, std::vector <cTrampoline> &trampoline, std::vector <cLadder> &ladder, std::vector <cBonusBlock> &bonus_block)
 {
 	if (!this->isDead())
 	{
@@ -269,7 +285,7 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 						}
 					}
 
-					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 					{
 						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
@@ -283,7 +299,15 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 				{
 					if (!this->canUseTaser())
 					{
-						if (!this->isInviolability())
+						if (this->hasMagicShield())
+						{
+							this->turnOffMagicShield();
+
+							npc[i].kill();
+							this->addStatsForNPC(npc[i]);
+							npc.erase(npc.begin() + i);
+						}
+						else if (!this->isInviolability())
 							this->beenHit();
 					}
 					else
@@ -340,7 +364,7 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 		{
 			if (this->getGlobalBounds().intersects(trampoline[i].getGlobalBounds()))
 			{
-				if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+				if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 				{
 					this->jump(-6.0f - this->extra_height_of_jump);
 					this->stop_jump = false;
@@ -361,7 +385,7 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 			{
 				ladder_collision = true;
 
-				if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) || sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+				if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) || sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f || sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 				{
 					this->dir = DIR_UP;
 
@@ -370,16 +394,16 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 					this->stop_jump = true;
 					this->can_jump = true;
 
-					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f))
 					{
 						this->dir = DIR_UP;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, -(this->max_speed_x + this->extra_speed) * 0.39f));
 						if (!this->isSpecial1())
 							this->animationClimbing(true);
 					}
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f))
 					{
 						this->dir = DIR_DOWN;
 						this->body->SetLinearVelocity(b2Vec2(0.0f, (this->max_speed_x + this->extra_speed) * 0.39f));
@@ -394,23 +418,23 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));	//Dziêki temu postaæ bêdzie siê natychmiastowo zatrzymywaæ, gdy gracz póœci klawisz w bok (lewo lub prawo)
 
-					if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.up.key) && !sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (!sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && !sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, 0.0f));
 
-					if ((!this->key.is_pad && (sf::Keyboard::isKeyPressed(this->key.up.key) && sf::Keyboard::isKeyPressed(this->key.down.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::Y) > 1.0f)))
+					if ((!g_key[this->player_no - 1].is_pad && (sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key) && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) < -1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::Y) > 1.0f)))
 						this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < -1.0f))
 					{
 						this->dir = DIR_LEFT;
 						this->body->SetLinearVelocity(b2Vec2(-(this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
-					else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+					else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > 1.0f))
 					{
 						this->dir = DIR_RIGHT;
 						this->body->SetLinearVelocity(b2Vec2((this->max_speed_x + this->extra_speed) * 0.222f, this->body->GetLinearVelocity().y));
 					}
 
-					if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+					if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 					{
 						this->jump(-5.0f - this->extra_height_of_jump);
 						this->stop_jump = false;
@@ -426,26 +450,27 @@ void cSpy::specialCollisions(b2World *physics_world, eWorld world_type, bool *mo
 	}
 }
 
-void cSpy::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
+void cSpy::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
 	if (this->bonus[0] > 0)
 	{
 		this->bonus[0]--;
 
 		if (shot_direction == DIR_UP)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(0.0f, -15.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(0.0f, -15.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], false, this->player_no));
 		else if (shot_direction == DIR_DOWN)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(0.0f, 15.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(0.0f, 15.0f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], false, this->player_no));
 		else if (shot_direction == DIR_LEFT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(-15.0f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(-15.0f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], false, this->player_no));
 		else if (shot_direction == DIR_RIGHT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(15.0f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[2][0], false, b2Vec2(15.0f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f + this->number_of_skill[0] * 0.5f, 1, this->number_of_skill[1], false, this->player_no));
 	}
 }
 
-void cSpy::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cSpy::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
+	this->magicShieldCountdown();
 	//Timer u¿ywania bonusu 1
 	if (this->isShooting())
 	{

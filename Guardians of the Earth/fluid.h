@@ -7,7 +7,7 @@
 #include "graphics.h"
 #include "enums.h"
 
-void fluidInit(b2World *physics_world);
+void fluidInit(b2World &physics_world);
 
 class cFluid :public cObjectLevel
 {
@@ -23,7 +23,7 @@ public:
 
 	void graphicsCustomize(eWorld world_type, sf::Vector2u map_size, bool *another_object_exists, sf::Vector2i grid_size);	//another_object_exists - ka¿dy obiekt któr sprawia, ¿e woda bêdzie ca³kowicie zape³niona
 
-	void resetMainParameters(b2World *physics_world);	//Resetowanie parametrów nale¿¹cych do wszystkich gruntów (statycznych)
+	void resetMainParameters(b2World &physics_world);	//Resetowanie parametrów nale¿¹cych do wszystkich gruntów (statycznych)
 
 	b2Body *getBody();
 };

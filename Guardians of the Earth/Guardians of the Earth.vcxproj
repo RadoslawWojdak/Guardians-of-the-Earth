@@ -76,6 +76,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -111,6 +114,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="actionOnText.cpp" />
     <ClCompile Include="animatedObjectLevel.cpp" />
     <ClCompile Include="archer.cpp" />
     <ClCompile Include="backgroundobject.cpp" />
@@ -122,6 +126,7 @@
     <ClCompile Include="characterAnimation.cpp" />
     <ClCompile Include="checkbox.cpp" />
     <ClCompile Include="dialogs.cpp" />
+    <ClCompile Include="scoreboard.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="knight.cpp" />
     <ClCompile Include="ladder.cpp" />
@@ -131,6 +136,8 @@
     <ClCompile Include="powerup.cpp" />
     <ClCompile Include="profile.cpp" />
     <ClCompile Include="shop.cpp" />
+    <ClCompile Include="shopItem.cpp" />
+    <ClCompile Include="sorceress.cpp" />
     <ClCompile Include="spy.cpp" />
     <ClCompile Include="trampoline.cpp" />
     <ClCompile Include="treasure.cpp" />
@@ -147,6 +154,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="actionOnText.h" />
     <ClInclude Include="animatedObjectLevel.h" />
     <ClInclude Include="archer.h" />
     <ClInclude Include="backgroundobject.h" />
@@ -159,6 +167,7 @@
     <ClInclude Include="checkbox.h" />
     <ClInclude Include="dialogs.h" />
     <ClInclude Include="enums.h" />
+    <ClInclude Include="scoreboard.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="knight.h" />
     <ClInclude Include="ladder.h" />
@@ -168,6 +177,8 @@
     <ClInclude Include="powerup.h" />
     <ClInclude Include="profile.h" />
     <ClInclude Include="shop.h" />
+    <ClInclude Include="shopItem.h" />
+    <ClInclude Include="sorceress.h" />
     <ClInclude Include="spy.h" />
     <ClInclude Include="trampoline.h" />
     <ClInclude Include="treasure.h" />

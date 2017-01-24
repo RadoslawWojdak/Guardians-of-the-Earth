@@ -1,6 +1,6 @@
 #include "trampoline.h"
 
-cTrampoline::cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f pos, float force)
+cTrampoline::cTrampoline(b2World &physics_world, unsigned short id, sf::Vector2f pos, float force)
 {
 	this->setTextureRect(sf::IntRect(0, 20, 32, 12));
 	this->adjustGraphicsParameters(t_object[id - 1], pos);
@@ -17,7 +17,7 @@ cTrampoline::cTrampoline(b2World *physics_world, unsigned short id, sf::Vector2f
 	body_def.fixedRotation = false;
 	body_def.allowSleep = false;
 
-	body = physics_world->CreateBody(&body_def);
+	body = physics_world.CreateBody(&body_def);
 	
 	b2PolygonShape shape;
 	shape.SetAsBox(a / 2.0f, b / 2.0f);

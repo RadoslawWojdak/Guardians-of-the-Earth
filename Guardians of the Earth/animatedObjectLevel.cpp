@@ -1,5 +1,5 @@
 #include "animatedObjectLevel.h"
-#include <iostream>
+
 cAnimatedObjectLevel::cAnimatedObjectLevel(sf::Texture &texture, sf::Vector2f pos_on_map, sf::Vector2f size_of_one_frame_image, short time_between_frames)
 	:cObjectLevel()
 {

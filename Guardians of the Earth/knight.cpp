@@ -1,10 +1,10 @@
 #include "knight.h"
 
-cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
+cKnight::cKnight(b2World &physics_world, eWorld world_type, sf::Vector2f pos, short player_no, bool *modulators)
 	:cCharacter(physics_world, world_type, pos, player_no, modulators)
 {
 	this->character_type = CHARACTER_KNIGHT;
-	this->setTexture(t_character[0]);
+	this->setTexture(t_character[this->character_type]);
 	
 	this->can_crush = true;
 
@@ -18,6 +18,22 @@ cKnight::cKnight(b2World *physics_world, eWorld world_type, sf::Vector2f pos, sh
 	}
 }
 
+void cKnight::loadCharacter(unsigned short lvl, unsigned int exp, unsigned short skill_point, unsigned short number_of_skill[4], unsigned short pet_hp, unsigned int bonus[2], unsigned short life, unsigned int score, unsigned int cash, bool has_taser)
+{
+	this->loadParameters(lvl, exp, skill_point, number_of_skill, pet_hp, bonus, life, score, cash, has_taser);
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < number_of_skill[i]; j++)
+		{
+			this->addSkill(i + 1);
+
+			this->number_of_skill[i - 1]--;
+			this->skill_points++;
+		}
+	}
+}
+
 void cKnight::addPower(short power_id)
 {
 	switch (power_id)
@@ -27,7 +43,7 @@ void cKnight::addPower(short power_id)
 	}
 }
 
-void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cBullet> &bullet)
+void cKnight::control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (this->isSpecial1())
 		this->animationSpecial1(3);
@@ -57,7 +73,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				this->animationSwimming();
 		}
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.right.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > 1.0f))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > 1.0f))
 		{
 			this->dir = DIR_RIGHT;
 
@@ -73,7 +89,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x + 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.left.key)) || (this->key.is_pad && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < -1.0f))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < -1.0f))
 		{
 			this->dir = DIR_LEFT;
 
@@ -89,13 +105,13 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x - 0.2f * speed_multipler * (is_on_ice ? 0.2f : 1) * ((!this->can_jump || this->body->GetLinearVelocity().y) && this->is_immersed_in == FLUID_NONE != 0 ? 0.4f : 1), this->body->GetLinearVelocity().y));
 		}
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.up.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.up.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].up.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].up.button)))
 			this->dir = DIR_UP;
-		else if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.down.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.down.button)))
+		else if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].down.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].down.button)))
 			this->dir = DIR_DOWN;
 
 		//Gdy nie jest naciœniêty ¿aden z klawiszy (lewo, prawo), to postaæ zaczyna siê zatrzymywaæ
-		if ((!this->key.is_pad && (!sf::Keyboard::isKeyPressed(this->key.right.key) && !sf::Keyboard::isKeyPressed(this->key.left.key))) || (this->key.is_pad && (sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(this->key.pad, sf::Joystick::X) > -1.0f)))
+		if ((!g_key[this->player_no - 1].is_pad && (!sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].right.key) && !sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].left.key))) || (g_key[this->player_no - 1].is_pad && (sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) < 1.0f && sf::Joystick::getAxisPosition(g_key[this->player_no - 1].pad, sf::Joystick::X) > -1.0f)))
 		{
 			if (this->can_jump && !this->is_on_ladder && !this->isSpecial1())
 				this->animationStanding();
@@ -113,7 +129,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 					this->body->SetLinearVelocity(b2Vec2(0.0f, this->body->GetLinearVelocity().y));
 			}
 		}
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.jump.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.jump.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].jump.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].jump.button)))
 		{
 			if (!stop_jump)
 				this->body->SetLinearVelocity(b2Vec2(this->body->GetLinearVelocity().x, this->body->GetLinearVelocity().y * 1.022f));
@@ -130,7 +146,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 		else
 			this->stop_jump = true;
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.fire.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.fire.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].fire.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].fire.button)))
 		{
 			if (!this->fire)
 			{
@@ -150,7 +166,7 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 		else
 			this->fire = false;
 
-		if ((!this->key.is_pad && sf::Keyboard::isKeyPressed(this->key.special1.key)) || (this->key.is_pad && sf::Joystick::isButtonPressed(this->key.pad, this->key.special1.button)))
+		if ((!g_key[this->player_no - 1].is_pad && sf::Keyboard::isKeyPressed(g_key[this->player_no - 1].special1.key)) || (g_key[this->player_no - 1].is_pad && sf::Joystick::isButtonPressed(g_key[this->player_no - 1].pad, g_key[this->player_no - 1].special1.button)))
 		{
 			if (!this->isSpecial1())
 				this->startSpecial1();
@@ -158,26 +174,27 @@ void cKnight::control(b2World *physics_world, eWorld world_type, std::vector <cB
 	}
 }
 
-void cKnight::shot(b2World *world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
+void cKnight::shot(b2World &world, eWorld world_type, std::vector <cBullet> &bullet, eDirection shot_direction)
 {
 	if (this->bonus[0] > 0)
 	{
 		this->bonus[0]--;
 
 		if (shot_direction == DIR_UP)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, -4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y - this->getOrigin().y + 4), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 		else if (shot_direction == DIR_DOWN)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(0.0f, 4.5f), sf::Vector2f(this->getPosition().x, this->getPosition().y + this->getOrigin().y - 4), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 		else if (shot_direction == DIR_LEFT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(-4.5f, 0.0f), sf::Vector2f(this->getPosition().x - this->getOrigin().x + 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 		else if (shot_direction == DIR_RIGHT)
-			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, this->player_no));
+			bullet.push_back(cBullet(world, world_type, t_characters_bonus[0][0], false, b2Vec2(4.5f, 0.0f), sf::Vector2f(this->getPosition().x + this->getOrigin().x - 4, this->getPosition().y), 1.0f, 1 + this->number_of_skill[1], 0, false, this->player_no));
 	}
 }
 
-void cKnight::checkIndicators(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cKnight::checkIndicators(b2World &world, eWorld world_type, std::vector <cCharacter*> player, std::vector <cBullet> &bullet)
 {
 	this->immunityCountdown();
+	this->magicShieldCountdown();
 	this->special1Countdown();
 	this->b1InB2Countdown(world, world_type, bullet);
 
@@ -207,7 +224,7 @@ void cKnight::startB1InB2()
 	this->shot_dir = this->dir;
 }
 
-void cKnight::b1InB2Countdown(b2World *world, eWorld world_type, std::vector <cBullet> &bullet)
+void cKnight::b1InB2Countdown(b2World &world, eWorld world_type, std::vector <cBullet> &bullet)
 {
 	if (this->bonus1_in_bonus2 > 0)
 	{

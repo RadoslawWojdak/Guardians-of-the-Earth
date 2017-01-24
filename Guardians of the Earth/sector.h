@@ -1,12 +1,14 @@
 #ifndef sector_h
 #define sector_h
 
+#include "SFML\Graphics.hpp"	//Tylko dla wyœwietlania b³êdów!
 #include <vector>
 #include <fstream>
-#include <sstream>	//Konwersja liczby na tekst - wczytywanie numeru sektora
-#include <ctime>	//Losowanie sektora
-#include <string>	//Dzialanie na danych sektora (po kropce)
+#include <sstream>
+#include <ctime>
+#include <string>
 #include "enums.h"
+#include "dialogs.h"
 
 extern unsigned int how_many_sectors[7];	//Jak wiele jest sektorow danego typu
 
@@ -18,8 +20,8 @@ class cSector
 	eObjType *object;		//Wskaznik do pierwszego obiektu sektora (kazdy obiekt ma swoje id: 0 - pustka, 1 - blok, ...)
 
 public:
-	void loadRandomSector(eWorld world_type, std::string &id);	//Losowanie jednego z sektorów danego typu i wczytanie go z pliku
-	void loadSector(eWorld world_type, std::string path);		//Wczytywanie sektora z pliku
+	void loadRandomSector(sf::RenderWindow &win, eWorld world_type);	//Losowanie jednego z sektorów danego typu i wczytanie go z pliku
+	void loadSector(sf::RenderWindow &win, eWorld world_type, std::string path);		//Wczytywanie sektora z pliku
 	bool isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned int level_height);	//Sprawdzanie, czy sektor pasuje do poprzedniego
 
 	unsigned short getWidth();
