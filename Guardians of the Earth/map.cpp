@@ -866,7 +866,7 @@ bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 	//Tworzenie katalogu na save'y
 	std::string path = "profiles/" + profile.getName() + "/saves";
 
-	#ifdef WINDOWS
+	#ifdef _WIN32
         CreateDirectory(path.c_str(), 0);
     #endif
     #ifdef linux

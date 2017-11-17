@@ -23,7 +23,7 @@ bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
 	//Tworzenie folderu i pliku na profil
 	std::string path = "profiles/" + name;
 
-	#ifdef WINDOWS
+	#ifdef _WIN32
         CreateDirectory(path.c_str(), 0);
     #endif
     #ifdef linux

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <fstream>
 
-#ifdef WINDOWS
+#ifdef _WIN32
     #include <Windows.h>
 #endif
 
