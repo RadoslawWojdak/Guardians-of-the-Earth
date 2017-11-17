@@ -1,7 +1,7 @@
 #ifndef sector_h
 #define sector_h
 
-#include "SFML\Graphics.hpp"	//Tylko dla wyœwietlania b³êdów!
+#include "SFML/Graphics.hpp"	//Tylko dla wyœwietlania b³êdów!
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -28,7 +28,7 @@ public:
 	unsigned short getHeight();
 
 	eObjType getObject(unsigned short x, unsigned short y);
-	void cSector::setObject(unsigned short x, unsigned short y, eObjType object);
+	void setObject(unsigned short x, unsigned short y, eObjType object); //cSector::
 
 	void clear();	//Wypelnia sektor jedynkami (mozna dopasowac wtedy do kazdego sektora) - stosowany przy tworzeniu pierwszego sektora
 };

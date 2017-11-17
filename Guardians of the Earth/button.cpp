@@ -5,7 +5,7 @@ cButton::cButton()
 	;
 }
 
-cButton::cButton(sf::Vector2f pos, sf::String str, sf::Texture &texture, sf::Color &text_color)
+cButton::cButton(sf::Vector2f pos, sf::String str, sf::Texture &texture, sf::Color text_color) //sf::Color &text_color
 {
 	this->setTexture(texture);
 	this->setOrigin(this->getGlobalBounds().width / 2, this->getGlobalBounds().height / 2);
@@ -30,7 +30,7 @@ bool cButton::isMouseOver(sf::RenderWindow &win)
 	return false;
 }
 
-void cButton::changeGraphics(bool is_mouse_over, sf::Color &color)
+void cButton::changeGraphics(bool is_mouse_over, sf::Color color) //sf::Color &color
 {
 	if (is_mouse_over)
 		this->text.setFillColor(color);

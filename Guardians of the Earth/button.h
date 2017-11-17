@@ -13,12 +13,12 @@ protected:
 
 public:
 	cButton();
-	cButton(sf::Vector2f center_pos, sf::String str, sf::Texture &texture = t_button, sf::Color &text_color = sf::Color(64, 64, 64));
+	cButton(sf::Vector2f center_pos, sf::String str, sf::Texture &texture = t_button, sf::Color text_color = sf::Color(64, 64, 64)); //sf::Color &text_color = sf::Color(64, 64, 64)
 
 	void draw(sf::RenderWindow &win);
 
-	bool cButton::isMouseOver(sf::RenderWindow &win);
-	void changeGraphics(bool is_mouse_over, sf::Color &color);
+	bool isMouseOver(sf::RenderWindow &win); //cButton::
+	void changeGraphics(bool is_mouse_over, sf::Color color); //sf::Color &color
 
 	void setText(sf::String str);
 	sf::String getString();

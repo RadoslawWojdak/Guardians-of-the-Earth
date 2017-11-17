@@ -1,7 +1,7 @@
 #ifndef checkbox_h
 #define checkbox_h
 
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include "graphics.h"
 #include "fonts.h"
 
@@ -12,7 +12,7 @@ class cCheckbox :private sf::Sprite
 
 public:
 	cCheckbox();
-	cCheckbox(sf::Vector2f left_top_corner, sf::String text, sf::Color &text_color = sf::Color(255, 255, 255), bool is_checked = false);
+	cCheckbox(sf::Vector2f left_top_corner, sf::String text, sf::Color text_color = sf::Color(255, 255, 255), bool is_checked = false); //sf::Color &text_color = sf::Color(255, 255, 255)
 
 	void clicked();
 	void draw(sf::RenderWindow &win);

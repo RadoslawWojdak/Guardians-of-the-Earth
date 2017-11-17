@@ -1,7 +1,7 @@
 #ifndef shop_h
 #define shop_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include <vector>
 #include <sstream>
 #include "character.h"
@@ -28,14 +28,14 @@ public:
 class cShop
 {
 	std::vector <cCharacter*> player;
-	
+
 	std::vector <cItemShop> item;
 	cItemShop bonus[2];
 	cItemShop rebirth;
 	cItemShop extra_life;
 	cItemShop pet_hp;
 	cButton exit_button;
-	
+
 public:
 	cShop(std::vector <cCharacter*> &player, bool *modulators);
 

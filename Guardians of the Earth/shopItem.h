@@ -1,7 +1,7 @@
 #ifndef shopItem_h
 #define shopItem_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include "enums.h"
 #include "dialogs.h"
 #include "actionOnText.h"

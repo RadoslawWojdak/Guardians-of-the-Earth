@@ -1,7 +1,7 @@
 #ifndef menu_h
 #define menu_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include <vector>
 #include <string>
 #include "button.h"
