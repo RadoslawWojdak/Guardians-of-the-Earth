@@ -869,6 +869,10 @@ bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 	#ifdef WINDOWS
         CreateDirectory(path.c_str(), 0);
     #endif
+    #ifdef linux
+        std::string linux_path="mkdir " + path;
+        system(linux_path.c_str());
+    #endif
 
 	//Tworzenie pliku zapisu
 	std::fstream save_file;
