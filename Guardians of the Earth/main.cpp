@@ -33,17 +33,17 @@ int main()
 
 	if (!initGraph())
 	{
-		okDialog(win, "Error 1", "Graphics not found!");
+		//okDialog(win, "Error 1", "Graphics not found!");
 		return 1;
 	}
 	if (!initFonts())
 	{
-		okDialog(win, "Error 2", "Font not found!");
+		//okDialog(win, "Error 2", "Font not found!");
 		return 2;
 	}
 	if (!howManySectors())
 	{
-		okDialog(win, "Error 3", "Sector not found!");
+		//okDialog(win, "Error 3", "Sector not found!");
 		return 3;
 	}
 	initControlKeys();

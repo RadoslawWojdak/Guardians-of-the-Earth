@@ -16,9 +16,9 @@ cBlock::cBlock(b2World &physics_world, sf::Texture &texture, sf::Vector2f pos)
 	vs[1].Set(x + 32 * 0.02f - 16 * 0.02f, y + 0.0f - 16 * 0.02f);
 	vs[2].Set(x + 32 * 0.02f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
 	vs[3].Set(x + 0.0f - 16 * 0.02f, y + 32 * 0.02f - 16 * 0.02f);
-	
+
 	shape.CreateLoop(vs, 4);
-	
+
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.filter.categoryBits = CATEGORY(CAT_BLOCK);

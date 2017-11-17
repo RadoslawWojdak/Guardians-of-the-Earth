@@ -49,8 +49,8 @@ bool initGraph()
 		ss << i+1;
 		nr = ss.str();
 		ss.clear();
-		
-		std::string path = "graphics\\blocks\\block-" + nr + ".png";
+
+		std::string path = "graphics/blocks/block-" + nr + ".png";
 		if (!t_block[i].loadFromFile(path))
 			return false;
 	}
@@ -62,7 +62,7 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\blocks\\bonus_block-" + nr + ".png";
+		std::string path = "graphics/blocks/bonus_block-" + nr + ".png";
 		if (!t_bonus_block[i].loadFromFile(path))
 			return false;
 	}
@@ -74,7 +74,7 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\blocks\\gold_bonus_block-" + nr + ".png";
+		std::string path = "graphics/blocks/gold_bonus_block-" + nr + ".png";
 		if (!t_gold_bonus_block[i].loadFromFile(path))
 			return false;
 	}
@@ -105,7 +105,7 @@ bool initGraph()
 			nr2 = ss.str();
 			ss.str("");
 
-			std::string path = "graphics\\grounds\\" + world + "\\ground-1-" + nr2 + ".png";
+			std::string path = "graphics/grounds/" + world + "/ground-1-" + nr2 + ".png";
 			if (!t_ground[i][j].loadFromFile(path))
 				return false;
 		}
@@ -121,7 +121,7 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\bonuses\\treasure-" + nr + ".png";
+		std::string path = "graphics/bonuses/treasure-" + nr + ".png";
 		if (!t_treasure[i].loadFromFile(path))
 			return false;
 	}
@@ -135,7 +135,7 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\bonuses\\power_up-" + nr + ".png";
+		std::string path = "graphics/bonuses/power_up-" + nr + ".png";
 		if (!t_power_up[i].loadFromFile(path))
 			return false;
 	}
@@ -154,7 +154,7 @@ bool initGraph()
 		case 4: {world = "desert";		break;}
 		}
 
-		std::string path = "graphics\\backgrounds\\" + world + "\\background-1.png";
+		std::string path = "graphics/backgrounds/" + world + "/background-1.png";
 		if (!t_background[i].loadFromFile(path))
 			return false;
 	}
@@ -183,7 +183,7 @@ bool initGraph()
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\background_objects\\" + world + "\\background-" + nr + ".png";
+			std::string path = "graphics/background_objects/" + world + "/background-" + nr + ".png";
 			if (!t_background_obj[i][j].loadFromFile(path))
 				return false;
 		}
@@ -198,7 +198,7 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\npcs\\npc-" + nr + ".png";
+		std::string path = "graphics/npcs/npc-" + nr + ".png";
 		if (!t_npc[i].loadFromFile(path))
 			return false;
 	}
@@ -212,7 +212,7 @@ bool initGraph()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "graphics\\level_objects\\object-" + nr + ".png";
+		std::string path = "graphics/level_objects/object-" + nr + ".png";
 		if (!t_object[i].loadFromFile(path))
 			return false;
 	}
@@ -229,7 +229,7 @@ bool initGraph()
 		case 3: {character = "sorceress"; break;}
 		}
 
-		std::string path = "graphics\\characters\\" + character + "\\" + character + "-1.png";
+		std::string path = "graphics/characters/" + character + "/" + character + "-1.png";
 		if (!t_character[i].loadFromFile(path))
 			return false;
 		for (int j = 0; j < 1; j++)
@@ -240,7 +240,7 @@ bool initGraph()
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\" + character + "\\bonus-" + nr + ".png";
+			std::string path = "graphics/characters/" + character + "/bonus-" + nr + ".png";
 			if (!t_characters_bonus[i][j].loadFromFile(path))
 				return false;
 		}
@@ -252,7 +252,7 @@ bool initGraph()
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\" + character + "\\bonus_icon-" + nr + ".png";
+			std::string path = "graphics/characters/" + character + "/bonus_icon-" + nr + ".png";
 			if (!t_characters_bonus_icon[i][j].loadFromFile(path))
 				return false;
 		}
@@ -264,7 +264,7 @@ bool initGraph()
 			nr = ss.str();
 			ss.clear();
 
-			std::string path = "graphics\\characters\\" + character + "\\skill-" + nr + ".png";
+			std::string path = "graphics/characters/" + character + "/skill-" + nr + ".png";
 			if (!t_characters_skill[i][j].loadFromFile(path))
 				return false;
 			s_characters_skill[i][j].setTexture(t_characters_skill[i][j]);
@@ -272,54 +272,54 @@ bool initGraph()
 		//PET-Y
 		for (int j = 0; j < g_number_of_characters; j++)
 		{
-			std::string path = "graphics\\characters\\" + character + "\\pet.png";
+			std::string path = "graphics/characters/" + character + "/pet.png";
 			if (!t_pet[i].loadFromFile(path))
 				return false;
 		}
 	}
 
 	//INNE
-	if (!t_stats_window.loadFromFile("graphics\\others\\stats_window.png"))
+	if (!t_stats_window.loadFromFile("graphics/others/stats_window.png"))
 		return false;
-	if (!t_pause_menu_window.loadFromFile("graphics\\others\\pause_menu_window.png"))
+	if (!t_pause_menu_window.loadFromFile("graphics/others/pause_menu_window.png"))
 		return false;
-	if (!t_dialog_window.loadFromFile("graphics\\others\\dialog_window.png"))
+	if (!t_dialog_window.loadFromFile("graphics/others/dialog_window.png"))
 		return false;
-	if (!t_heart.loadFromFile("graphics\\others\\heart.png"))
+	if (!t_heart.loadFromFile("graphics/others/heart.png"))
 		return false;
-	if (!t_taser.loadFromFile("graphics\\others\\taser.png"))
+	if (!t_taser.loadFromFile("graphics/others/taser.png"))
 		return false;
-	if (!t_experience_bar.loadFromFile("graphics\\others\\experience_bar.png"))
+	if (!t_experience_bar.loadFromFile("graphics/others/experience_bar.png"))
 		return false;
-	if (!t_discount_sign.loadFromFile("graphics\\others\\discount_sign.png"))
+	if (!t_discount_sign.loadFromFile("graphics/others/discount_sign.png"))
 		return false;
-	if (!t_button.loadFromFile("graphics\\others\\button-1.png"))
+	if (!t_button.loadFromFile("graphics/others/button-1.png"))
 		return false;
-	if (!t_up_arrow.loadFromFile("graphics\\others\\up_arrow.png"))
+	if (!t_up_arrow.loadFromFile("graphics/others/up_arrow.png"))
 		return false;
-	if (!t_down_arrow.loadFromFile("graphics\\others\\down_arrow.png"))
+	if (!t_down_arrow.loadFromFile("graphics/others/down_arrow.png"))
 		return false;
-	if (!t_left_arrow.loadFromFile("graphics\\others\\left_arrow.png"))
+	if (!t_left_arrow.loadFromFile("graphics/others/left_arrow.png"))
 		return false;
-	if (!t_right_arrow.loadFromFile("graphics\\others\\right_arrow.png"))
+	if (!t_right_arrow.loadFromFile("graphics/others/right_arrow.png"))
 		return false;
-	if (!t_checkbox.loadFromFile("graphics\\others\\checkbox.png"))
+	if (!t_checkbox.loadFromFile("graphics/others/checkbox.png"))
 		return false;
-	if (!t_profile_button.loadFromFile("graphics\\others\\profile_button.png"))
+	if (!t_profile_button.loadFromFile("graphics/others/profile_button.png"))
 		return false;
-	if (!t_button_rebirth.loadFromFile("graphics\\others\\button_rebirth.png"))
+	if (!t_button_rebirth.loadFromFile("graphics/others/button_rebirth.png"))
 		return false;
-	if (!t_button_extra_life.loadFromFile("graphics\\others\\button_extra_life.png"))
+	if (!t_button_extra_life.loadFromFile("graphics/others/button_extra_life.png"))
 		return false;
-	if (!t_button_extra_hp.loadFromFile("graphics\\others\\button_extra_hp.png"))
+	if (!t_button_extra_hp.loadFromFile("graphics/others/button_extra_hp.png"))
 		return false;
-	if (!t_close_button.loadFromFile("graphics\\others\\close_button.png"))
+	if (!t_close_button.loadFromFile("graphics/others/close_button.png"))
 		return false;
-	if (!t_selected_character.loadFromFile("graphics\\others\\selected_character.png"))
+	if (!t_selected_character.loadFromFile("graphics/others/selected_character.png"))
 		return false;
-	if (!t_passive_text.loadFromFile("graphics\\others\\passive_text.png"))
+	if (!t_passive_text.loadFromFile("graphics/others/passive_text.png"))
 		return false;
-	if (!t_magic_shield.loadFromFile("graphics\\others\\magic_shield.png"))
+	if (!t_magic_shield.loadFromFile("graphics/others/magic_shield.png"))
 		return false;
 
 	return true;
