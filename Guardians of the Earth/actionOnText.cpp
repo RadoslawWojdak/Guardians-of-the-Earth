@@ -1,4 +1,5 @@
 #include "actionOnText.h"
+#include "cmath"
 
 sf::String keyToStr(sf::Keyboard::Key key)
 {
@@ -28,7 +29,7 @@ sf::String keyToStr(sf::Keyboard::Key key)
 			key_str += (char)(key - 84 + 48);
 		return key_str;
 	}
-	
+
 	switch (key)
 	{
 	case sf::Keyboard::Escape: return "Escape";

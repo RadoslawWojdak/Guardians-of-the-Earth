@@ -1,7 +1,7 @@
 #ifndef dialogs_h
 #define dialogs_h
 
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include "graphics.h"
 #include "fonts.h"
 #include "button.h"

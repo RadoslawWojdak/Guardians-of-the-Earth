@@ -1,8 +1,8 @@
 #ifndef bullet_h
 #define bullet_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"
@@ -32,7 +32,7 @@ private:
 	float strength;		//Ile hp odbierze NPC-owi
 	unsigned short piercing;	//Ilu przeciwników mo¿e zabiæ, zanim zniknie (W przypadku NPC-ów z wiêksz¹ iloœci¹ HP odejmuje tyle, ile NPC ma HP)
 	unsigned short bouncing;	//Ile razy ma siê odbiæ od œcian
-	
+
 public:
 	cBullet(b2World &physics_world, eWorld world_type, sf::Texture &texture, bool gravity, b2Vec2 speed, sf::Vector2f pos, float strength, unsigned short piercing, unsigned short bouncing, bool wall_penetration, short player_id);
 

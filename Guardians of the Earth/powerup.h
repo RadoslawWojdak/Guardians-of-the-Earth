@@ -1,7 +1,7 @@
 #ifndef powerup_h
 #define powerup_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include "objectlevel.h"
 #include "graphics.h"
 

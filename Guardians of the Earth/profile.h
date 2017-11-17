@@ -1,10 +1,14 @@
 #ifndef profile_h
 #define profile_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include <string>
 #include <fstream>
-#include <Windows.h>
+
+#ifdef WINDOWS
+    #include <Windows.h>
+#endif
+
 #include "dialogs.h"
 #include "enums.h"
 

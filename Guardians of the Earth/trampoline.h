@@ -1,8 +1,8 @@
 #ifndef trampoline_h
 #define trampoline_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"

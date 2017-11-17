@@ -1,8 +1,8 @@
 #ifndef block_h
 #define block_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "graphics.h"
 #include "objectlevel.h"
 #include "enums.h"

@@ -2,8 +2,8 @@
 #define character_h
 
 #include <sstream>	//Konwersja liczby na tekst
-#include "SFML\Graphics.hpp"
-#include "Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "characterAnimation.h"
 #include "enums.h"
 #include "graphics.h"
@@ -66,7 +66,7 @@ protected:
 	float extra_height_of_jump;
 	unsigned short possible_extra_jumps = 0;	//Aktualna iloœæ mo¿liwych dodatkowych skoków do wykonania
 	sf::Vector2f last_position;
-	
+
 	eFluidType is_immersed_in;	//Zmienna odpowiedzialna za sprawdzanie, w jakim p³ynie obiekt jest aktualnie zanurzony
 	bool is_on_ice;
 	bool is_on_ladder;
@@ -95,7 +95,7 @@ public:
 	void bodyRecreate(b2World &physics_world, eWorld world_type);	//Nadaje postaci ponownie cia³o
 
 	void initPet();	//Inicjalizacja pet'a powinna siê odbywaæ przy ka¿dym utworzeniu obiektu klasy cCharacter (chyba ¿e jest to obiekt tymczasowy)
-	
+
 	void beenHit();
 	void kill();
 	virtual void control(b2World &physics_world, eWorld world_type, std::vector <cBullet> &bullet);
@@ -117,13 +117,13 @@ public:
 	void addStatsForEndOfLevel(unsigned int level_number, unsigned short experience_countdown);
 	virtual void addSkill(unsigned short skill_id);
 	void subtractCash(unsigned int how_many_to_subtract);
-	
+
 	void draw(sf::RenderWindow &win);
 	void drawStats(sf::RenderWindow &win, sf::Vector2f left_top_corner);
 	virtual void drawSkillTree(sf::RenderWindow &win, sf::Vector2f left_top_corner, unsigned short selected_skill, bool close_pressed);
 
 	void setAllPositions(sf::Vector2f pos);
-	
+
 	short getPlayerNo();
 	cPet getPet();
 	b2Body *getBody();

@@ -1,7 +1,7 @@
 #ifndef global_variables_h
 #define global_variables_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 
 const int g_number_of_characters = 4;
 const int g_scoreboard_size = 20;

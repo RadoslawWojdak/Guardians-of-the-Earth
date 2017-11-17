@@ -1,8 +1,8 @@
 #ifndef treasure_h
 #define treasure_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include <time.h>
 #include "graphics.h"
 #include "objectlevel.h"
@@ -20,7 +20,7 @@ class cTreasure :public cObjectLevel
 	b2Body *body;
 
 	short value;	//Wartoœæ skarbu; wartoœci ujemne okreœlaj¹ skarb o innych cechach (dodatkowe ¿ycie, itp.)
-	
+
 	bool physics;	//Czy na skarb dzia³a fizyka? (ruch, grawitacja, itd.)
 
 public:
