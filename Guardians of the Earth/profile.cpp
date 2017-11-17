@@ -27,7 +27,7 @@ bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
         CreateDirectory(path.c_str(), 0);
     #endif
     #ifdef linux
-        std::string linux_path="mkdir " + path;
+        std::string linux_path="mkdir -p " + path;
         system(linux_path.c_str());
     #endif
 
