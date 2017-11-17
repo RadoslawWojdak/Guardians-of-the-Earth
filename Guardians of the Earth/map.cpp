@@ -22,7 +22,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 	this->experience_countdown = (180 + 3.5f * (this->level_number - 1)) * g_framerate_limit;
 	this->player_number = number_of_players;
 	this->golden_bb_created = false;
-	
+
 	if (refresh || next_level)
 		this->destroy(false);
 	if (next_level)
@@ -38,9 +38,9 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 
 	this->width = 0;
 	this->height = 600;
-	
+
 	this->x_generate = 0;
-	
+
 	//GENERATOR POZIOMU (TEREN)
 	//Przypisanie tekstury do t³a (s¹ 2 - jedno t³o le¿y za drugim (dziêki temu t³o mo¿e siê przesuwaæ))
 	for (int i = 0; i < 2; i++)
@@ -187,7 +187,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			else
 				this->fluid_tab[i * grid_size.x + j] = false;
 		}
-	
+
 	for (unsigned int i = 0; i < this->ground.size(); i++)
 	{
 		sf::Vector2i pos = this->ground[i].posOnGrid(sf::Vector2i(32, 32));
@@ -228,7 +228,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			this->fluid_tab[(pos.y + 1) * grid_size.x + pos.x] = true;
 	}
 	//!Tworzenie tablic odpowiedzialnych za optymalizacje generowania poziomu
-	
+
 
 	//Algorytm wzajemnej grafiki gruntu (postawiony na samym koñcu - po wszystkich dzia³aniach na gruncie)
 	for (int i = 0; i < this->ground.size(); i++)
@@ -236,7 +236,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 	//Pozosta³e algorytmy wzajemnej grafiki
 	for (int i = 0; i < this->fluid.size(); i++)
 		this->fluid[i].graphicsCustomize(this->world_type, sf::Vector2u(this->width, this->height), to_fluid, grid_size);
-	
+
 
 	//GENERATOR POZIOMU (POWER-UP'Y, T£O I NPC)
 	//POWER-UPS
@@ -261,7 +261,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 	{
 		//Losowanie ID NPC-a
 		int random = randomNPCID(this->world_type, profile);
-		
+
 		//Tymczasowy NPC który bêdzie póŸniej dopisany do wektora NPC-ów (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
 		cNPC temp_npc(this->physics_world, this->world_type, modulators, random, this->randomPosition(416, this->width), (rand() % 2 ? DIR_LEFT : DIR_RIGHT));
 
@@ -295,7 +295,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			//Pêtla trwa tak d³ugo a¿ NPC nie znajdzie siê odpowiednio wysoko nad powierzchni¹ sztywnego obiektu
 			while (!end)
 			{
-				
+
 				sf::Vector2f main_pos = this->randomPosition(416, this->width);		//G³ówna pozycja - pozycja pocz¹tkowa NPC-a
 				temp_npc.setAllPositions(main_pos);
 
@@ -310,7 +310,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 						for (int i = 0; i < 2; i++)		//Pêtla powtarza siê 2 razy - dok³adnie jeszcze tyle razy pod ni¹ mo¿e nie byæ gruntu
 						{
 							temp_npc.setAllPositions(sf::Vector2f(temp_npc.getPosition().x, temp_npc.getPosition().y + 32));
-							
+
 							if (temp_npc.isCollisionOnGrid(is_solid, grid_size) || temp_npc.isCollisionOnGrid(is_npc, grid_size))	//Je¿eli w tym miejscu znajduje siê sztywny obiekt, to mo¿e nad nim lataæ
 							{
 								temp_npc.setAllPositions(main_pos);
@@ -331,7 +331,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			while (!end)
 			{
 				temp_npc.setAllPositions(this->randomPosition(416, this->width));
-				
+
 				//Je¿eli NPC znajduje siê w wodzie
 				if (temp_npc.isCollisionOnGrid(is_fluid, grid_size))
 					end = true;
@@ -340,19 +340,19 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 
 		sf::Vector2i pos_on_grid((temp_npc.getPosition().x - temp_npc.getOrigin().x) / 32, (temp_npc.getPosition().y - temp_npc.getOrigin().y) / 32);
 		is_npc[pos_on_grid.y * grid_size.x + pos_on_grid.x] = true;
-		
+
 		this->npc.push_back(temp_npc);
 	}
-	
+
 	//OBIEKTY W TLE
 	//Pêtla tworzenia obiektów w tle
 	for (int i = 0; i < 100; i++)
 	{
 		eBackgroundType type;
-		
+
 		//Losowanie typu grafiki
 		int random = rand() % 1001;	//0,0% - 100,0%
-		
+
 		switch (this->world_type)
 		{
 		case WORLD_UNDERWATER:
@@ -439,10 +439,10 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 		}
 		}
 		//!Losowanie typu grafiki
-		
+
 		//Tymczasowy obiekt w tle który bêdzie póŸniej dopisany do wektora obiektów w tle (gdy zotanie dopasowany do poziomu; aktualnie nie mo¿e byæ ju¿ dopisany i zmieniany, gdy¿ algorytm sprawdza³by, czy koliduje sam ze sob¹)
 		cBackgroundObject temp_bg_obj(this->world_type, type, this->randomPosition(0, this->width));
-		
+
 		//Sprawdzanie, czy obiekt w tle nie znajduje siê w gruncie
 		switch (type)
 		{
@@ -607,7 +607,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			cArcher *archer = new cArcher(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cSpy *spy = new cSpy(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
 			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, this->randomPosition(0, 192), i + 1, modulators);
-			
+
 			cCharacter *temp_player = NULL;
 			switch (character[i])
 			{
@@ -656,7 +656,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 			while (!end)
 			{
 				this->player[i]->setAllPositions(this->randomPosition(0, 192));
-				
+
 				//Je¿eli postaæ nie jest zakopana w sztywnym obiekcie
 				if (!this->player[i]->isCollisionOnGrid(is_solid, grid_size) && !this->player[i]->isCollisionOnGrid(is_npc, grid_size))
 				{
@@ -670,7 +670,7 @@ void cMap::levelGenerator(sf::RenderWindow &win, cProfile &profile, std::string 
 					}
 				}
 			}
-			
+
 			this->player[i]->rebirth();
 		}
 	}
@@ -728,7 +728,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 	{
 		this->bullet[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab);
 		this->bullet[i].specialCollisions(this->physics_world, this->world_type, modulators, this->player, this->npc, this->treasure, this->bonus_block);
-		
+
 		if (this->bullet[i].isDestroyed())
 		{
 			this->physics_world.DestroyBody(bullet[i].getBody());
@@ -746,7 +746,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 	for (int i = this->npc.size() - 1; i >= 0; i--)
 	{
 		this->npc[i].step(this->world_type, sf::Vector2i(this->width, this->height), fluid_tab, view_rect);
-		
+
 		//Wyszed³ poza obszar mapy
 		if (this->npc[i].getPosition().y - this->npc[i].getOrigin().y > this->height)
 		{
@@ -762,13 +762,13 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 		if (!this->player[i]->isDead())
 		{
 			are_all_players_dead = false;
-			
+
 			this->player[i]->control(this->physics_world, this->world_type, this->bullet);
 			this->player[i]->specialCollisions(this->physics_world, this->world_type, modulators, this->npc, this->power_up, this->treasure, this->fluid, this->trampoline, this->ladder, this->bonus_block);
 			this->player[i]->applyPhysics(this->world_type, this->fluid_tab, sf::Vector2i(this->width / 32, this->height / 32));
 			this->player[i]->checkIndicators(this->physics_world, this->world_type, this->player, this->bullet);
 			this->player[i]->move(win, sf::Vector2f(this->width, this->height));
-			
+
 			//Rozpoczêcie nastêpnego poziomu
 			if (this->player[i]->getPosition().x - this->player[i]->getOrigin().x > this->width)
 			{
@@ -784,7 +784,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 				}
 
 				this->levelGenerator(win, profile, slot_name, player.size(), modulators, false, true);
-				
+
 				return true;
 			}
 		}
@@ -856,7 +856,7 @@ bool cMap::movements(sf::RenderWindow &win, sf::View &view, bool *modulators, cS
 	for (int i = npc.size() - 1; i >= 0; i--)
 		if (npc[i].isDead())
 			this->npc.erase(this->npc.begin() + i);
-	
+
 	this->physics_world.Step((float)1 / 60, 8, 3);
 	return true;
 }
@@ -865,7 +865,10 @@ bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 {
 	//Tworzenie katalogu na save'y
 	std::string path = "profiles/" + profile.getName() + "/saves";
-	CreateDirectory(path.c_str(), 0);
+
+	#ifdef WINDOWS
+        CreateDirectory(path.c_str(), 0);
+    #endif
 
 	//Tworzenie pliku zapisu
 	std::fstream save_file;
@@ -883,14 +886,14 @@ bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 
 		//Postacie graczy
 		save_file.write((char*)&this->player_number, sizeof(int));
-		
+
 		for (int i = 0; i < this->player_number; i++)
 		{
 			eCharacter character_type = this->player[i]->getCharacterType();
 			unsigned short lvl = this->player[i]->getLevel();
 			unsigned int exp = this->player[i]->getExperience();
 			unsigned short skill_points = this->player[i]->getSkillPoints();
-			
+
 			int skills_number = 4;
 			unsigned short number_of_skill[4];
 			for (int j = 0; j < 4; j++)
@@ -900,7 +903,7 @@ bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 			unsigned int bonus[2];
 			for (int j = 0; j < 2; j++)
 				bonus[j] = this->player[i]->getBonus(j);
-			
+
 			unsigned short life = this->player[i]->getLife();
 			unsigned short hp = this->player[i]->getHP();
 			unsigned int score = this->player[i]->getScore();
@@ -912,15 +915,15 @@ bool cMap::saveGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 			save_file.write((char*)&lvl, sizeof(unsigned short));
 			save_file.write((char*)&exp, sizeof(unsigned int));
 			save_file.write((char*)&skill_points, sizeof(unsigned short));
-			
+
 			save_file.write((char*)&skills_number, sizeof(int));
 			for (int j = 0; j < skills_number; j++)
 				save_file.write((char*)&number_of_skill[j], sizeof(unsigned short));
-			
+
 			save_file.write((char*)&bonus_number, sizeof(int));
 			for (int j = 0; j < bonus_number; j++)
 				save_file.write((char*)&bonus[j], sizeof(unsigned int));
-			
+
 			save_file.write((char*)&life, sizeof(unsigned short));
 			save_file.write((char*)&hp, sizeof(unsigned short));
 			save_file.write((char*)&score, sizeof(unsigned int));
@@ -994,7 +997,7 @@ bool cMap::loadGame(sf::RenderWindow &win, cProfile &profile, std::string slot_n
 			cArcher *archer = new cArcher(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
 			cSpy *spy = new cSpy(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
 			cSorceress *sorceress = new cSorceress(this->physics_world, this->world_type, sf::Vector2f(0.0f, 0.0f), i + 1, modulators);
-			
+
 			cCharacter *temp_player = NULL;
 			switch (character_type)
 			{
@@ -1049,7 +1052,7 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 	//Przesuwanie ekranu
 	this->background[0].setPosition((view.getCenter().x - 400) / 1.2 + (((int)((view.getCenter().x - 400) / 1.2 / 5) / this->background[0].getTextureRect().width) * this->background[0].getTextureRect().width), (view.getCenter().y - 300) / 1.2);
 	background[1].setPosition(this->background[0].getPosition().x + this->background[0].getTextureRect().width, this->background[0].getPosition().y);
-	
+
 	//Rysowanie obiektów mapy na oknie programu
 	for (unsigned short i = 0; i < 2; i++)
 		win.draw(this->background[i]);
@@ -1101,14 +1104,14 @@ void cMap::draw(sf::RenderWindow &win, sf::View &view)
 
 	//Numer poziomu
 	sf::String str(L"Level: ");
-	
+
 	std::string no;
 	std::stringstream ss;
 	ss << this->level_number;
 	no = ss.str();
 	ss.str("");
 	str += no;
-	
+
 	sf::Text text(str, font[0], 48);
 	text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
 	text.setPosition(view.getCenter().x, 32);
@@ -1188,7 +1191,7 @@ void cMap::destroy(bool destroy_players)
 		this->physics_world.DestroyBody(this->ground[0].getBody());		//Ca³a ziemia posiada jedno cia³o
 	if (this->fluid.size() > 0)
 		this->physics_world.DestroyBody(this->fluid[0].getBody());		//Ca³y p³yn posiada jedno cia³o
-	
+
 	for (unsigned int i = 0; i < this->block.size(); i++)
 		this->physics_world.DestroyBody(this->block[i].getBody());
 	for (unsigned int i = 0; i < this->bonus_block.size(); i++)
