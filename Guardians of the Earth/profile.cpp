@@ -82,9 +82,11 @@ bool cProfile::saveProfile(sf::RenderWindow &win)
 				unlocked_npcs++;
 		profile_file.write((char*)&unlocked_npcs, sizeof(int));
 
+		/*
 		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
 			if (this->unlocked_content[UNLOCKED_NPC][i] == true)	//Zapisywanie ID modulatorów (od 0)
 				profile_file.write((char*)&i, sizeof(i));
+        */
 
 		//NAZWY SLOTÓW ZAPISU
 		int number_of_save_slots = this->save_name.size();
