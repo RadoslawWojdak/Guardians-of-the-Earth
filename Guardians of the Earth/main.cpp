@@ -78,7 +78,7 @@ int main()
 		win.clear();
 		win.display();
 
-		cMap map(win, profile, WORLD_OVERWORLD, number_of_players, character, modulators, new_slot, loaded_slot);
+		cMap map(win, profile, (eWorld)(rand() % 5), number_of_players, character, modulators, new_slot, loaded_slot);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
