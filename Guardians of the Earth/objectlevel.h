@@ -1,7 +1,7 @@
 #ifndef objectlevel_h
 #define objectlevel_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include "global_variables.h"
 
 struct cObjectLevel :public sf::Sprite

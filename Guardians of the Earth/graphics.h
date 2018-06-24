@@ -1,7 +1,7 @@
 #ifndef graphics_h
 #define graphics_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include <sstream>	//Konwersja liczby na tekst
 #include "global_variables.h"
 

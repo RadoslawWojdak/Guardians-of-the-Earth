@@ -12,8 +12,9 @@ bool initFonts()
 		nr = ss.str();
 		ss.clear();
 
-		std::string path = "fonts\\font-" + nr + ".ttf";
+		std::string path = "fonts/font-" + nr + ".ttf";
 		if (!font[i].loadFromFile(path))
 			return false;
 	}
+	return true;
 }

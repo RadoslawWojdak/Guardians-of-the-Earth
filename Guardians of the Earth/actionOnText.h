@@ -1,7 +1,7 @@
 #ifndef actionOnText_h
 #define actionOnText_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 
 sf::String keyToStr(sf::Keyboard::Key key);
 

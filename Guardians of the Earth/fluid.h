@@ -1,8 +1,8 @@
 #ifndef fluid_h
 #define fluid_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"

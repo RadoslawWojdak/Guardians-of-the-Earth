@@ -5,7 +5,7 @@ cCheckbox::cCheckbox()
 	;
 }
 
-cCheckbox::cCheckbox(sf::Vector2f left_top_corner, sf::String text, sf::Color &text_color, bool is_checked)
+cCheckbox::cCheckbox(sf::Vector2f left_top_corner, sf::String text, sf::Color text_color, bool is_checked) //sf::Color &text_color
 {
 	this->check = is_checked;
 

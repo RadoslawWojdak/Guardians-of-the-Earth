@@ -35,7 +35,7 @@ bool cScoreboard::saveScoreboard(std::string path)
 		for (int i = 0; i < g_scoreboard_size; i++)
 		{
 			int name_length = this->registry[i].name.length();
-			file.write((char*)&name_length, sizeof(this->registry[i].name.length()));
+			file.write((char*)&name_length, sizeof(name_length)); //sizeof(this->registry[i].name.length())
 
 			for (int j = 0; j < name_length; j++)
 				file.write((char*)&this->registry[i].name[j], sizeof(this->registry[i].name[j]));
@@ -56,7 +56,7 @@ bool cScoreboard::loadScoreboard(std::string path)
 		this->registry[i].name = "";
 		this->registry[i].score = 0;
 	}
-	
+
 	std::fstream file;
 
 	file.open((char*)path.c_str(), std::ios::in | std::ios::binary);

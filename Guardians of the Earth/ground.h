@@ -1,8 +1,8 @@
 #ifndef ground_h
 #define ground_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "graphics.h"
 #include "objectlevel.h"
 #include "enums.h"
@@ -12,7 +12,7 @@ void groundsInit(b2World &physics_world);
 class cGround :public cObjectLevel
 {
 	eWorld world_type;
-	
+
 	//Wszystkie grunty jako jedno cia³o (w celu optymalizacji)
 	static unsigned int ground_id;
 	static b2BodyDef physics_body_def;

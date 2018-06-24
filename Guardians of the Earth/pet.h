@@ -1,7 +1,7 @@
 #ifndef pet_h
 #define pet_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"

@@ -1,7 +1,7 @@
 #ifndef backgroundobject_h
 #define backgroundobject_h
 
-#include "SFML\Graphics.hpp"
+#include "SFML/Graphics.hpp"
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"

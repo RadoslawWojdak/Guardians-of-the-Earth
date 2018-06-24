@@ -19,10 +19,17 @@ cProfile::cProfile()
 bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
 {
 	this->name = name;
-	
+
 	//Tworzenie folderu i pliku na profil
 	std::string path = "profiles/" + name;
-	CreateDirectory(path.c_str(), 0);
+
+	#ifdef _WIN32
+        CreateDirectory(path.c_str(), 0);
+    #endif
+    #ifdef linux
+        std::string linux_path="mkdir -p " + path;
+        system(linux_path.c_str());
+    #endif
 
 	std::fstream profile_file;
 	path += "/" + name + ".dat";
@@ -30,7 +37,7 @@ bool cProfile::newProfile(sf::RenderWindow &win, std::string name)
 	if (profile_file.is_open())
 	{
 		profile_file.write((char*)&this->cash, sizeof(this->cash));
-		
+
 		int zero = 0;
 		profile_file.write((char*)&zero, sizeof(int));	//Zero przedmiotów do odblokowania
 		profile_file.write((char*)&zero, sizeof(int));	//Zero slotów zapisu
@@ -48,7 +55,7 @@ bool cProfile::saveProfile(sf::RenderWindow &win)
 {
 	//Tworzenie folderu i pliku na profil
 	std::string path = "profiles/" + this->name + "/" + this->name + ".dat";
-	
+
 	std::fstream profile_file;
 	profile_file.open(path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	if (profile_file.is_open())
@@ -56,14 +63,14 @@ bool cProfile::saveProfile(sf::RenderWindow &win)
 		profile_file.write((char*)&this->cash, sizeof(this->cash));
 
 		profile_file.write((char*)&g_unlocked_types, sizeof(int));
-		
+
 		//ODBLOKOWANE MODULATORY ROZGRYWKI
 		int unlocked_modulators = 0;	//Iloœæ odblokowanych przez gracza modulatorów rozgrywki
 		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
 			if (this->unlocked_content[UNLOCKED_MODULATOR][i] == true)
 				unlocked_modulators++;
 		profile_file.write((char*)&unlocked_modulators, sizeof(int));
-		
+
 		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
 			if (this->unlocked_content[UNLOCKED_MODULATOR][i] == true)	//Zapisywanie ID modulatorów (od 0)
 				profile_file.write((char*)&i, sizeof(i));
@@ -75,7 +82,7 @@ bool cProfile::saveProfile(sf::RenderWindow &win)
 				unlocked_npcs++;
 		profile_file.write((char*)&unlocked_npcs, sizeof(int));
 
-		for (unsigned int i = 0; i < g_unlocked_modulators; i++)
+		for (unsigned int i = 0; i < g_unlocked_npcs; i++)
 			if (this->unlocked_content[UNLOCKED_NPC][i] == true)	//Zapisywanie ID modulatorów (od 0)
 				profile_file.write((char*)&i, sizeof(i));
 
@@ -185,7 +192,7 @@ void cProfile::deleteSaveSlot(sf::RenderWindow &win, std::string slot_name)
 		if (this->save_name[i] == slot_name)
 		{
 			this->save_name.erase(this->save_name.begin() + i);
-			
+
 			std::string path = "profiles/" + this->name + "/saves/" + slot_name + ".dat";
 			remove((char*)path.c_str());
 			break;

@@ -1,8 +1,8 @@
 #ifndef npc_h
 #define npc_h
 
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include "objectlevel.h"
 #include "graphics.h"
 #include "enums.h"
@@ -17,7 +17,7 @@ struct sFeatures
 	bool chase;			//Czy NPC bêdzie goni³ postacie graczy?
 	bool roaming;		//Czy NPC bêdzie siê porusza³ w t¹ i z powrotem?
 	float max_speed;	//Maksymalna prêdkoœæ NPC (w przypadku chase prêdkoœæ nie jest sta³a)
-	
+
 	bool flying;		//Czy NPC bêdzie móg³ lataæ?
 	bool swimming;		//Czy NPC bêdzie móg³ p³ywaæ?
 	bool jumping;		//Czy NPC bêdzie podskakiwaæ?
@@ -30,7 +30,7 @@ class cNPC :public cObjectLevel
 	unsigned short id;	//ID NPC-A (NUMER DO£¥CZONY DO NPC-A - W NAZWIE PLIKU)
 	eDirection dir;		//Kierunek w którym porusza siê postaæ
 	bool start = false;	//Czy NPC zacz¹³ siê ju¿ poruszaæ? (Zaczyna dopiero, gdy w okolicy jest gracz i porusza siê a¿ do swojej œmierci lub zakoñczenia rozgrywki)
-	
+
 	b2BodyDef body_def;
 	b2Body *body;
 
@@ -46,7 +46,7 @@ class cNPC :public cObjectLevel
 	b2Vec2 last_speed;	//Poprzednia prêdkoœæ NPC (pionowa i pozioma)
 	sf::Vector2f last_position;
 
-	
+
 	void setFeatures(unsigned short id);
 
 public:

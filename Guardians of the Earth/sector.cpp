@@ -10,7 +10,7 @@ bool howManySectors()
 
 	for (int i = 0; i < 7; i++)
 		how_many_sectors[i] = 0;
-	
+
 	for (int i = 0; i < 7; i++)
 	{
 		switch (i)
@@ -29,7 +29,7 @@ bool howManySectors()
 			ss << j + 1;
 			nr = ss.str();
 
-			path = "sectors\\" + type + "\\sector-" + nr + ".sec";
+			path = "sectors/" + type + "/sector-" + nr + ".sec";
 			file.open((char*)path.c_str(), std::ios::in);
 			if (!file.is_open())		//Jezeli udalo sie otworzyc plik, to znaczy, ze sektor istnieje
 			{
@@ -51,14 +51,14 @@ void cSector::loadRandomSector(sf::RenderWindow &win, eWorld world_type)
 	//Dok³adniejsze losowanie liczb (w oparciu o mniejsze liczby od sekund)
 	clock_t t1;
 	t1 = clock();
-	
+
 	static unsigned long long rnd = t1;
 	srand(rnd);
 	rnd = rand() % 1844674407370955161 + t1;
 
 	std::string path;
 
-	path = "sectors\\";
+	path = "sectors/";
 	switch (world_type)
 	{
 		case WORLD_OVERWORLD: {path += "overworld";		break;}
@@ -67,7 +67,7 @@ void cSector::loadRandomSector(sf::RenderWindow &win, eWorld world_type)
 		case WORLD_ICE_LAND: {path += "ice_land";		break;}
 		case WORLD_DESERT: {path += "desert";			break;}
 	}
-	path += "\\sector-";
+	path += "/sector-";
 
 	std::string nr;
 	std::stringstream ss;
@@ -102,7 +102,7 @@ void cSector::loadSector(sf::RenderWindow &win, eWorld world_type, std::string p
 		ss.str(text);
 		ss >> this->height;
 		ss.clear();
-		
+
 		this->object = new eObjType[this->width*this->height];
 
 		//Wczytywanie obiektow sektora
@@ -119,12 +119,12 @@ void cSector::loadSector(sf::RenderWindow &win, eWorld world_type, std::string p
 				short dot_pos = text.find('.');
 				short dot_pos2;
 				short dot_pos3;
-				
+
 				if (dot_pos >= 0 && dot_pos <= 256)	//Jezeli znaleziono kropke w tekscie
 				{
 					std::string text2;		//Tekst po kropce
 					text2.insert(0, text, dot_pos + 1, text.length() - dot_pos - 1);
-					
+
 					int state_nr;
 					ss.str(text2);
 					ss >> state_nr;
@@ -179,7 +179,7 @@ void cSector::loadSector(sf::RenderWindow &win, eWorld world_type, std::string p
 
 				*(this->object + i*width + j) = (eObjType)id;
 			}
-		
+
 		//Sprawdzanie jak wysoki jest sektor po zmianach stanu
 		bool found = false;
 		unsigned short decrease_height = 0;	//O ile ma sie zmniejszyc sektor
@@ -231,7 +231,7 @@ void cSector::loadSector(sf::RenderWindow &win, eWorld world_type, std::string p
 		this->width -= decrease_width;
 
 		this->object = new eObjType[this->width * this->height];
-		
+
 		for (int i = decrease_height; i < last_height; i++)
 			for (int j = 0; j < this->width; j++)
 			{
@@ -275,7 +275,7 @@ bool cSector::isSectorFitted(eWorld world_type, cSector &prev_sector, unsigned i
 		if (prev_sector.getHeight() - (objects_count - i) >= 0)
 		{
 			object[0][i] = prev_sector.getObject(prev_sector.getWidth() - 1, prev_sector.getHeight() - (objects_count - i));
-			
+
 			//Zamienia objekty za którymi kryje siê dany typ terenu na ten typ terenu
 			if (object[0][i] == OBJECT_BONUS_BLOCK || object[0][i] == OBJECT_TREASURE || object[0][i] == OBJECT_TRAMPOLINE || object[0][i] == OBJECT_POWER_UP)
 			{
@@ -383,7 +383,7 @@ eObjType cSector::getObject(unsigned short x, unsigned short y)
 {
 	if ((x >= this->width) || (x < 0) || (y >= this->height) || (y < 0))	//W razie, jezeli zostanie sprawdzone nieistniejace pole w danym sektorze (potrzebne przy generowaniu terenu)
 		return OBJECT_NONE;
-	
+
 	return *(this->object + x + y*this->width);
 }
 
@@ -397,7 +397,7 @@ void cSector::clear()
 	this->width = 1;
 	this->height = 3;
 	this->object = new eObjType[3];	//wysoki na 3
-	
+
 	for (int i = 0; i < 2; i++)
 		*(this->object + i) = OBJECT_NONE;
 	*(this->object + 2) = OBJECT_GROUND;

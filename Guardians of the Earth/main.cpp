@@ -1,5 +1,5 @@
-#include "SFML\Graphics.hpp"
-#include "Box2D\Box2D.h"
+#include "SFML/Graphics.hpp"
+#include "Box2D/Box2D.h"
 #include <vector>
 #include <string>
 #include "graphics.h"
@@ -52,20 +52,20 @@ int main()
 	if (!profile.loadProfile(win, "default"))
 		profile.newProfile(win, "default");
 
-	cScoreboard scoreboard[4];	//Tabele wyników oparte o iloœæ graczy
+	cScoreboard scoreboard[4];	//Tabele wynikï¿½w oparte o iloï¿½ï¿½ graczy
 	for (int i = 0; i < 4; i++)
 	{
 		std::string path = "hiscores";
 		path += (char)(i + 1 + 48);
 		path += ".dat";
-		
+
 		scoreboard[i] = cScoreboard(win, path);
 	}
 	bool modulators[g_all_modulators] = {};
-	
+
 	sf::View p1;
 	sf::Event ev;
-	
+
 	while (win.isOpen())
 	{
 		short number_of_players;
@@ -78,13 +78,13 @@ int main()
 		win.clear();
 		win.display();
 
-		cMap map(win, profile, WORLD_OVERWORLD, number_of_players, character, modulators, new_slot, loaded_slot);
+		cMap map(win, profile, (eWorld)(rand() % 5), number_of_players, character, modulators, new_slot, loaded_slot);
 
 		p1.setCenter(400, 300);
 		p1.setSize(sf::Vector2f(800, 600));
 		win.setView(p1);
 
-		//Pêtla gry
+		//Pï¿½tla gry
 		bool game_over = false;
 		while (win.isOpen() && !game_over)
 		{
@@ -99,7 +99,7 @@ int main()
 			}
 
 			//DZIALANIA W GRZE
-			//Poruszanie siê obiektów w poziomie
+			//Poruszanie siï¿½ obiektï¿½w w poziomie
 			if (!map.movements(win, p1, modulators, scoreboard[number_of_players - 1], profile, slot_name))
 				game_over = true;
 
